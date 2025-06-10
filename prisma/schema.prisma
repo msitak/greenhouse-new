@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -12,4 +6,120 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Listing {
+  id                 String   @id @default(cuid())
+  asariId            Int      @unique
+  lastUpdatedAsari   DateTime?
+
+  exportId           String?
+  statusId           Int?
+  title              String?
+  description        String?
+  englishDescription String? // Dodane
+  internalComment    String?
+
+  price              Float?
+  priceCurrencyId    Int?
+  pricePerM2         Float?
+
+  locationAddress      String?
+  locationCity         String?
+  locationDistrict     String?
+  locationStreet       String?
+  locationStreetNumber String?
+  locationFlatNumber   String?
+  locationPostalCode   String?
+  locationCountryId    Int?
+  latitude             Float?
+  longitude            Float?
+  locationVoivodeship  String?
+  locationCounty       String?
+  locationCommunity    String?
+
+  propertyTypeId       Int?
+  area                 Float? // np. area_total_m2
+  // areaUsableM2      Float? // Jeśli chcemy rozróżnić
+  roomsCount           Int?
+  floor                Int?
+  floorCount           Int?
+  buildYear            Int?
+  buildingMaterialId   Int?
+  windowTypeId         Int?
+  heatingTypeId        Int?
+  // ... Dodaj więcej jawnych pól z 'property' jeśli są często używane/filtrowane
+
+  transactionTypeId    Int?
+  marketTypeId         Int?
+
+  agentAsariId         Int?    // Dodane (agent.id)
+  agentName            String? // agent.firstName (lub połączone firstName + lastName)
+  agentSurname         String? // agent.lastName
+  agentPhone           String? // agent.phoneNumber
+  agentEmail           String? // agent.email
+  agentSkypeUser       String? // Dodane (agent.skypeUser)
+  agentImageAsariId    Int?    // Dodane (agent.imageId)
+
+  // Dla hierarchii ofert (uproszczone)
+  parentListingAsariId String? // parentListing.listingId z Asari
+  // Można rozważyć pole JSON dla nestedListings, jeśli nie modelujemy pełnej relacji
+  // nestedListingAsariIdsJson String? @db.JsonB 
+
+  images               ListingImage[]
+
+  createdAtSystem      DateTime?
+  updatedAtSystem      DateTime?
+
+  additionalDetailsJson Json? @db.JsonB
+
+  dbCreatedAt          DateTime @default(now())
+  dbUpdatedAt          DateTime @updatedAt
+
+  @@index([asariId])
+  @@index([locationCity])
+  @@index([propertyTypeId])
+  @@index([transactionTypeId])
+  @@index([price])
+  @@index([area])
+}
+
+model ListingImage {
+  id            String  @id @default(cuid())
+  asariId       Int     @unique // ID zdjęcia z obiektu zdjęcia w Asari
+
+  urlThumbnail  String  // Konstruowany URL
+  urlNormal     String  // Konstruowany URL
+  description   String?
+  order         Int?
+
+  listing       Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId     String
+
+  dbCreatedAt   DateTime @default(now())
+  dbUpdatedAt   DateTime @updatedAt
+
+  @@index([asariId])
+}
+
+model DictionaryValue {
+  id            String @id @default(cuid())
+  dictionaryKey String // Np. "PROPERTY_TYPE" lub `dictionaryMessageKey` z metadata
+  asariDictId   Int    // ID wartości z Asari (np. wartość z `property.type_id`)
+  locale        String // np. "pl", "en" (zgodnie z API Asari)
+  value         String // Przetłumaczona wartość tekstowa
+
+  @@unique([dictionaryKey, asariDictId, locale])
+  @@index([dictionaryKey, locale])
+}
+
+// Ogólne tłumaczenia interfejsu z i18nMessages
+model I18nMessage {
+  id     String @id @default(cuid())
+  locale String // np. "pl", "en"
+  key    String // Klucz tłumaczenia
+  value  String // Wartość tłumaczenia
+
+  @@unique([locale, key])
+  @@index([locale])
 }
