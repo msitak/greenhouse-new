@@ -1,3 +1,5 @@
+import { ExportedListingIdListApiResponse, ListingDetailsApiResponse } from "./asariApi.types";
+
 const ASARI_API_BASE_URL = process.env.ASARI_API_BASE_URL;
 const ASARI_USER_ID = process.env.ASARI_USER_ID;
 const ASARI_TOKEN = process.env.ASARI_TOKEN;
@@ -7,95 +9,6 @@ if (!ASARI_API_BASE_URL || !ASARI_USER_ID || !ASARI_TOKEN) {
 }
 
 const SITE_AUTH_HEADER = `${ASARI_USER_ID}:${ASARI_TOKEN}`;
-
-export interface AsariListingIdEntry {
-  id: number;
-  lastUpdated: string;
-}
-
-export interface ExportedListingIdListResponse {
-  data: AsariListingIdEntry[];
-  success: boolean;
-  totalCount: number;
-}
-
-export interface AsariListingAgent {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phoneNumber: string; // W dokumentacji jest 'phoneNumber', ale API może zwracać 'phone_1' etc. Sprawdź!
-    skypeUser?: string;
-    imageId?: number;
-  }
-  
-  export interface AsariParentListingInfo {
-      id: number;       // ID wpisu w tabeli powiązań (nie ID oferty)
-      listingId: string; // Identyfikator oferty nadrzędnej (prawdopodobnie asariId)
-      name: string;
-  }
-  
-  export interface AsariNestedListingInfo {
-      id: number;       // ID wpisu w tabeli powiązań
-      listingId: number;  // ID zagnieżdżonej oferty (prawdopodobnie asariId)
-  }
-  
-  
-  export interface AsariListingDetail {
-    id: number; // asariId
-    export_id?: string;
-    status_id?: number;
-    title?: string;
-    description?: string;
-    englishDescription?: string;
-    internal_comment?: string; // Używaj snake_case jeśli tak zwraca API, potem mapuj na camelCase
-    
-    price?: number;
-    price_currency_id?: number;
-    price_m2?: number;
-  
-    location?: { // Zagnieżdżony obiekt location
-      city?: string;
-      district?: string;
-      street?: string;
-      street_no?: string; // street_no zamiast streetNumber
-      flat_no?: string;
-      postal_code?: string;
-      country_id?: number;
-      coords_lat?: number;
-      coords_lng?: number;
-      voivodeship?: string;
-      county?: string;
-      community?: string;
-      // ... inne pola lokalizacji
-    };
-
-    property?: { // Zagnieżdżony obiekt property
-      type_id?: number;
-      area_total_m2?: number; // Lub inne pole area, np. area_usable_m2
-      rooms_count?: number;
-      floor?: number;
-      floor_count?: number;
-      build_year?: number;
-      // ... i wiele innych pól z dokumentacji 'property', np. 'features' jako tablica
-    };
-
-    transaction_type_id?: number;
-    market_type_id?: number;
-    agent?: AsariListingAgent; // Użyj zdefiniowanego interfejsu
-    images?: Array<{ id: number; description?: string; isScheme?: boolean;}>;
-    parentListing?: AsariParentListingInfo;
-    nestedListings?: AsariNestedListingInfo[];
-  
-    // ... inne pola zgodne z odpowiedzią API Asari dla /listing ...
-    // np. `features` (może być tablicą stringów lub obiektów), `additional_areas`, `media`
-    // Jeśli te struktury są złożone, mogą trafić do pola JSON w Prisma
-  }
-  
-  interface ListingDetailsApiResponse {
-    success?: boolean;
-    data?: AsariListingDetail; 
-  }
 
 // Ogólna funkcja pomocnicza do wysyłania żądań POST do Asari
 // Możemy ją później rozbudować o lepszą obsługę błędów i typowanie
@@ -153,7 +66,7 @@ async function postToAsari<TResponse>(
 export async function fetchExportedListingIds(
   closedDays?: number,
   blockedDays?: number
-): Promise<ExportedListingIdListResponse> {
+): Promise<ExportedListingIdListApiResponse> {
   const bodyParams: Record<string, string | number | undefined> = {};
   if (closedDays !== undefined) {
     bodyParams.closedDays = closedDays;
@@ -162,19 +75,13 @@ export async function fetchExportedListingIds(
     bodyParams.blockedDays = blockedDays;
   }
   // Zakładamy, że API oczekuje tych parametrów w ciele żądania POST jako multipart/form-data
-  return postToAsari<ExportedListingIdListResponse>("/exportedListingIdList", bodyParams);
+  return postToAsari<ExportedListingIdListApiResponse>("/exportedListingIdList", bodyParams);
 }
 
 export async function fetchListingDetails(listingId: number): Promise<ListingDetailsApiResponse> {
-  // Parametr 'id' zgodnie z dokumentacją Asari dla /listing jest w URL query string
   const endpointWithQueryParam = `/listing?id=${listingId}`;
   
-  // Funkcja postToAsari obecnie przyjmuje parametry `bodyData` dla FormData.
-  // Dla tego endpointu /listing?id=X, ciało FormData będzie puste,
-  // ponieważ parametr 'id' jest w URL.
-  // Serwer Asari musi akceptować POST z Content-Type: multipart/form-data i pustym ciałem,
-  // jeśli SiteAuth i Content-Type są wymagane dla wszystkich POSTów.
-  return postToAsari<ListingDetailsApiResponse>(endpointWithQueryParam, {}); // Przekaż pusty obiekt bodyData
+  return postToAsari<ListingDetailsApiResponse>(endpointWithQueryParam, {});
 }
 
 

@@ -1,28 +1,42 @@
 import { NextResponse } from 'next/server';
-import { fetchExportedListingIds, fetchListingDetails } from '../../../services/asariApi';
+import { fetchListingDetails } from '../../../services/asariApi';
+import { AsariListingDetail, ListingDetailsApiResponse } from '@/services/asariApi.types';
 
 export async function GET() {
-  try {
-    console.log("App Router API Route /api/test-asari-ids called");
-    const asariResponse = await fetchExportedListingIds();
-    const fetchListingDetailsTest = await fetchListingDetails(12225899)
-
-    //console.log("RAW asariResponse from fetchExportedListingIds:", JSON.stringify(asariResponse, null, 2));
-    console.log(JSON.stringify(fetchListingDetailsTest, null, 2))
-    
-    if (asariResponse && asariResponse.data) {
-      console.log(`App Router: Successfully fetched ${asariResponse.data.length} IDs.`);
-      return NextResponse.json({ 
-        message: 'Successfully fetched listing IDs from Asari', 
-        count: asariResponse.data.length,
-        data: asariResponse.data.slice(0, 10) 
-      });
-    } else {
-      console.error("App Router: Unexpected response from fetchExportedListingIds", asariResponse);
-      return NextResponse.json({ message: 'Unexpected response structure from Asari API' }, { status: 500 });
+    const listingIdToTest = 9760309; // Użyj ID, dla którego masz pełny JSON z poprzedniej odpowiedzi
+  
+    try {
+      console.log(`App Router: Testing fetchListingDetails for ID: ${listingIdToTest}`);
+      const apiResponse: ListingDetailsApiResponse = await fetchListingDetails(listingIdToTest);
+  
+      console.log("App Router: Raw response object from fetchListingDetails:", JSON.stringify(apiResponse, null, 2));
+  
+      if (apiResponse.success && apiResponse.data) {
+        const listingData: AsariListingDetail = apiResponse.data;
+        console.log(`App Router: Successfully fetched details for ID: ${listingData.id}`);
+        // Możesz tu wylogować konkretne pola z listingData, aby sprawdzić ich wartości
+        console.log("Title (headerAdvertisement):", listingData.headerAdvertisement);
+        console.log("Price amount:", listingData.price?.amount);
+        console.log("Location city:", listingData.location?.locality);
+        console.log("First image ID:", listingData.images?.[0]?.id);
+  
+        return NextResponse.json({
+          message: `Successfully fetched details for Asari ID: ${listingIdToTest}`,
+          apiSuccess: apiResponse.success,
+          listingData: listingData, // Zwróć cały obiekt danych oferty
+        });
+      } else {
+        console.error("App Router: Failed to fetch details or unexpected response structure", apiResponse);
+        return NextResponse.json(
+          { message: 'Failed to fetch details or unexpected structure', details: apiResponse },
+          { status: 500 }
+        );
+      }
+    } catch (error) {
+      console.error(`App Router: Error fetching details for ID ${listingIdToTest}`, error);
+      return NextResponse.json(
+        { message: `Error fetching details for ID ${listingIdToTest}`, error: error.message, stack: error.stack }, // Dodaj stack dla lepszego debugowania
+        { status: 500 }
+      );
     }
-  } catch (error: any) {
-    console.error("App Router: Error fetching from Asari API", error);
-    return NextResponse.json({ message: 'Error fetching from Asari API', error: error.message }, { status: 500 });
   }
-}

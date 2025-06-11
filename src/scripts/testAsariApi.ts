@@ -3,14 +3,15 @@
 // Uruchomienie: npx ts-node --require dotenv/config scripts/testAsariApi.ts
 // (dotenv/config wczyta zmienne z .env)
 
-import { ExportedListingIdListResponse, fetchExportedListingIds } from '@/services/asariApi';
+import { fetchExportedListingIds } from '@/services/asariApi';
+import { ExportedListingIdListApiResponse } from '@/services/asariApi.types';
 
 async function testApi() {
   console.log("Testing fetchExportedListingIds...");
   try {
     const listingsResponse = await fetchExportedListingIds(); // Bez parametrów na początek
     console.log("Fetched listing IDs:", listingsResponse.data.slice(0, 5)); // Pokaż pierwsze 5
-    console.log("Total results (if available in response):", (listingsResponse as ExportedListingIdListResponse).totalCount); // Jeśli jest pole total
+    console.log("Total results (if available in response):", (listingsResponse as ExportedListingIdListApiResponse).totalCount); // Jeśli jest pole total
     console.log(`Successfully fetched ${listingsResponse.data.length} listing IDs.`);
 
     // Możesz też przetestować z parametrami:
