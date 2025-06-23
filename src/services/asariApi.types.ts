@@ -72,6 +72,9 @@ export interface AsariListingIdEntry {
   }
   
   export interface AsariLocationInfo {
+    address: any;
+    street_no: any;
+    flat_no: any;
     id: number;
     name: string;
     province: string;
@@ -91,6 +94,7 @@ export interface AsariListingIdEntry {
   }
   
   export interface AsariImageInfo {
+    order: any;
     id: number;
     description: string | null;
     isScheme: boolean;
