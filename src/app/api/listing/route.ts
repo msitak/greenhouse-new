@@ -1,6 +1,5 @@
-// app/api/listings/route.ts
 import { NextResponse } from 'next/server';
-import { prisma } from '@/services/prisma'; // Ensure this path is correct for your project
+import { prisma } from '@/services/prisma';
 import { Prisma } from '@prisma/client';
 
 // Define a type for allowed sortable fields for better type safety
@@ -139,6 +138,7 @@ export async function GET(request: Request) {
       },
     });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error('Błąd podczas pobierania listy ofert:', error);
     // Logowanie szczegółów błędu Prisma, jeśli dostępne

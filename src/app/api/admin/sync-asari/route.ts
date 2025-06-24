@@ -99,12 +99,18 @@ function mapAsariDetailToPrismaListing(
 }
 
 
-export async function POST() {
+export async function POST(request: Request) {
+  const secretFromHeader = request.headers.get('X-Admin-Secret');
+
+  if (secretFromHeader !== process.env.DUMMY_LOCAL_SECRET) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
   console.log('Rozpoczynanie synchronizacji ofert z Asari...');
   let createdCount = 0;
   let updatedCount = 0;
   let skippedCount = 0;
-  let errorCount = 0;
+  let errorCount = 0; 
   let deletedCount = 0;
   const listingsProcessedIds: number[] = [];
 
