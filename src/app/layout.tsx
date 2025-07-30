@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import "./globals.css";
 import localFont from 'next/font/local'
+import Header from "@/components/layout/header";
 
 const satoshi = localFont({
   src: [
@@ -45,13 +45,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pl">
-      <body className={satoshi.className}>
-        <header style={{ display: "flex", justifyContent: "center" }}>
-          <Image src="logo.svg" alt="Green House Nieruchomości" width={100} height={100} />
-        </header>
+      <body className={satoshi.className}>  
+        <Header />
         <main>
           {children}
         </main>
+        <footer className="w-full h-28 flex justify-center items-end">
+          <p className="text-xs mb-2">made with 💚 by Green House &copy; {new Date(Date.now()).getFullYear()}</p>
+        </footer>
       </body>
     </html>
   );
