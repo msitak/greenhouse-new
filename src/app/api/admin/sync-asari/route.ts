@@ -12,36 +12,45 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 function mapAsariDetailToPrismaListing(
   asariDetail: AsariListingDetail,
   currentTimestamp: Date
-): Prisma.ListingCreateInput {
+): Prisma.ListingUpdateInput {
   const parseAsariDate = (dateString?: string | null): Date | null => {
     if (!dateString) return null;
     const date = new Date(dateString);
     return isNaN(date.getTime()) ? null : date;
   };
 
-  // Funkcja mapująca status string z ASARI na nasz enum AsariStatus
   const mapStatus = (status?: string | null): AsariStatus => {
-    // Sprawdzamy, czy status jest jednym z kluczy enuma (case-insensitive)
-    const upperStatus = status?.toUpperCase();
-    if (upperStatus && Object.keys(AsariStatus).includes(upperStatus)) {
-        return upperStatus as AsariStatus;
+    if (!status) {
+      return AsariStatus.Unknown;
     }
-    // Jeśli nie, zwracamy wartość domyślną/awaryjną
+    
+    // Tworzymy tablicę wszystkich możliwych wartości z naszego enuma
+    const validStatuses = Object.values(AsariStatus);
+    
+    // Sprawdzamy, czy otrzymany status (po konwersji do odpowiedniej wielkości liter)
+    // znajduje się w tablicy dozwolonych statusów.
+    // Używamy `capitalize` aby dopasować do definicji enuma (np. 'Active', a nie 'ACTIVE')
+    const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    const formattedStatus = capitalize(status);
+  
+    if (validStatuses.includes(formattedStatus as AsariStatus)) {
+      return formattedStatus as AsariStatus;
+    }
+    
+    // Jeśli nie, logujemy i zwracamy Unknown
+    console.warn(`Nieznany status z API ASARI: "${status}". Przypisano "Unknown".`);
     return AsariStatus.Unknown;
   };
 
-  const prismaListingData: any = {
+  const prismaListingData: Prisma.ListingUpdateInput = {
     asariId: asariDetail.id,
     lastUpdatedAsari: parseAsariDate(asariDetail.lastUpdated) || currentTimestamp,
+    asariStatus: mapStatus(asariDetail.status),
     title: asariDetail.headerAdvertisement,
     description: asariDetail.description,
     englishDescription: asariDetail.englishDescription,
     internalComment: asariDetail.internal_comment,
     exportId: asariDetail.export_id,
-    
-    // Używamy zmapowanego statusu z ASARI
-    asariStatus: mapStatus(asariDetail.status),
-
     price: asariDetail.price?.amount,
     pricePerM2: asariDetail.priceM2?.amount,
     locationCity: asariDetail.location?.locality,
@@ -71,23 +80,12 @@ function mapAsariDetailToPrismaListing(
     additionalDetailsJson: { 
       contractType: asariDetail.contractType,
       listingIdString: asariDetail.listingId,
-      // Nie musimy już trzymać statusu w JSON, bo mamy dedykowane pole
-      // statusString: asariDetail.status, 
       mortgageMarket: asariDetail.mortgageMarket,
-      // ... inne pola
     },
   };
-
-  // Usuń klucze z obiektu, które mają wartość undefined
-  Object.keys(prismaListingData).forEach(key => {
-    if (prismaListingData[key] === undefined) {
-      delete prismaListingData[key];
-    }
-  });
   
   return prismaListingData;
 }
-
 
 export async function POST() {
   console.log('Rozpoczynanie synchronizacji ofert z Asari...');
@@ -98,22 +96,20 @@ export async function POST() {
   let errorCount = 0;
   
   try {
-    // 1. Pobierz wszystkie ID ofert z API ASARI
     const asariIdsResponse = await fetchExportedListingIds();
     if (!asariIdsResponse.success || !asariIdsResponse.data) {
       throw new Error('Nie udało się pobrać listy ID ofert z Asari.');
     }
-    const allAsariListingsInfo = asariIdsResponse.data;
+
+    const allAsariListingsInfo: { id: number; lastUpdated: Date }[] = asariIdsResponse.data;
     console.log(`Pobrano ${allAsariListingsInfo.length} informacji o ofertach z Asari.`);
     const activeAsariIdsSet = new Set(allAsariListingsInfo.map(info => info.id));
 
-    // 2. Znajdź oferty do archiwizacji
     const localActiveListings = await prisma.listing.findMany({
-      where: { asariStatus: 'Active' }, // Szukamy tylko tych, które u nas są aktywne
+      where: { asariStatus: 'Active' },
       select: { asariId: true },
     });
     const localActiveAsariIds = localActiveListings.map(l => l.asariId);
-
     const idsToArchive = localActiveAsariIds.filter(id => !activeAsariIdsSet.has(id));
 
     if (idsToArchive.length > 0) {
@@ -126,7 +122,6 @@ export async function POST() {
       console.log(`Zarchiwizowano ${archivedCount} ofert.`);
     }
 
-    // 3. Przetwórz oferty (dodaj nowe, zaktualizuj istniejące)
     for (const asariListingInfo of allAsariListingsInfo) {
       try {
         const existingListing = await prisma.listing.findUnique({
@@ -134,7 +129,7 @@ export async function POST() {
           select: { lastUpdatedAsari: true }
         });
 
-        const asariLastUpdatedDate = new Date(asariListingInfo.lastUpdated);
+        const asariLastUpdatedDate = asariListingInfo.lastUpdated;
 
         if (existingListing && existingListing.lastUpdatedAsari && asariLastUpdatedDate <= existingListing.lastUpdatedAsari) {
           skippedCount++;
@@ -151,10 +146,9 @@ export async function POST() {
           continue;
         }
         const listingDataFromAsari: AsariListingDetail = detailsResponse.data;
-
         const effectiveLastUpdated = listingDataFromAsari.lastUpdated ? new Date(listingDataFromAsari.lastUpdated) : asariLastUpdatedDate;
+        
         const prismaReadyData = mapAsariDetailToPrismaListing(listingDataFromAsari, effectiveLastUpdated);
-
         const imagesToCreate = 
           listingDataFromAsari.images?.map(img => ({
             asariId: img.id,
@@ -164,21 +158,25 @@ export async function POST() {
             order: img.order,
           })) || [];
 
+        const createData = {
+          ...prismaReadyData,
+          images: {
+            create: imagesToCreate,
+          },
+        };
+
+        const updateData = {
+          ...prismaReadyData,
+          images: {
+            deleteMany: {}, 
+            create: imagesToCreate,
+          },
+        };
+
         await prisma.listing.upsert({
           where: { asariId: listingDataFromAsari.id },
-          update: {
-            ...prismaReadyData,
-            images: {
-              deleteMany: {}, 
-              create: imagesToCreate,
-            },
-          },
-          create: {
-            ...prismaReadyData,
-            images: {
-              create: imagesToCreate,
-            },
-          },
+          update: updateData,
+          create: createData as Prisma.ListingCreateInput,
         });
 
         if (existingListing) {
@@ -207,7 +205,7 @@ export async function POST() {
     });
 
   } catch (error: any) {
-    console.error('Krytyczny błąd podczas synchronizacji:', error.message);
+    console.error('Krytyczny błąd podczas synchronizacji:', error.message, error.stack);
     return NextResponse.json(
       { message: 'Błąd podczas synchronizacji', error: error.message },
       { status: 500 }

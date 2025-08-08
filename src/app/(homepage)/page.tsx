@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useState } from "react";
 import OfferTile from "@/components/layout/offerTile";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Image from "next/image";
+import { testOffer } from "../api/test-offer";
 
 export default function Home() {
   const [transactionType, setTransactionType] = useState('wynajem');
@@ -47,14 +50,23 @@ export default function Home() {
 
       <div className="grid grid-flow-col grid-rows-2 gap-4">
         <OfferTile />
-        <OfferTile />
-        <OfferTile />
-        <OfferTile />
-        <OfferTile />
-        <OfferTile />
       </div>
 
-      <Button className="mt-8 flex mx-auto">Wszystkie oferty</Button>
+      <Carousel className="w-[424px]">
+        <CarouselContent>
+          <CarouselItem>
+            <Image className="rounded-t-xl" src="/test-photo.jpg" alt="offer image" width={424} height={239} />
+          </CarouselItem>
+          <CarouselItem>
+            <Image className="rounded-t-xl" src="/test-photo.jpg" alt="offer image" width={424} height={239} />
+          </CarouselItem>
+          <CarouselItem>
+            <Image className="rounded-t-xl" src="/test-photo.jpg" alt="offer image" width={424} height={239} />
+          </CarouselItem>
+        </CarouselContent>
+        <CarouselPrevious className="left-3" />
+        <CarouselNext className="right-3" />
+      </Carousel>
      </div>
   );
 }
