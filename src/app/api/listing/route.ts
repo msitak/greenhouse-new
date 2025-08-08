@@ -3,7 +3,12 @@ import { prisma } from '@/services/prisma';
 import { Prisma } from '@prisma/client';
 
 // Define a type for allowed sortable fields for better type safety
-type SortableListingFields = 'price' | 'pricePerM2' | 'createdAtSystem' | 'area' | 'roomsCount';
+type SortableListingFields =
+  | 'price'
+  | 'pricePerM2'
+  | 'createdAtSystem'
+  | 'area'
+  | 'roomsCount';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -24,14 +29,23 @@ export async function GET(request: Request) {
   const safeLimit = limit;
 
   // 2. Sortowanie
-  const sortByParam = searchParams.get('sortBy') as SortableListingFields | null;
+  const sortByParam = searchParams.get(
+    'sortBy'
+  ) as SortableListingFields | null;
   const orderParam = searchParams.get('order')?.toLowerCase();
 
   // Default sort order
-  let orderByClause: Prisma.ListingOrderByWithRelationInput = { createdAtSystem: 'desc' };
+  let orderByClause: Prisma.ListingOrderByWithRelationInput = {
+    createdAtSystem: 'desc',
+  };
 
-  if (sortByParam && ['price', 'pricePerM2', 'createdAtSystem', 'area', 'roomsCount'].includes(sortByParam)) {
-    orderByClause = { [sortByParam]: (orderParam === 'asc' ? 'asc' : 'desc') };
+  if (
+    sortByParam &&
+    ['price', 'pricePerM2', 'createdAtSystem', 'area', 'roomsCount'].includes(
+      sortByParam
+    )
+  ) {
+    orderByClause = { [sortByParam]: orderParam === 'asc' ? 'asc' : 'desc' };
   }
 
   // 3. Filtrowanie
@@ -84,7 +98,7 @@ export async function GET(request: Request) {
   if (Object.keys(areaConditions).length > 0) {
     filters.area = areaConditions;
   }
-  
+
   // Filtr: Typ oferty (offerType)
   const offerType = searchParams.get('offerType');
   if (offerType) {
@@ -107,7 +121,8 @@ export async function GET(request: Request) {
       skip: skip,
       take: safeLimit,
       include: {
-        images: { // Dołączamy obrazy
+        images: {
+          // Dołączamy obrazy
           select: {
             urlThumbnail: true,
             description: true,
@@ -138,16 +153,19 @@ export async function GET(request: Request) {
       },
     });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error('Błąd podczas pobierania listy ofert:', error);
     // Logowanie szczegółów błędu Prisma, jeśli dostępne
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        console.error('Kod błędu Prisma:', error.code);
-        console.error('Meta błędu Prisma:', error.meta);
+      console.error('Kod błędu Prisma:', error.code);
+      console.error('Meta błędu Prisma:', error.meta);
     }
     return NextResponse.json(
-      { message: 'Błąd serwera podczas pobierania ofert.', error: error.message },
+      {
+        message: 'Błąd serwera podczas pobierania ofert.',
+        error: error.message,
+      },
       { status: 500 }
     );
   } finally {

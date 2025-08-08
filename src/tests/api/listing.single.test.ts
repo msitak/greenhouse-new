@@ -30,13 +30,31 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
         roomsCount: 5,
         floor: 1,
         floorCount: 2,
-        latitude: 50.800,
-        longitude: 19.100,
+        latitude: 50.8,
+        longitude: 19.1,
         images: {
           create: [
-            { asariId: 201, urlNormal: 'normal_a.jpg', urlThumbnail: 'thumb_a.jpg', description: 'Główne zdjęcie domu', order: 1 },
-            { asariId: 202, urlNormal: 'normal_b.jpg', urlThumbnail: 'thumb_b.jpg', description: 'Widok na ogród', order: 2 },
-            { asariId: 203, urlNormal: 'normal_c.jpg', urlThumbnail: 'thumb_c.jpg', description: 'Wnętrze salonu', order: 3 },
+            {
+              asariId: 201,
+              urlNormal: 'normal_a.jpg',
+              urlThumbnail: 'thumb_a.jpg',
+              description: 'Główne zdjęcie domu',
+              order: 1,
+            },
+            {
+              asariId: 202,
+              urlNormal: 'normal_b.jpg',
+              urlThumbnail: 'thumb_b.jpg',
+              description: 'Widok na ogród',
+              order: 2,
+            },
+            {
+              asariId: 203,
+              urlNormal: 'normal_c.jpg',
+              urlThumbnail: 'thumb_c.jpg',
+              description: 'Wnętrze salonu',
+              order: 3,
+            },
           ],
         },
       },
@@ -61,19 +79,27 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
   afterAll(async () => {
     // Najpierw usuwamy rekordy zależne (obrazy)
     if (testListing1 && testListing1.id) {
-        await prisma.listingImage.deleteMany({ where: { listingId: testListing1.id } });
+      await prisma.listingImage.deleteMany({
+        where: { listingId: testListing1.id },
+      });
     }
     // Następnie usuwamy główne rekordy (oferty)
     await prisma.listing.deleteMany({
       where: {
-        id: { in: [testListing1?.id, testListing2_noImages?.id].filter(Boolean) as string[] },
+        id: {
+          in: [testListing1?.id, testListing2_noImages?.id].filter(
+            Boolean
+          ) as string[],
+        },
       },
     });
     await prisma.$disconnect();
   });
 
   it('SINGLE-001: powinien zwrócić dane oferty dla poprawnego ID, w tym wszystkie zdjęcia', async () => {
-    const response = await request(API_BASE_URL).get(`/listing/${testListing1.id}`);
+    const response = await request(API_BASE_URL).get(
+      `/listing/${testListing1.id}`
+    );
 
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toMatch(/application\/json/);
@@ -84,14 +110,16 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
     expect(data.title).toBe('Szczegółowa Oferta Testowa 1');
     expect(data.price).toBe(750000);
     expect(data.images.length).toBe(3);
-    
+
     const firstImage = data.images.find((img: any) => img.asariId === 201);
     expect(firstImage).toBeDefined();
     expect(firstImage?.description).toBe('Główne zdjęcie domu');
   });
 
   it('SINGLE-002: powinien zwrócić ofertę bez zdjęć, jeśli oferta ich nie posiada', async () => {
-    const response = await request(API_BASE_URL).get(`/listing/${testListing2_noImages.id}`);
+    const response = await request(API_BASE_URL).get(
+      `/listing/${testListing2_noImages.id}`
+    );
 
     expect(response.status).toBe(200);
     const data = response.body;
@@ -101,10 +129,11 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
     expect(data.images.length).toBe(0);
   });
 
-
   it('SINGLE-003: powinien zwrócić status 404 dla nieistniejącego ID oferty', async () => {
     const nonExistentId = 'nieistniejace-cuid-id-1234567890abcdef';
-    const response = await request(API_BASE_URL).get(`/listing/${nonExistentId}`);
+    const response = await request(API_BASE_URL).get(
+      `/listing/${nonExistentId}`
+    );
 
     expect(response.status).toBe(404);
     expect(response.body).toHaveProperty('message', 'Nie znaleziono oferty');
@@ -113,13 +142,15 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
   it('SINGLE-004: powinien zwrócić status 404 dla ID w potencjalnie niepoprawnym formacie CUID', async () => {
     const malformedId = 'to-na-pewno-nie-jest-prawidlowy-cuid-format';
     const response = await request(API_BASE_URL).get(`/listing/${malformedId}`);
-    
+
     // Oczekujemy 400 lub 404, w zależności od obsługi błędu w API
     expect([400, 404]).toContain(response.status);
   });
 
   it('SINGLE-005: powinien zwrócić wszystkie zdefiniowane pola w modelu, nawet jeśli są null', async () => {
-    const response = await request(API_BASE_URL).get(`/listing/${testListing2_noImages.id}`);
+    const response = await request(API_BASE_URL).get(
+      `/listing/${testListing2_noImages.id}`
+    );
     expect(response.status).toBe(200);
     const data = response.body;
 
@@ -129,7 +160,9 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
   });
 
   it('SINGLE-006: powinien zawsze zwracać kluczowe, nie-nullujące się pola (na podstawie modelu)', async () => {
-    const response = await request(API_BASE_URL).get(`/listing/${testListing1.id}`);
+    const response = await request(API_BASE_URL).get(
+      `/listing/${testListing1.id}`
+    );
     expect(response.status).toBe(200);
     const data = response.body;
 

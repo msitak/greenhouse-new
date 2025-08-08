@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import localFont from 'next/font/local'
-import Header from "@/components/layout/header";
+import type { Metadata } from 'next';
+import './globals.css';
+import localFont from 'next/font/local';
+import Header from '@/components/layout/header';
 
 const satoshi = localFont({
   src: [
@@ -31,11 +31,11 @@ const satoshi = localFont({
       style: 'normal',
     },
   ],
-})
+});
 
 export const metadata: Metadata = {
-  title: "Green House Nieruchomości",
-  description: "Biuro Nieruchomości Częstochowa",
+  title: 'Green House Nieruchomości',
+  description: 'Biuro Nieruchomości Częstochowa',
 };
 
 export default function RootLayout({
@@ -44,14 +44,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pl">
-      <body className={satoshi.className}>  
+    <html lang='pl'>
+      <body className={satoshi.className}>
         <Header />
-        <main>
-          {children}
-        </main>
-        <footer className="w-full h-28 flex justify-center items-end">
-          <p className="text-xs mb-2">made with 💚 by Green House &copy; {new Date(Date.now()).getFullYear()}</p>
+        <main>{children}</main>
+        <footer className='w-full h-28 flex justify-center items-end'>
+          <p className='text-xs mb-2'>
+            made with 💚 by Green House &copy;{' '}
+            {new Date(Date.now()).getFullYear()}
+          </p>
         </footer>
       </body>
     </html>

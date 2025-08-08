@@ -10,7 +10,10 @@ export async function GET(
   const { id: listingId } = await context.params;
 
   if (!listingId) {
-    return NextResponse.json({ message: 'ID oferty jest wymagane' }, { status: 400 });
+    return NextResponse.json(
+      { message: 'ID oferty jest wymagane' },
+      { status: 400 }
+    );
   }
 
   try {
@@ -31,7 +34,7 @@ export async function GET(
             description: true,
             order: true,
             dbCreatedAt: true,
-            dbUpdatedAt: true
+            dbUpdatedAt: true,
           },
           orderBy: {
             order: 'asc', // Sortuj zdjęcia po ich kolejności
@@ -41,7 +44,10 @@ export async function GET(
     });
 
     if (!listingFromDb) {
-      return NextResponse.json({ message: 'Nie znaleziono oferty' }, { status: 404 });
+      return NextResponse.json(
+        { message: 'Nie znaleziono oferty' },
+        { status: 404 }
+      );
     }
 
     // Krok 2: Przetransformuj dane do formatu przyjaznego dla API (kontrakt z frontendem)
@@ -60,21 +66,23 @@ export async function GET(
         dbUpdatedAt: image.dbUpdatedAt.toISOString(),
       })),
     };
-    
+
     // Krok 3: Zwróć przetransformowane dane w odpowiedzi JSON
     return NextResponse.json(listingForApi);
-
   } catch (error: any) {
     console.error(`Błąd podczas pobierania oferty ID ${listingId}:`, error);
 
     // Lepsza obsługa błędów Prisma
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       // Błąd walidacji, np. niepoprawny format CUID
-      if (error.code === 'P2023') { 
-        return NextResponse.json({ message: 'Nieprawidłowy format ID oferty.' }, { status: 400 });
+      if (error.code === 'P2023') {
+        return NextResponse.json(
+          { message: 'Nieprawidłowy format ID oferty.' },
+          { status: 400 }
+        );
       }
     }
-    
+
     return NextResponse.json(
       { message: 'Wystąpił błąd serwera podczas pobierania oferty.' },
       { status: 500 }
