@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import localFont from 'next/font/local';
+import { Montserrat } from 'next/font/google';
 import Header from '@/components/layout/header';
+import Footer from '@/components/layout/footer';
 
 const satoshi = localFont({
   src: [
@@ -38,6 +40,13 @@ export const metadata: Metadata = {
   description: 'Biuro Nieruchomości Częstochowa',
 };
 
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-montserrat',
+  weight: ['400', '500', '600', '700', '800'],
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -45,15 +54,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='pl'>
-      <body className={satoshi.className}>
+      <body className={`${satoshi.className} ${montserrat.variable}`}>
         <Header />
         <main>{children}</main>
-        <footer className='w-full h-28 flex justify-center items-end'>
-          <p className='text-xs mb-2'>
-            made with 💚 by Green House &copy;{' '}
-            {new Date(Date.now()).getFullYear()}
-          </p>
-        </footer>
+        <Footer />
       </body>
     </html>
   );

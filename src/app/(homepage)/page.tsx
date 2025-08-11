@@ -3,14 +3,14 @@
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useState } from 'react';
 import OfferTile from '@/components/layout/offerTile';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
-import Image from 'next/image';
+import Hero from '@/components/layout/hero';
+import { Button } from '@/components/ui/button';
+import Section from '@/components/layout/section';
+import TrustSection from '@/components/sections/trustSection';
+import PopularCitiesSection from '@/components/sections/popularCitiesSection';
+import TestimonialsSection from '@/components/sections/testimonialsSection';
+import AboutUsSection from '@/components/sections/aboutUsSection';
+import ArticlesSection from '@/components/sections/articlesSection';
 
 export default function Home() {
   const [transactionType, setTransactionType] = useState('wynajem');
@@ -23,8 +23,13 @@ export default function Home() {
   };
 
   return (
-    <div className='mt-8'>
-      <div className='flex justify-between items-center mb-4'>
+    <div className='space-y-20'>
+      <Section id='hero'>
+        <Hero src='/test-image.jpg' alt='Green House' className='mt-[18px]' />
+      </Section>
+
+      <Section id='latest-offers'>
+        <div className='flex justify-between items-center mb-4'>
         <h2 className='text-4xl font-bold mb-4'>
           Najnowsze oferty nieruchomości
         </h2>
@@ -52,45 +57,41 @@ export default function Home() {
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
-      </div>
+        </div>
 
-      <div className='grid grid-flow-col grid-rows-2 gap-4'>
-        <OfferTile />
-      </div>
+        <div className='grid grid-flow-col grid-rows-2 gap-4'>
+          <OfferTile />
+          <OfferTile />
+          <OfferTile />
+          <OfferTile />
+          <OfferTile />
+          <OfferTile /> 
+        </div>
+      </Section>
 
-      <Carousel className='w-[424px]'>
-        <CarouselContent>
-          <CarouselItem>
-            <Image
-              className='rounded-t-xl'
-              src='/test-photo.jpg'
-              alt='offer image'
-              width={424}
-              height={239}
-            />
-          </CarouselItem>
-          <CarouselItem>
-            <Image
-              className='rounded-t-xl'
-              src='/test-photo.jpg'
-              alt='offer image'
-              width={424}
-              height={239}
-            />
-          </CarouselItem>
-          <CarouselItem>
-            <Image
-              className='rounded-t-xl'
-              src='/test-photo.jpg'
-              alt='offer image'
-              width={424}
-              height={239}
-            />
-          </CarouselItem>
-        </CarouselContent>
-        <CarouselPrevious className='left-3' />
-        <CarouselNext className='right-3' />
-      </Carousel>
+      <Section id='all-offers'>
+      <div className='flex justify-center'>
+        <Button>Wszystkie oferty</Button>
+      </div>
+      </Section>
+
+      <TrustSection />
+
+      <Section id='popular-cities'>
+        <PopularCitiesSection />
+      </Section>
+
+      <Section id='testimonials'>
+        <TestimonialsSection />
+      </Section>
+
+      <Section id='about-us'>
+        <AboutUsSection />
+      </Section>
+
+      <Section id='articles'>
+        <ArticlesSection />
+      </Section>
     </div>
   );
 }

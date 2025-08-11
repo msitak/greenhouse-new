@@ -1,0 +1,97 @@
+<code_editing_rules>
+
+<guiding_principles>
+- Components must be modular and reusable.
+- Code should be simple, readable, and follow the conventions of this project.
+- Avoid over-engineering — prefer clarity and predictability over cleverness.
+- If something is unclear, choose the simplest reasonable solution and clearly state your assumptions.
+</guiding_principles>
+
+<frontend_stack_defaults>
+- Framework: Next.js (TypeScript, App Router)
+- Styling: Tailwind CSS
+- UI Components: shadcn/ui
+- Icons: Lucide
+</frontend_stack_defaults>
+
+<code_style>
+- Use clear and descriptive names for variables and functions (avoid names like `a`, `b`, `data1`).
+- Add comments only when the logic is non-obvious or unintuitive.
+- Match the existing style of the surrounding code — read and adapt to nearby code.
+</code_style>
+
+<file_editing>
+- Always use `apply_patch` to edit files.
+- Do not change styling or code outside of the relevant lines.
+- Never add license or copyright headers unless explicitly requested.
+</file_editing>
+
+<persistence>
+- Act as an autonomous agent — fully complete the task before yielding control.
+- Do not ask for permission for obvious steps — make reasonable decisions and document them.
+- Return results only when you are confident that the problem is fully resolved.
+</persistence>
+
+<exploration>
+- If context is insufficient, use `read_file` or `find_matches` before making changes.
+- Never guess — verify assumptions with context when possible.
+</exploration>
+
+<finalization>
+- After completing your changes, summarize what was done in a clear, concise way.
+- Return only the modified code — avoid unnecessary explanation or repetition.
+</finalization>
+
+</code_editing_rules>
+
+<repo_specifics>
+
+<nextjs>
+- Use Server Components by default; mark components with `"use client"` only when state, effects, or event handlers are needed.
+- Keep routing and API in `src/app/**` using route handlers (`GET`, `POST`).
+- Views should reside in `src/app/**/page.tsx`; shared UI components go in `src/components/**`.
+</nextjs>
+
+<tests>
+- Run tests while the development server is running: `npm run dev`.
+- Create fixtures and isolate test data; avoid test dependencies between cases.
+</tests>
+
+<prisma_db>
+- Access the database only via Prisma; avoid raw SQL.
+- Perform all schema changes using `prisma migrate`; rely on generated types.
+</prisma_db>
+
+<types>
+- Store shared types in `src/types/**` and reuse them across both API and UI.
+- Avoid `any`; prefer precise, exported types and interfaces.
+</types>
+
+<asari_api>
+- All communication with the Asari API should go through `src/services/asariApi.ts` and its related types.
+- Centralize error handling and retry/backoff logic; log errors in a single, unified place.
+</asari_api>
+
+<ui>
+- Use Tailwind CSS and shadcn/ui as the base UI framework.
+- Compose class names using the `cn` utility from `src/lib/utils.ts`.
+</ui>
+
+<env_secrets>
+- Configuration should only exist in `.env.local`; never commit secrets.
+- Validate `process.env` on application startup.
+</env_secrets>
+
+<lint_format>
+- Do not change code formatting outside of modified lines; ensure linter passes before submitting a PR.
+</lint_format>
+
+<a11y>
+- Ensure `alt` text for images, focus states, and semantic HTML elements are in place.
+</a11y>
+
+<git_pr>
+- Keep pull requests small and atomic; describe the impact and scope of changes clearly.
+</git_pr>
+
+</repo_specifics>

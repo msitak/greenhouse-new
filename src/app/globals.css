@@ -149,4 +149,67 @@ a {
   body {
     @apply bg-background text-foreground;
   }
+  /* Full-bleed utility: makes an element span the full viewport width even inside padded containers */
+  .full-bleed {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    overflow: visible;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-montserrat), system-ui, -apple-system, Segoe UI,
+      Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, "Apple Color Emoji",
+      "Segoe UI Emoji";
+  }
+}
+
+/* Animated marquee rows for testimonials */
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.marquee-viewport {
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  will-change: transform;
+}
+
+.animate-marquee-left {
+  animation: marquee-left 45s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marquee-right 45s linear infinite;
+}
+
+.is-paused {
+  animation-play-state: paused !important;
+}
+
+/* Right-only bleed utility to keep left page padding intact */
+.bleed-right {
+  margin-right: -60px; /* sync with body side padding */
+  overflow: visible;
 }

@@ -7,6 +7,7 @@ const API_BASE_URL = 'http://localhost:3000/api';
 describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
   let testListing1: Listing & { images: ListingImage[] };
   let testListing2_noImages: Listing;
+  let testListingInactive: Listing;
 
   // Generowanie unikalnych ID dla testów, aby uniknąć konfliktów
   const uniqueAsariId1 = Math.floor(Math.random() * -100000) - 1;
@@ -73,6 +74,15 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
         locationCity: 'InneMiasto',
       },
     });
+
+    // Oferta 3: Nieaktywna oferta, powinna zwracać 404 w endpointzie /api/listing/:id
+    testListingInactive = await prisma.listing.create({
+      data: {
+        asariId: Math.floor(Math.random() * -100000) - 200001,
+        asariStatus: AsariStatus.Draft,
+        title: 'Nieaktywna oferta (DRAFT)',
+      },
+    });
   });
 
   // Czyszczenie bazy danych po zakończeniu wszystkich testów
@@ -87,7 +97,11 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
     await prisma.listing.deleteMany({
       where: {
         id: {
-          in: [testListing1?.id, testListing2_noImages?.id].filter(
+          in: [
+            testListing1?.id,
+            testListing2_noImages?.id,
+            testListingInactive?.id,
+          ].filter(
             Boolean
           ) as string[],
         },
@@ -171,5 +185,12 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
     expect(data.offerType).toBeDefined();
     expect(data.dbCreatedAt).toBeDefined();
     expect(data.dbUpdatedAt).toBeDefined();
+  });
+
+  it('SINGLE-007: powinien zwrócić 404 dla oferty nieaktywnej (status != Active)', async () => {
+    const response = await request(API_BASE_URL).get(
+      `/listing/${testListingInactive.id}`
+    );
+    expect(response.status).toBe(404);
   });
 });

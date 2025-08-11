@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
+    "test:ci": "start-server-and-test dev http://localhost:3000 test",
+    "test:watch": "jest --watch",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint:fix": "next lint --fix"
@@ -46,6 +48,7 @@
     "jest": "^30.0.2",
     "prettier": "^3.6.2",
     "sass": "^1.89.2",
+    "start-server-and-test": "^2.0.13",
     "supertest": "^7.1.1",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
