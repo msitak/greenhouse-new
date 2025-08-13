@@ -159,10 +159,24 @@ a {
     margin-right: -50vw;
     overflow: visible;
   }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-montserrat), system-ui, -apple-system, Segoe UI,
-      Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, "Apple Color Emoji",
-      "Segoe UI Emoji";
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family:
+      var(--font-montserrat),
+      system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      Ubuntu,
+      Cantarell,
+      Noto Sans,
+      sans-serif,
+      'Apple Color Emoji',
+      'Segoe UI Emoji';
   }
 }
 

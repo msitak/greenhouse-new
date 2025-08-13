@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -10,12 +10,17 @@ type HeroProps = {
   className?: string;
 };
 
-export default function Hero({ src, alt, priority = true, className }: HeroProps) {
+export default function Hero({
+  src,
+  alt,
+  priority = true,
+  className,
+}: HeroProps) {
   return (
     <div
       className={cn(
         'relative w-full h-[480px] md:h-[640px] lg:h-[754px] overflow-hidden rounded-[24px]',
-        className,
+        className
       )}
     >
       <Image
@@ -29,5 +34,3 @@ export default function Hero({ src, alt, priority = true, className }: HeroProps
     </div>
   );
 }
-
-
