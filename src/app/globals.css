@@ -10,6 +10,7 @@
   --gray-100: #f4f4f4;
   --gray-200: #7f7f7f;
   --gray-300: #757575;
+  --gray-400: #383838;
   --gray-700: #1e1e1e;
 
   --radius: 0.5rem;
@@ -47,10 +48,14 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+html {
+  scrollbar-gutter: stable both-edges;
+}
+
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -159,10 +164,24 @@ a {
     margin-right: -50vw;
     overflow: visible;
   }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-montserrat), system-ui, -apple-system, Segoe UI,
-      Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, "Apple Color Emoji",
-      "Segoe UI Emoji";
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family:
+      var(--font-montserrat),
+      system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      Ubuntu,
+      Cantarell,
+      Noto Sans,
+      sans-serif,
+      'Apple Color Emoji',
+      'Segoe UI Emoji';
   }
 }
 
