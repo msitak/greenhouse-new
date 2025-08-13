@@ -101,9 +101,7 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
             testListing1?.id,
             testListing2_noImages?.id,
             testListingInactive?.id,
-          ].filter(
-            Boolean
-          ) as string[],
+          ].filter(Boolean) as string[],
         },
       },
     });

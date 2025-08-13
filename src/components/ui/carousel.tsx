@@ -132,13 +132,11 @@ function Carousel({
   );
 }
 
-function CarouselContent(
-  {
-    className,
-    viewportClassName,
-    ...props
-  }: React.ComponentProps<'div'> & { viewportClassName?: string }
-) {
+function CarouselContent({
+  className,
+  viewportClassName,
+  ...props
+}: React.ComponentProps<'div'> & { viewportClassName?: string }) {
   const { carouselRef, orientation } = useCarousel();
 
   return (

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
@@ -14,13 +14,7 @@ import {
   type CarouselApi,
 } from '../ui/carousel';
 import { formatPrice } from '@/lib/utils';
-import {
-  ChevronRight,
-  Layers,
-  MapPin,
-  Home,
-  MoveUpRight,
-} from 'lucide-react';
+import { ChevronRight, Layers, MapPin, Home, MoveUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const OfferTile = ({ offer = mockedOffer }) => {
