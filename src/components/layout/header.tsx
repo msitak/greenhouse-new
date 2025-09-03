@@ -1,19 +1,25 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
+import { usePathname } from 'next/navigation';
 
 const Header = () => {
+  const pathname = usePathname();
+
   const navLinks = [
     { href: '/', label: 'Strona Główna' },
     { href: '/nieruchomosci', label: 'Nieruchomości' },
     { href: '/blog', label: 'Blog' },
     { href: '/uslugi', label: 'Usługi' },
     { href: '/o-nas', label: 'O Nas' },
+    { href: '/kontakt', label: 'Kontakt' },
   ];
 
   return (
-    <header className='sticky rounded-xl px-8 mt-4 flex items-center shadow-[0_8px_40px_rgba(164,167,174,0.12)] top-0 h-16 z-50 w-full bg-background backdrop-blur supports-[backdrop-filter]:bg-background/60'>
-      <div className='w-full flex justify-between'>
+    <header className='absolute mx-auto inset-x-0 top-6 rounded-2xl flex items-center shadow-[0_8px_40px_rgba(164,167,174,0.12)] h-16 z-50 w-[calc(100%-48px)] bg-white'>
+      <div className='w-full flex justify-between pl-6'>
         <Image
           className=''
           src='sygnet.svg'
@@ -21,12 +27,12 @@ const Header = () => {
           width={40}
           height={40}
         />
-        <div className='items-center flex'>
+        <div className='items-center flex gap-2 pr-6'>
           {navLinks.map(link => (
             <Link
               key={link.href}
               href={link.href}
-              className='text-sm font-medium hover:underline text-primary hover:text-primary/80 px-4'
+              className={`${pathname == link.href ? 'bg-[#343434] text-white' : 'hover:bg-[#0000000F]'} text-sm font-medium rounded-xl hover:underline px-4 py-2`}
             >
               {link.label}
             </Link>

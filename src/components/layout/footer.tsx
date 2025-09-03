@@ -40,7 +40,7 @@ export default function Footer() {
             </p>
             <div className='flex items-center gap-4 mt-6'>
               <a
-                href='https://facebook.com'
+                href='https://facebook.com/greenhousenieruchomosci'
                 target='_blank'
                 rel='noreferrer'
                 aria-label='Facebook'
@@ -49,7 +49,7 @@ export default function Footer() {
                 <Facebook className='size-4' />
               </a>
               <a
-                href='https://instagram.com'
+                href='https://instagram.com/greenhousenieruchomosci'
                 target='_blank'
                 rel='noreferrer'
                 aria-label='Instagram'
@@ -63,8 +63,7 @@ export default function Footer() {
           {/* Address */}
           <div>
             <h3 className='text-lg font-semibold mb-3'>Adres</h3>
-            <p className='text-sm text-white/85'>Lokal 1</p>
-            <p className='text-sm text-white/85'>ul. Gen. Dąbrowskiego 7</p>
+            <p className='text-sm text-white/85'>ul. Gen. Dąbrowskiego 7/1</p>
             <p className='text-sm text-white/85'>42-202 Częstochowa</p>
           </div>
 

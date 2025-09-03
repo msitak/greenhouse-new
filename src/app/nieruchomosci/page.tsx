@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Breadcrumbs from '@/components/ui/breadcrumbs';
 import ListingRow from '@/components/listings/ListingRow';
 import { mockedOffer } from '@/app/api/test-offer';
@@ -8,6 +9,27 @@ export default function Page() {
   const listings = [mockedOffer, mockedOffer, mockedOffer];
   return (
     <div className='space-y-8'>
+      <div className='full-bleed relative h-[525px] overflow-hidden'>
+        <Image
+          src='/test-image.jpg'
+          alt='Okładka nieruchomości'
+          fill
+          priority
+          sizes='100vw'
+          className='object-cover'
+        />
+        <div className='absolute inset-0 bg-[#00000080]' />
+        <div className='absolute inset-0 z-10 flex items-center justify-center px-[60px]'>
+          <div className='text-center'>
+            <h1 className='text-white text-4xl md:text-5xl font-extrabold'>
+              Znajdź swoje miejsce z nami.
+            </h1>
+            <p className='mt-3 text-white text-lg md:text-xl'>
+              Domy, mieszkania, działki, lokale - mamy to, czego szukasz.
+            </p>
+          </div>
+        </div>
+      </div>
       <Breadcrumbs />
 
       <div className='flex items-center justify-between'>

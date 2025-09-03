@@ -9,10 +9,11 @@ type SectionProps = {
 
 export default function Section({ id, className, children }: SectionProps) {
   return (
-    <section id={id} className={cn(className)}>
+    <section
+      id={id}
+      className={cn(id === 'hero' ? 'full-bleed' : undefined, className)}
+    >
       {children}
     </section>
   );
 }
-
-

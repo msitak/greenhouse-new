@@ -1,8 +1,13 @@
-"use client";
+'use client';
 
 import Image from 'next/image';
 import { ShieldCheck } from 'lucide-react';
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -19,32 +24,28 @@ const slides: Slide[] = [
   {
     title: 'Twoje Bezpieczeństwo to Nasz Priorytet',
     subtitle: 'Pełne Bezpieczeństwo Transakcji',
-    copy:
-      'Jesteśmy Twoim strażnikiem w świecie skomplikowanych formalności. Bierzemy na siebie pełną odpowiedzialność za każdy etap transakcji – od weryfikacji stanu prawnego nieruchomości, po przygotowanie bezpiecznej umowy. Z nami masz pewność, że Twój interes jest chroniony.',
+    copy: 'Jesteśmy Twoim strażnikiem w świecie skomplikowanych formalności. Bierzemy na siebie pełną odpowiedzialność za każdy etap transakcji – od weryfikacji stanu prawnego nieruchomości, po przygotowanie bezpiecznej umowy. Z nami masz pewność, że Twój interes jest chroniony.',
     imageSrc: '/test-image.jpg',
     imageAlt: 'Handshake in meeting',
   },
   {
     title: 'Dane, Nie Domyły. Strategia, Nie Przypadek',
     subtitle: 'Ekspertyza i Skuteczność Oparta na Danych',
-    copy:
-      'Nie zgadujemy. Każdą decyzję – od wyceny, przez strategię marketingową, aż po negocjacje – opieramy na twardych danych rynkowych i najnowszych technologiach. Dzięki temu maksymalizujemy Twój zysk i oszczędzamy Twój cenny czas.',
+    copy: 'Nie zgadujemy. Każdą decyzję – od wyceny, przez strategię marketingową, aż po negocjacje – opieramy na twardych danych rynkowych i najnowszych technologiach. Dzięki temu maksymalizujemy Twój zysk i oszczędzamy Twój cenny czas.',
     imageSrc: '/test-image.jpg',
     imageAlt: 'Consultation with clients',
   },
   {
     title: 'Pomagamy, a Nie Sprzedajemy',
     subtitle: 'Partnerskie Doradztwo, Nie Sprzedaż',
-    copy:
-      'Naszym celem jest Twój sukces, a nie nasza prowizja. Działamy jak osobiści doradcy – słuchamy, analizujemy Twoją sytuację i szukamy najlepszych rozwiązań, nawet jeśli oznacza to odradzenie transakcji. Jesteśmy po Twojej stronie, grając z Tobą do jednej bramki.',
+    copy: 'Naszym celem jest Twój sukces, a nie nasza prowizja. Działamy jak osobiści doradcy – słuchamy, analizujemy Twoją sytuację i szukamy najlepszych rozwiązań, nawet jeśli oznacza to odradzenie transakcji. Jesteśmy po Twojej stronie, grając z Tobą do jednej bramki.',
     imageSrc: '/test-image.jpg',
     imageAlt: 'Documents review on desk',
   },
   {
     title: 'Wszystko, Czego Potrzebujesz w Jednym Miejscu',
     subtitle: 'Kompleksowe Wsparcie od A do Z',
-    copy:
-      'Transakcja to nie tylko oferta. Dzięki naszej sieci zaufanych partnerów, zapewniamy pełne wsparcie – od uzyskania najlepszego kredytu hipotecznego, przez współpracę ze sprawdzonymi ekipami remontowymi, aż po pomoc prawną i notarialną. Z nami cały proces jest prostszy.',
+    copy: 'Transakcja to nie tylko oferta. Dzięki naszej sieci zaufanych partnerów, zapewniamy pełne wsparcie – od uzyskania najlepszego kredytu hipotecznego, przez współpracę ze sprawdzonymi ekipami remontowymi, aż po pomoc prawną i notarialną. Z nami cały proces jest prostszy.',
     imageSrc: '/test-image.jpg',
     imageAlt: 'Team celebrating success',
   },
@@ -72,15 +73,20 @@ export default function TrustSection() {
     <section id='why-trust-us' className='full-bleed'>
       <div className='flex flex-col items-center text-center mb-8'>
         <h2 className='text-4xl font-bold'>Dlaczego Warto Nam Zaufać?</h2>
-        <p className='mt-3 max-w-[720px] text-gray-500'>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        <p className='mt-3 max-w-[760px] text-gray-500'>
+          Od pierwszej rozmowy po podpisanie umowy - jesteśmy z Tobą na każdym
+          etapie. Łączymy doświadczenie, znajomość rynku i indywidualne
+          podejście, by każda transakcja była pewna i bezproblemowa.
         </p>
       </div>
 
       <Carousel className='w-full' setApi={setApi} opts={{ loop: true }}>
         <CarouselContent viewportClassName='overflow-visible'>
           {slides.map((slide, index) => (
-            <CarouselItem key={index} className='basis-[88%] md:basis-[82%] lg:basis-[78%]'>
+            <CarouselItem
+              key={index}
+              className='basis-[88%] md:basis-[82%] lg:basis-[78%]'
+            >
               <div className='rounded-[24px] shadow-[0_8px_40px_rgba(164,167,174,0.12)] bg-white overflow-hidden max-h-[500px]'>
                 <div className='grid grid-cols-1 lg:grid-cols-2'>
                   <div className='relative h-[320px] md:h-[420px] lg:h-[500px]'>
@@ -95,10 +101,14 @@ export default function TrustSection() {
                   <div className='p-8 md:p-10 lg:p-12 flex flex-col justify-center'>
                     <div className='flex items-center gap-3 text-primary mb-4'>
                       <ShieldCheck className='text-primary' />
-                      <span className='text-sm text-gray-500'>{slide.subtitle}</span>
+                      <span className='text-sm text-gray-500'>
+                        {slide.subtitle}
+                      </span>
                     </div>
                     <h3 className='text-3xl font-bold mb-4'>{slide.title}</h3>
-                    <p className='text-gray-600 leading-relaxed'>{slide.copy}</p>
+                    <p className='text-gray-600 leading-relaxed'>
+                      {slide.copy}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -148,5 +158,3 @@ export default function TrustSection() {
     </section>
   );
 }
-
- 
