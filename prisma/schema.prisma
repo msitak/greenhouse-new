@@ -30,6 +30,7 @@ model Listing {
   description        String?
   englishDescription String? // Dodane
   internalComment    String?
+  addToDescriptionInExport String?
 
   price              Float?
   priceCurrencyId    Int?

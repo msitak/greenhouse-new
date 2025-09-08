@@ -66,8 +66,14 @@ export default function PhotoCarousel({
     <div
       className={cn('relative rounded-xl overflow-hidden bg-white', className)}
     >
-      <Carousel className='w-full' setApi={setApi}>
-        <CarouselContent>
+      <Carousel
+        className='w-full'
+        setApi={setApi}
+        disableKeyboard={isReservation}
+      >
+        <CarouselContent
+          viewportClassName={isReservation ? 'pointer-events-none' : undefined}
+        >
           {safeImages.map((image, index) => (
             <CarouselItem key={index}>
               <Image
@@ -84,60 +90,68 @@ export default function PhotoCarousel({
         {/* Optional custom overlays */}
         {children}
 
-        {/* Reservation / Special badges */}
-        {(isReservation || isSpecial) && (
-          <div className='absolute left-3 top-3 flex flex-col gap-2'>
-            {isReservation && (
-              <span className='inline-flex items-center rounded-md bg-yellow-400 text-black text-xs font-semibold px-2 py-1 shadow'>
-                Rezerwacja
-              </span>
-            )}
-            {isSpecial && (
-              <span className='inline-flex items-center rounded-md bg-green-primary text-white text-xs font-semibold px-2 py-1 shadow'>
-                Oferta specjalna
-              </span>
-            )}
+        {/* Special badge (reservation handled with bottom banner) */}
+        {isSpecial && (
+          <div className='absolute left-3 top-3'>
+            <span className='inline-flex items-center rounded-md bg-green-primary text-white text-xs font-semibold px-2 py-1 shadow'>
+              Oferta specjalna
+            </span>
           </div>
         )}
 
-        {/* Bottom gradient and controls */}
+        {/* Bottom gradient */}
         <div
           className={cn(
             'pointer-events-none absolute inset-x-0 bottom-0 h-[36px] bg-[#00000026] backdrop-blur-sm bg-gradient-to-t from-black/55 to-black/0',
             overlayRoundedBottom && 'rounded-b-xl'
           )}
         />
-        <div
-          className={cn(
-            'absolute inset-x-0 bottom-0 flex items-center justify-between px-4 py-2 text-white',
-            overlayRoundedBottom && 'rounded-b-xl'
-          )}
-        >
-          <span className='flex items-baseline gap-0.5'>
-            <span className='text-sm font-medium'>{currentIndex + 1}</span>
-            <span className='text-xs font-normal'>/{totalSlides}</span>
-          </span>
 
-          <div className='flex items-center gap-1.5 mx-auto'>
-            {safeImages.map((_, index) => (
-              <button
-                type='button'
-                key={index}
-                aria-label={`Przejdź do slajdu ${index + 1}`}
-                aria-current={index === currentIndex}
-                onClick={() => api?.scrollTo(index)}
-                className={cn(
-                  'rounded-full cursor-pointer outline-none focus-visible:ring-[2px] focus-visible:ring-white/60',
-                  index === currentIndex
-                    ? 'h-1.5 w-1.5 bg-green-primary'
-                    : 'h-1 w-1 bg-white/70'
-                )}
-              />
-            ))}
+        {/* Bottom controls or reservation banner */}
+        {isReservation ? (
+          <div
+            className={cn(
+              'absolute inset-x-0 bottom-0',
+              overlayRoundedBottom && 'rounded-b-xl'
+            )}
+          >
+            <div className='w-full bg-yellow-400 text-black text-center font-bold uppercase tracking-wide text-xs py-2'>
+              REZERWACJA
+            </div>
           </div>
+        ) : (
+          <div
+            className={cn(
+              'absolute inset-x-0 bottom-0 flex items-center justify-between px-4 py-2 text-white',
+              overlayRoundedBottom && 'rounded-b-xl'
+            )}
+          >
+            <span className='flex items-baseline gap-0.5'>
+              <span className='text-sm font-medium'>{currentIndex + 1}</span>
+              <span className='text-xs font-normal'>/{totalSlides}</span>
+            </span>
 
-          <CarouselNext className='pointer-events-auto right-1.5 bottom-1.5 top-auto -translate-y-0 hover:bg-white hover:text-[#1E1E1E]' />
-        </div>
+            <div className='flex items-center gap-1.5 mx-auto'>
+              {safeImages.map((_, index) => (
+                <button
+                  type='button'
+                  key={index}
+                  aria-label={`Przejdź do slajdu ${index + 1}`}
+                  aria-current={index === currentIndex}
+                  onClick={() => api?.scrollTo(index)}
+                  className={cn(
+                    'rounded-full cursor-pointer outline-none focus-visible:ring-[2px] focus-visible:ring-white/60',
+                    index === currentIndex
+                      ? 'h-1.5 w-1.5 bg-green-primary'
+                      : 'h-1 w-1 bg-white/70'
+                  )}
+                />
+              ))}
+            </div>
+
+            <CarouselNext className='pointer-events-auto right-1.5 bottom-1.5 top-auto -translate-y-0 hover:bg-white hover:text-[#1E1E1E]' />
+          </div>
+        )}
       </Carousel>
     </div>
   );

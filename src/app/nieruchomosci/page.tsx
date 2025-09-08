@@ -64,7 +64,7 @@ export default function Page() {
 
       <div className='space-y-6'>
         {listings.map((l, idx) => (
-          <ListingRow key={idx} listing={l} />
+          <ListingRow key={idx} listing={l} isReservation={idx === 0} />
         ))}
       </div>
     </div>

@@ -19,6 +19,7 @@ type CarouselProps = {
   plugins?: CarouselPlugin;
   orientation?: 'horizontal' | 'vertical';
   setApi?: (api: CarouselApi) => void;
+  disableKeyboard?: boolean;
 };
 
 type CarouselContextProps = {
@@ -49,6 +50,7 @@ function Carousel({
   plugins,
   className,
   children,
+  disableKeyboard,
   ...props
 }: React.ComponentProps<'div'> & CarouselProps) {
   const [carouselRef, api] = useEmblaCarousel(
@@ -119,7 +121,7 @@ function Carousel({
       }}
     >
       <div
-        onKeyDownCapture={handleKeyDown}
+        onKeyDownCapture={disableKeyboard ? undefined : handleKeyDown}
         className={cn('relative', className)}
         role='region'
         aria-roledescription='carousel'
@@ -132,13 +134,11 @@ function Carousel({
   );
 }
 
-function CarouselContent(
-  {
-    className,
-    viewportClassName,
-    ...props
-  }: React.ComponentProps<'div'> & { viewportClassName?: string }
-) {
+function CarouselContent({
+  className,
+  viewportClassName,
+  ...props
+}: React.ComponentProps<'div'> & { viewportClassName?: string }) {
   const { carouselRef, orientation } = useCarousel();
 
   return (
