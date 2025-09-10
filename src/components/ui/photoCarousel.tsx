@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/carousel';
 import { ListingImageApiResponse } from '@/types/api.types';
 import { cn } from '@/lib/utils';
+import { Star } from 'lucide-react';
 
 type PhotoCarouselProps = {
   images: ListingImageApiResponse[];
@@ -92,10 +93,8 @@ export default function PhotoCarousel({
 
         {/* Special badge (reservation handled with bottom banner) */}
         {isSpecial && (
-          <div className='absolute left-3 top-3'>
-            <span className='inline-flex items-center rounded-md bg-green-primary text-white text-xs font-semibold px-2 py-1 shadow'>
-              Oferta specjalna
-            </span>
+          <div className='absolute left-0 top-0 bg-green-primary rounded-br-xl p-2'>
+            <Star className='size-5 text-white' />
           </div>
         )}
 

@@ -9,12 +9,14 @@ type Props = {
   listing: ListingApiResponse;
   agentBadgeClassName?: string;
   isReservation?: boolean;
+  isSpecial?: boolean;
 };
 
 export default function ListingRow({
   listing,
   agentBadgeClassName,
   isReservation = false,
+  isSpecial = false,
 }: Props) {
   return (
     <article className='w-full max-w-full overflow-hidden rounded-2xl border border-black/5 bg-white shadow-[0_8px_40px_0_rgba(164,167,174,0.12)] p-6'>
@@ -24,7 +26,7 @@ export default function ListingRow({
           <PhotoCarousel
             images={listing.images}
             isReservation={isReservation}
-            isSpecial={false}
+            isSpecial={isSpecial}
             overlayRoundedBottom
           ></PhotoCarousel>
         </div>
@@ -45,7 +47,7 @@ export default function ListingRow({
               {listing.title}
             </h3>
 
-            <p className='text-gray-600 text-sm '>
+            <p className='text-gray-600 text-sm'>
               {listing.addToDescriptionInExport}
             </p>
 
@@ -79,7 +81,9 @@ export default function ListingRow({
               </div>
             </div>
 
-            <Button className='ml-auto bg-black'>Zobacz ofertę</Button>
+            <Button className='ml-auto bg-black hover:bg-[#343434]'>
+              Zobacz ofertę
+            </Button>
           </div>
         </div>
       </div>

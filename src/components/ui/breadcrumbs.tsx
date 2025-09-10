@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useSelectedLayoutSegments } from 'next/navigation';
 import { Home, ChevronRight } from 'lucide-react';
 import { breadcrumbLabels } from '@/lib/breadcrumbs';
+import { cn } from '@/lib/utils';
 
 function toTitle(text: string): string {
   const pretty = decodeURIComponent(text).replace(/-/g, ' ');
@@ -14,7 +15,11 @@ function toTitle(text: string): string {
     .join(' ');
 }
 
-export default function Breadcrumbs() {
+type BreadcrumbsProps = {
+  className?: string;
+};
+
+export default function Breadcrumbs({ className }: BreadcrumbsProps) {
   const pathname = usePathname();
   const selected = useSelectedLayoutSegments();
   const segments =
@@ -29,9 +34,9 @@ export default function Breadcrumbs() {
   });
 
   return (
-    <nav aria-label='Breadcrumb' className='leading-none'>
-      <ol className='flex flex-wrap items-center gap-2 leading-none'>
-        <li className='flex items-center gap-2 text-gray-500 leading-none'>
+    <nav aria-label='Breadcrumb' className={cn('leading-none', className)}>
+      <ol className='flex flex-wrap items-center gap-1.5 leading-none text-sm'>
+        <li className='flex items-center gap-1 text-[#757575] font-medium leading-none'>
           <Home className='h-[1em] w-[1em]' aria-hidden='true' />
           <Link href='/' className='hover:underline'>
             Strona główna
