@@ -20,6 +20,7 @@ const buttonVariants = cva(
           'font-bold text-primary text-gray-700 bg-white/65 backdrop-blur-xs shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
         outlineContrast:
           'bg-[#F7F7F7] border-1 text-sm font-bold border-white text-black rounded-xl hover:backdrop-blur-xs hover:bg-[#B3B1AFCC] hover:backdrop-blur-xs',
+        ghost: 'bg-transparent hover:bg-[#0000000F] hover:text-primary',
       },
       size: {
         default: 'h-9 px-8 py-4 h-[auto] text-base/5',

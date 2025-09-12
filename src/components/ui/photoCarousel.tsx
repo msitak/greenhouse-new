@@ -82,7 +82,7 @@ export default function PhotoCarousel({
                 alt={image.description ?? `offer image ${index + 1}`}
                 width={920}
                 height={520}
-                className={cn('w-full object-cover h-[260px]', imageClassName)}
+                className={cn('w-full object-cover', imageClassName)}
               />
             </CarouselItem>
           ))}

@@ -22,13 +22,14 @@ export default function ListingRow({
     <article className='w-full max-w-full overflow-hidden rounded-2xl border border-black/5 bg-white shadow-[0_8px_40px_0_rgba(164,167,174,0.12)] p-6'>
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-[460px_minmax(0,1fr)]'>
         {/* Media */}
-        <div className='relative rounded-xl overflow-hidden'>
+        <div className='relative rounded-xl h-[260px] overflow-hidden'>
           <PhotoCarousel
             images={listing.images}
             isReservation={isReservation}
             isSpecial={isSpecial}
+            imageClassName='h-[260px]'
             overlayRoundedBottom
-          ></PhotoCarousel>
+          />
         </div>
 
         {/* Content */}

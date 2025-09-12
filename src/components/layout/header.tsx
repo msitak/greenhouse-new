@@ -7,6 +7,8 @@ import { usePathname } from 'next/navigation';
 
 const Header = () => {
   const pathname = usePathname();
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
 
   const navLinks = [
     { href: '/', label: 'Strona Główna' },
@@ -22,21 +24,28 @@ const Header = () => {
       <div className='w-full flex justify-between pl-6'>
         <Image
           className=''
-          src='sygnet.svg'
+          src='/sygnet.svg'
           alt='Green House logo'
           width={40}
           height={40}
         />
         <div className='items-center flex gap-2 pr-6'>
-          {navLinks.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`${pathname == link.href ? 'bg-[#343434] text-white' : 'hover:bg-[#0000000F]'} text-sm font-medium rounded-xl hover:underline px-4 py-2`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map(link => {
+            const isActive =
+              mounted &&
+              (pathname === link.href || pathname.startsWith(link.href + '/'));
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`${
+                  isActive ? 'bg-[#343434] text-white' : 'hover:bg-[#0000000F]'
+                } text-sm font-medium rounded-xl hover:underline px-4 py-2`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </header>
