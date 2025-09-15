@@ -4,7 +4,11 @@ import Loadable from '@/components/ui/loadable';
 import PhotoCarousel from '@/components/ui/photoCarousel';
 import { mockedOffer } from '@/app/api/test-offer';
 import Image from 'next/image';
-import { Play } from 'lucide-react';
+import { Play, ArrowUpRight } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import HtmlContent from '@/components/HtmlContent';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 type PageProps = {
   params: { id: string };
@@ -109,7 +113,7 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
           </div>
         </section>
 
-        <aside className='rounded-2xl bg-white p-6 shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]'>
+        <aside className='sticky top-4 rounded-2xl bg-white p-6 shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]'>
           <Loadable
             isLoading={isLoading}
             className='mx-auto size-[104px] rounded-full overflow-hidden'
@@ -144,6 +148,189 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
             </Button>
           </div>
         </aside>
+
+        <Tabs defaultValue='info'>
+          <TabsList>
+            <TabsTrigger value='info'>Informaje</TabsTrigger>
+            <TabsTrigger value='location'>Lokalizacja</TabsTrigger>
+          </TabsList>
+          <TabsContent value='info'>
+            <section className='rounded-2xl bg-white p-8 shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]'>
+              <div className='flex flex-col text-sm w-full'>
+                <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
+                  <div className='text-[#757575]'>Numer oferty</div>
+                  <div className='font-bold text-[#212121] text-right'>
+                    177/10314/OMW
+                  </div>
+                </div>
+                <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
+                  <div className='text-[#757575]'>Powierzchnia</div>
+                  <div className='font-bold text-[#212121] text-right'>
+                    63 m²
+                  </div>
+                </div>
+                <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
+                  <div className='text-[#757575]'>Pokoje</div>
+                  <div className='font-bold text-[#212121] text-right'>3</div>
+                </div>
+                <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
+                  <div className='text-[#757575]'>Piętro</div>
+                  <div className='font-bold text-[#212121] text-right'>3</div>
+                </div>
+                <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
+                  <div className='text-[#757575]'>Liczba pięter</div>
+                  <div className='font-bold text-[#212121] text-right'>4</div>
+                </div>
+                <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
+                  <div className='text-[#757575]'>Winda</div>
+                  <div className='font-bold text-[#212121] text-right'>Nie</div>
+                </div>
+                <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
+                  <div className='text-[#757575]'>Data dodania</div>
+                  <div className='font-bold text-[#212121] text-right'>
+                    15.09.2025
+                  </div>
+                </div>
+                <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
+                  <div className='text-[#757575]'>Komunikacja</div>
+                  <div className='font-bold text-[#212121] text-right'>
+                    Autobus, tramwaj, autostrada
+                  </div>
+                </div>
+                <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 items-center border-[#00000014]'>
+                  <div className='text-[#757575]'>Dostępne w okolicy</div>
+                  <div className='font-bold text-[#212121] text-right'>
+                    Kościół, Przedszkole, Plac zabaw Zabudowa niska, Sklep,
+                    Centrum Handole, Szkoła
+                  </div>
+                </div>
+                <div className='grid grid-cols-2 gap-3 px-5 py-[10px]'>
+                  <div className='text-[#757575]'>Opis</div>
+                </div>
+              </div>
+              <HtmlContent
+                html={mockedOffer.description}
+                className='mx-5 text-sm text-[#212121] prose prose-neutral max-w-none'
+              />
+            </section>
+          </TabsContent>
+          <TabsContent value='location'>
+            <section className='rounded-2xl bg-white p-6 shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]'>
+              location
+            </section>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      <div className='max-w-[1200px] mx-auto mt-6'>
+        <section className='rounded-2xl bg-white p-6 h-[564px] shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]'>
+          <div className='flex gap-6'>
+            {/* Agent card */}
+            <div className='w-[300px]'>
+              <div className='rounded-2xl relative w-[288px]'>
+                <Image
+                  src='/agents/full/jakub.jpg'
+                  alt='Jakub Pruszyński'
+                  width={364}
+                  height={288}
+                  className='w-[288px] h-[364px] rounded-2xl'
+                />
+                <div className='flex justify-between items-center h-[60px] absolute bottom-3 left-3 bg-white rounded-2xl p-3 w-[calc(100%-24px)]'>
+                  <div className='flex flex-col'>
+                    <div className='text-[#212121] font-bold text-md/5'>
+                      Jakub Pruszyński
+                    </div>
+                    <div className='text-[#2C8E3A] font-medium text-xs/4'>
+                      Specjalista ds. nieruchomości
+                    </div>
+                  </div>
+                  <Button
+                    variant='arrow'
+                    size='icon'
+                    className='rounded-full border-1 border-[#353535] size-8'
+                  >
+                    <ArrowUpRight className='size-4' />
+                  </Button>
+                </div>
+              </div>
+              <p className='mt-4 text-xs/5 text-[#757575]'>
+                Administratorem danych osobowych jest Green House Nieruchomości
+                sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok. 1, 42-202
+                Częstochowa (“Administrator”), z którym można się skontaktować
+                przez adres kontakt@ghn.pl.
+              </p>
+            </div>
+
+            <div className='w-full'>
+              <h2 className='text-xl/7 font-bold text-[#212121]'>
+                Zapytaj o ofertę
+              </h2>
+              <div className='mt-6 grid grid-cols-1 gap-4'>
+                <div>
+                  <Label className='text-xs/5 font-bold' htmlFor='name'>
+                    Imię i nazwisko
+                  </Label>
+                  <Input
+                    id='name'
+                    placeholder='Imię i nazwisko'
+                    className='mt-1'
+                  />
+                </div>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <div>
+                    <Label className='text-xs/5 font-bold' htmlFor='phone'>
+                      Nr telefonu
+                    </Label>
+                    <Input
+                      id='phone'
+                      placeholder='Nr telefonu'
+                      className='mt-1'
+                    />
+                  </div>
+                  <div>
+                    <Label className='text-xs/5 font-bold' htmlFor='email'>
+                      Adres e-mail
+                    </Label>
+                    <Input
+                      id='email'
+                      placeholder='Adres e-mail'
+                      className='mt-1'
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className='text-xs/5 font-bold' htmlFor='message'>
+                    Treść wiadomości
+                  </Label>
+                  <textarea
+                    id='message'
+                    className='mt-1 w-full min-h-[128px] rounded-md border border-input px-3 py-2 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50'
+                    rows={4}
+                    placeholder='Wiadomość'
+                  />
+                </div>
+                <div className='flex items-start gap-[10px]'>
+                  <input
+                    id='consent'
+                    type='checkbox'
+                    className='size-6 rounded border border-input'
+                  />
+                  <label htmlFor='consent' className='text-xs/5 text-[#757575]'>
+                    Wyrażam zgodę na przetwarzanie moich danych osobowych przez
+                    firmę Green House Nieruchomości sp. z o. o. dla celów
+                    związanych z działalnością pośrednictwa w obrocie
+                    nieruchomościami, jednocześnie potwierdzam, iż zostałem
+                    poinformowany o tym, iż będę posiadać dostęp do treści
+                    swoich danych do ich edycji lub usunięcia.
+                  </label>
+                </div>
+                <div className='flex justify-end mt-2'>
+                  <Button className='rounded-xl px-6'>Wyślij</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
