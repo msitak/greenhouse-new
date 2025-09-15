@@ -9,13 +9,11 @@ export default function NotFound() {
 
       <div className='relative z-10 w-full max-w-[1000px] px-6'>
         <div className='rounded-xl p-8 md:p-12 bg-white/0'>
-          <h1 className='text-7xl font-black text-center text-[#1C2024]'>
-            404
-          </h1>
-          <p className='mt-4 text-5xl/[60px] font-medium text-center text-[#212121]'>
+          <h1 className='text-7xl font-black text-center text-primary'>404</h1>
+          <p className='mt-4 text-5xl/[60px] font-medium text-center text-primary'>
             Coś poszło nie tak
           </p>
-          <p className='mt-4 text-xl text-center text-[#535862]'>
+          <p className='mt-4 text-xl text-center text-secondary'>
             Strona, której szukasz, mogła zostać przeniesiona lub usunięta.
           </p>
           <div className='mt-10 flex justify-center'>

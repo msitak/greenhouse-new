@@ -79,6 +79,10 @@ a {
 
 @theme inline {
   --color-green-primary: #4fa200;
+  /* Semantic text colors */
+  --color-text-primary: #212121;
+  --color-text-secondary: #757575;
+  --color-text-tertiary: #8e8e8e;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -157,6 +161,18 @@ a {
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Text semantic utility aliases */
+  @layer utilities {
+    .text-primary {
+      color: var(--color-text-primary);
+    }
+    .text-secondary {
+      color: var(--color-text-secondary);
+    }
+    .text-tertiary {
+      color: var(--color-text-tertiary);
+    }
   }
   /* Full-bleed utility: makes an element span the full viewport width even inside padded containers */
   .full-bleed {

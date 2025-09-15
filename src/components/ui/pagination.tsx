@@ -43,7 +43,7 @@ export default function Pagination({
     <nav
       aria-label='Paginacja'
       className={cn(
-        'flex items-center gap-0 text-[#757575] text-sm/5',
+        'flex items-center gap-0 text-[--color-text-secondary] text-sm/5',
         className
       )}
     >
@@ -97,7 +97,7 @@ export default function Pagination({
         onClick={() => handleClick(currentPage + 1)}
         disabled={currentPage >= totalPages}
         className={cn(
-          'inline-flex size-10 items-center justify-center rounded-full text-[#343434] hover:bg-[#F4F4F4]',
+          'inline-flex size-10 items-center justify-center rounded-full text-[--color-text-primary] hover:bg-[#F4F4F4]',
           currentPage >= totalPages && 'opacity-50 cursor-not-allowed'
         )}
       >

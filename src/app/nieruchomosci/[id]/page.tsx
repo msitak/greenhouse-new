@@ -78,7 +78,7 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
       {/* Details row */}
       <div className='grid grid-cols-1 gap-6 mt-6 lg:grid-cols-[minmax(0,1fr)_360px] max-w-[1200px] mx-auto'>
         <section className='rounded-2xl bg-white p-6 shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]'>
-          <div className='flex items-center justify-between text-md text-[#212121]'>
+          <div className='flex items-center justify-between text-md text-primary'>
             <span>Oferta sprzedaży</span>
             <span>ID: {id}</span>
           </div>
@@ -98,16 +98,16 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
 
             <div className='mt-6 flex flex-col text-sm w-[360px]'>
               <div className='flex justify-between px-5 py-[10px] border-b-1 border-[#00000014]'>
-                <div className='text-[#757575]'>Lokalizacja</div>
-                <div className='font-bold text-[#212121]'>Częstochowa</div>
+                <div className='text-secondary'>Lokalizacja</div>
+                <div className='font-bold text-primary'>Częstochowa</div>
               </div>
               <div className='flex justify-between px-5 py-[10px] border-b-1 border-[#00000014]'>
-                <div className='text-[#757575]'>Powierzchnia</div>
-                <div className='font-bold text-[#212121]'>63 m²</div>
+                <div className='text-secondary'>Powierzchnia</div>
+                <div className='font-bold text-primary'>63 m²</div>
               </div>
               <div className='flex justify-between px-5 py-[10px] border-b-1 border-[#00000014]'>
-                <div className='text-[#757575]'>Pokoje</div>
-                <div className='font-bold text-[#212121]'>3</div>
+                <div className='text-secondary'>Pokoje</div>
+                <div className='font-bold text-primary'>3</div>
               </div>
             </div>
           </div>
@@ -129,7 +129,7 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
           </Loadable>
           <div className='mt-4 text-center'>
             <div className='text-xl font-bold'>Jakub Pruszyński</div>
-            <div className='text-xs text-[#757575]'>
+            <div className='text-xs text-[--color-text-secondary]'>
               Specjalista ds. nieruchomości
             </div>
           </div>
@@ -142,7 +142,7 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
             <Button
               variant='ghost'
               size='sm'
-              className='text-[#757575] hover:bg-[#F4F4F4] rounded-xl'
+              className='text-[--color-text-secondary] hover:bg-[#F4F4F4] rounded-xl'
             >
               Zobacz profil
             </Button>
@@ -158,48 +158,68 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
             <section className='rounded-2xl bg-white p-8 shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]'>
               <div className='flex flex-col text-sm w-full'>
                 <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
-                  <div className='text-[#757575]'>Numer oferty</div>
-                  <div className='font-bold text-[#212121] text-right'>
+                  <div className='text-[--color-text-secondary]'>
+                    Numer oferty
+                  </div>
+                  <div className='font-bold text-[--color-text-primary] text-right'>
                     177/10314/OMW
                   </div>
                 </div>
                 <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
-                  <div className='text-[#757575]'>Powierzchnia</div>
-                  <div className='font-bold text-[#212121] text-right'>
+                  <div className='text-[--color-text-secondary]'>
+                    Powierzchnia
+                  </div>
+                  <div className='font-bold text-[--color-text-primary] text-right'>
                     63 m²
                   </div>
                 </div>
                 <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
-                  <div className='text-[#757575]'>Pokoje</div>
-                  <div className='font-bold text-[#212121] text-right'>3</div>
+                  <div className='text-[--color-text-secondary]'>Pokoje</div>
+                  <div className='font-bold text-[--color-text-primary] text-right'>
+                    3
+                  </div>
                 </div>
                 <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
-                  <div className='text-[#757575]'>Piętro</div>
-                  <div className='font-bold text-[#212121] text-right'>3</div>
+                  <div className='text-[--color-text-secondary]'>Piętro</div>
+                  <div className='font-bold text-[--color-text-primary] text-right'>
+                    3
+                  </div>
                 </div>
                 <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
-                  <div className='text-[#757575]'>Liczba pięter</div>
-                  <div className='font-bold text-[#212121] text-right'>4</div>
+                  <div className='text-[--color-text-secondary]'>
+                    Liczba pięter
+                  </div>
+                  <div className='font-bold text-[--color-text-primary] text-right'>
+                    4
+                  </div>
                 </div>
                 <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
-                  <div className='text-[#757575]'>Winda</div>
-                  <div className='font-bold text-[#212121] text-right'>Nie</div>
+                  <div className='text-[--color-text-secondary]'>Winda</div>
+                  <div className='font-bold text-[--color-text-primary] text-right'>
+                    Nie
+                  </div>
                 </div>
                 <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
-                  <div className='text-[#757575]'>Data dodania</div>
-                  <div className='font-bold text-[#212121] text-right'>
+                  <div className='text-[--color-text-secondary]'>
+                    Data dodania
+                  </div>
+                  <div className='font-bold text-[--color-text-primary] text-right'>
                     15.09.2025
                   </div>
                 </div>
                 <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 border-[#00000014]'>
-                  <div className='text-[#757575]'>Komunikacja</div>
-                  <div className='font-bold text-[#212121] text-right'>
+                  <div className='text-[--color-text-secondary]'>
+                    Komunikacja
+                  </div>
+                  <div className='font-bold text-[--color-text-primary] text-right'>
                     Autobus, tramwaj, autostrada
                   </div>
                 </div>
                 <div className='grid grid-cols-2 gap-3 px-5 py-[10px] border-b-1 items-center border-[#00000014]'>
-                  <div className='text-[#757575]'>Dostępne w okolicy</div>
-                  <div className='font-bold text-[#212121] text-right'>
+                  <div className='text-[--color-text-secondary]'>
+                    Dostępne w okolicy
+                  </div>
+                  <div className='font-bold text-[--color-text-primary] text-right'>
                     Kościół, Przedszkole, Plac zabaw Zabudowa niska, Sklep,
                     Centrum Handole, Szkoła
                   </div>
@@ -210,7 +230,7 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
               </div>
               <HtmlContent
                 html={mockedOffer.description}
-                className='mx-5 text-sm text-[#212121] prose prose-neutral max-w-none'
+                className='mx-5 text-sm text-[--color-text-primary] prose prose-neutral max-w-none'
               />
             </section>
           </TabsContent>
@@ -237,7 +257,7 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
                 />
                 <div className='flex justify-between items-center h-[60px] absolute bottom-3 left-3 bg-white rounded-2xl p-3 w-[calc(100%-24px)]'>
                   <div className='flex flex-col'>
-                    <div className='text-[#212121] font-bold text-md/5'>
+                    <div className='text-[--color-text-primary] font-bold text-md/5'>
                       Jakub Pruszyński
                     </div>
                     <div className='text-[#2C8E3A] font-medium text-xs/4'>
@@ -253,7 +273,7 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
                   </Button>
                 </div>
               </div>
-              <p className='mt-4 text-xs/5 text-[#757575]'>
+              <p className='mt-4 text-xs/5 text-[--color-text-secondary]'>
                 Administratorem danych osobowych jest Green House Nieruchomości
                 sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok. 1, 42-202
                 Częstochowa (“Administrator”), z którym można się skontaktować
@@ -262,7 +282,7 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
             </div>
 
             <div className='w-full'>
-              <h2 className='text-xl/7 font-bold text-[#212121]'>
+              <h2 className='text-xl/7 font-bold text-[--color-text-primary]'>
                 Zapytaj o ofertę
               </h2>
               <div className='mt-6 grid grid-cols-1 gap-4'>
@@ -315,7 +335,10 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
                     type='checkbox'
                     className='size-6 rounded border border-input'
                   />
-                  <label htmlFor='consent' className='text-xs/5 text-[#757575]'>
+                  <label
+                    htmlFor='consent'
+                    className='text-xs/5 text-[--color-text-secondary]'
+                  >
                     Wyrażam zgodę na przetwarzanie moich danych osobowych przez
                     firmę Green House Nieruchomości sp. z o. o. dla celów
                     związanych z działalnością pośrednictwa w obrocie

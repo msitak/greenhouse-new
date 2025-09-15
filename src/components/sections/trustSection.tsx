@@ -121,11 +121,11 @@ export default function TrustSection() {
         <Button
           variant='outline'
           size='icon'
-          className='size-8 rounded border border-[#00000026] text-[#1E1E1E] hover:bg-white hover:text-[#1E1E1E] hover:border-[#00000026]'
+          className='size-8 rounded border border-[#00000026] text-[--color-text-primary] hover:bg-white hover:text-[--color-text-primary] hover:border-[#00000026]'
           onClick={() => api?.scrollPrev()}
           aria-label='Previous slide'
         >
-          <ChevronLeft className='size-6 text-[#1E1E1E]' />
+          <ChevronLeft className='size-6 text-[--color-text-primary]' />
         </Button>
 
         <div className='flex items-center gap-1.5'>
@@ -148,11 +148,11 @@ export default function TrustSection() {
         <Button
           variant='outline'
           size='icon'
-          className='size-8 rounded border border-[#00000026] text-[#1E1E1E] hover:bg-white hover:text-[#1E1E1E] hover:border-[#00000026]'
+          className='size-8 rounded border border-[#00000026] text-[--color-text-primary] hover:bg-white hover:text-[--color-text-primary] hover:border-[#00000026]'
           onClick={() => api?.scrollNext()}
           aria-label='Next slide'
         >
-          <ChevronRight className='size-6 text-[#1E1E1E]' />
+          <ChevronRight className='size-6 text-[--color-text-primary]' />
         </Button>
       </div>
     </section>

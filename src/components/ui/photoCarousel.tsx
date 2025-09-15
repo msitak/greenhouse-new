@@ -148,7 +148,7 @@ export default function PhotoCarousel({
               ))}
             </div>
 
-            <CarouselNext className='pointer-events-auto right-1.5 bottom-1.5 top-auto -translate-y-0 hover:bg-white hover:text-[#1E1E1E]' />
+            <CarouselNext className='pointer-events-auto right-1.5 bottom-1.5 top-auto -translate-y-0 hover:bg-white hover:text-primary' />
           </div>
         )}
       </Carousel>

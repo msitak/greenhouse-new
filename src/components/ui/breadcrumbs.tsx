@@ -36,7 +36,7 @@ export default function Breadcrumbs({ className }: BreadcrumbsProps) {
   return (
     <nav aria-label='Breadcrumb' className={cn('leading-none', className)}>
       <ol className='flex flex-wrap items-center gap-1.5 leading-none text-sm'>
-        <li className='flex items-center gap-1 text-[#757575] font-medium leading-none'>
+        <li className='flex items-center gap-1 text-secondary font-medium leading-none'>
           <Home className='h-[1em] w-[1em]' aria-hidden='true' />
           <Link href='/' className='hover:underline'>
             Strona główna
