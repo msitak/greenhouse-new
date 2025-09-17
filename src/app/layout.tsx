@@ -33,6 +33,7 @@ const satoshi = localFont({
       style: 'normal',
     },
   ],
+  variable: '--font-satoshi',
 });
 
 export const metadata: Metadata = {
@@ -53,7 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='pl'>
+    <html lang='pl' className={`${satoshi.variable}`}>
       <body className={`${satoshi.className} ${montserrat.variable}`}>
         <Header />
         <main>{children}</main>

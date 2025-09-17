@@ -4,6 +4,7 @@ import Loadable from '@/components/ui/loadable';
 import PhotoCarousel from '@/components/ui/photoCarousel';
 import { mockedOffer } from '@/app/api/test-offer';
 import Image from 'next/image';
+import AgentCard from '@/components/AgentCard';
 import { Play, ArrowUpRight } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import HtmlContent from '@/components/HtmlContent';
@@ -247,32 +248,11 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
           <div className='flex gap-6'>
             {/* Agent card */}
             <div className='w-[300px]'>
-              <div className='rounded-2xl relative w-[288px]'>
-                <Image
-                  src='/agents/full/jakub.jpg'
-                  alt='Jakub Pruszyński'
-                  width={364}
-                  height={288}
-                  className='w-[288px] h-[364px] rounded-2xl'
-                />
-                <div className='flex justify-between items-center h-[60px] absolute bottom-3 left-3 bg-white rounded-2xl p-3 w-[calc(100%-24px)]'>
-                  <div className='flex flex-col'>
-                    <div className='text-[--color-text-primary] font-bold text-md/5'>
-                      Jakub Pruszyński
-                    </div>
-                    <div className='text-[#2C8E3A] font-medium text-xs/4'>
-                      Specjalista ds. nieruchomości
-                    </div>
-                  </div>
-                  <Button
-                    variant='arrow'
-                    size='icon'
-                    className='rounded-full border-1 border-[#353535] size-8'
-                  >
-                    <ArrowUpRight className='size-4' />
-                  </Button>
-                </div>
-              </div>
+              <AgentCard
+                name='Jakub Pruszyński'
+                title='Specjalista ds. nieruchomości'
+                imageSrc='/agents/full/jakub.jpg'
+              />
               <p className='mt-4 text-xs/5 text-[--color-text-secondary]'>
                 Administratorem danych osobowych jest Green House Nieruchomości
                 sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok. 1, 42-202

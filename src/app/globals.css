@@ -162,6 +162,36 @@ a {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Font family utility aliases */
+@layer utilities {
+  .font-satoshi {
+    font-family:
+      var(--font-satoshi),
+      var(--font-montserrat),
+      system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      Ubuntu,
+      Cantarell,
+      Noto Sans,
+      sans-serif;
+  }
+  .font-montserrat {
+    font-family:
+      var(--font-montserrat),
+      var(--font-satoshi),
+      system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      Ubuntu,
+      Cantarell,
+      Noto Sans,
+      sans-serif;
+  }
   /* Text semantic utility aliases */
   @layer utilities {
     .text-primary {
@@ -199,6 +229,19 @@ a {
       sans-serif,
       'Apple Color Emoji',
       'Segoe UI Emoji';
+  }
+  p {
+    font-family:
+      var(--font-satoshi),
+      var(--font-montserrat),
+      system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      Ubuntu,
+      Cantarell,
+      Noto Sans,
+      sans-serif;
   }
 }
 
