@@ -10,7 +10,7 @@ export default function NotFound() {
       <div className='relative z-10 w-full max-w-[1000px] px-6'>
         <div className='rounded-xl p-8 md:p-12 bg-white/0'>
           <h1 className='text-7xl font-black text-center text-primary'>404</h1>
-          <p className='mt-4 text-5xl/[60px] font-medium text-center text-primary'>
+          <p className='mt-4 text-5xl/[60px] font-medium text-center text-[--text-primary]'>
             Coś poszło nie tak
           </p>
           <p className='mt-4 text-xl text-center text-secondary'>

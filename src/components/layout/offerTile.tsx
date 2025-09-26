@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
@@ -14,13 +14,7 @@ import {
   type CarouselApi,
 } from '../ui/carousel';
 import { formatPrice } from '@/lib/utils';
-import {
-  ChevronRight,
-  Layers,
-  MapPin,
-  Home,
-  MoveUpRight,
-} from 'lucide-react';
+import { ChevronRight, Layers, MapPin, Home, MoveUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const OfferTile = ({ offer = mockedOffer }) => {
@@ -41,7 +35,7 @@ const OfferTile = ({ offer = mockedOffer }) => {
 
   return (
     <div className='relative rounded-2xl w-fit overflow-hidden bg-white shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]'>
-      <Carousel className='w-[424px]' setApi={setApi}>
+      <Carousel className='w-fit' setApi={setApi}>
         <CarouselContent>
           {offer.images.map((image, index) => (
             <CarouselItem key={index}>
