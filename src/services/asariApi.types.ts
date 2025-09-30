@@ -45,7 +45,6 @@ export interface AsariOffice {
   address: AsariOfficeAddress;
   ggNumber: string | null;
   skypeUser: string | null;
-  addToDescriptionInExport: string;
   vatRegisterId: string | null;
   invoiceNip: string | null;
   invoiceBankName: string | null;

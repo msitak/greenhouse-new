@@ -7,87 +7,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum AsariStatus {
-  Active
-  Cancelled
-  Closed
-  Pending
-  Draft
-  Archived
-  Unknown
-}
-
 model Listing {
-  id                 String   @id @default(cuid())
-  asariId            Int      @unique
-  lastUpdatedAsari   DateTime?
-
-  asariStatus        AsariStatus @default(Draft)
-
-  exportId           String?
-  statusId           Int?
-  title              String?
-  description        String?
-  englishDescription String? // Dodane
-  internalComment    String?
-  addToDescriptionInExport String?
-
-  price              Float?
-  priceCurrencyId    Int?
-  pricePerM2         Float?
-
-  locationAddress      String?
-  locationCity         String?
-  locationDistrict     String?
-  locationStreet       String?
-  locationStreetNumber String?
-  locationFlatNumber   String?
-  locationPostalCode   String?
-  locationCountryId    Int?
-  latitude             Float?
-  longitude            Float?
-  locationVoivodeship  String?
-  locationCounty       String?
-  locationCommunity    String?
-
-  propertyTypeId       Int?
-  area                 Float? // np. area_total_m2
-  // areaUsableM2      Float? // Jeśli chcemy rozróżnić
-  roomsCount           Int?
-  floor                Int?
-  floorCount           Int?
-  buildYear            Int?
-  buildingMaterialId   Int?
-  windowTypeId         Int?
-  heatingTypeId        Int?
-  offerType            String? 
-  // ... Dodaj więcej jawnych pól z 'property' jeśli są często używane/filtrowane
-
-  transactionTypeId    Int?
-  marketTypeId         Int?
-
-  agentAsariId         Int?    // Dodane (agent.id)
-  agentName            String? // agent.firstName (lub połączone firstName + lastName)
-  agentSurname         String? // agent.lastName
-  agentPhone           String? // agent.phoneNumber
-  agentEmail           String? // agent.email
-  agentSkypeUser       String? // Dodane (agent.skypeUser)
-  agentImageAsariId    Int?    // Dodane (agent.imageId)
-
-  // Dla hierarchii ofert (uproszczone)
-  parentListingAsariId String? // parentListing.listingId z Asari
-  // Można rozważyć pole JSON dla nestedListings, jeśli nie modelujemy pełnej relacji
-  // nestedListingAsariIdsJson String? @db.JsonB 
-
-  images               ListingImage[]
-
-  createdAtSystem      DateTime?
-  updatedAtSystem      DateTime?
-
-  additionalDetailsJson Json? @db.JsonB
-
-  dbCreatedAt          DateTime @default(now())
-  dbUpdatedAt          DateTime @updatedAt
+  id                    String         @id @default(cuid())
+  asariId               Int            @unique
+  exportId              String?
+  statusId              Int?
+  title                 String?
+  description           String?
+  privateDescription    String?
+  englishDescription    String?
+  internalComment       String?
+  price                 Float?
+  priceCurrencyId       Int?
+  pricePerM2            Float?
+  locationAddress       String?
+  locationCity          String?
+  locationDistrict      String?
+  locationStreet        String?
+  locationStreetNumber  String?
+  locationFlatNumber    String?
+  locationPostalCode    String?
+  locationCountryId     Int?
+  latitude              Float?
+  longitude             Float?
+  locationVoivodeship   String?
+  locationCounty        String?
+  locationCommunity     String?
+  propertyTypeId        Int?
+  area                  Float?
+  roomsCount            Int?
+  floor                 Int?
+  floorCount            Int?
+  buildYear             Int?
+  buildingMaterialId    Int?
+  windowTypeId          Int?
+  heatingTypeId         Int?
+  transactionTypeId     Int?
+  marketTypeId          Int?
+  agentAsariId          Int?
+  agentName             String?
+  agentSurname          String?
+  agentPhone            String?
+  agentEmail            String?
+  agentSkypeUser        String?
+  agentImageAsariId     Int?
+  parentListingAsariId  String?
+  createdAtSystem       DateTime?
+  updatedAtSystem       DateTime?
+  additionalDetailsJson Json?
+  dbCreatedAt           DateTime       @default(now())
+  dbUpdatedAt           DateTime       @updatedAt
+  lastUpdatedAsari      DateTime?
+  offerType             String?
+  asariStatus           AsariStatus    @default(Draft)
+  isVisible             Boolean        @default(true)
+  soldAt                DateTime?
+  images                ListingImage[]
 
   @@index([asariId])
   @@index([locationCity])
@@ -99,41 +74,47 @@ model Listing {
 }
 
 model ListingImage {
-  id            String  @id @default(cuid())
-  asariId       Int     @unique // ID zdjęcia z obiektu zdjęcia w Asari
-
-  urlThumbnail  String  // Konstruowany URL
-  urlNormal     String  // Konstruowany URL
-  description   String?
-  order         Int?
-
-  listing       Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  listingId     String
-
-  dbCreatedAt   DateTime @default(now())
-  dbUpdatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  asariId      Int      @unique
+  urlThumbnail String
+  urlNormal    String
+  description  String?
+  order        Int?
+  listingId    String
+  dbCreatedAt  DateTime @default(now())
+  dbUpdatedAt  DateTime @updatedAt
+  listing      Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
   @@index([asariId])
 }
 
 model DictionaryValue {
   id            String @id @default(cuid())
-  dictionaryKey String // Np. "PROPERTY_TYPE" lub `dictionaryMessageKey` z metadata
-  asariDictId   Int    // ID wartości z Asari (np. wartość z `property.type_id`)
-  locale        String // np. "pl", "en" (zgodnie z API Asari)
-  value         String // Przetłumaczona wartość tekstowa
+  dictionaryKey String
+  asariDictId   Int
+  locale        String
+  value         String
 
   @@unique([dictionaryKey, asariDictId, locale])
   @@index([dictionaryKey, locale])
 }
 
-// Ogólne tłumaczenia interfejsu z i18nMessages
 model I18nMessage {
   id     String @id @default(cuid())
-  locale String // np. "pl", "en"
-  key    String // Klucz tłumaczenia
-  value  String // Wartość tłumaczenia
+  locale String
+  key    String
+  value  String
 
   @@unique([locale, key])
   @@index([locale])
+}
+
+enum AsariStatus {
+  Active
+  Cancelled
+  Closed
+  Pending
+  Draft
+  Archived
+  Unknown
 }

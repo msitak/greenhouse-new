@@ -3,25 +3,49 @@ import {
   fetchExportedListingIds,
   fetchListingDetails,
 } from '@/services/asariApi';
-import { AsariListingDetail } from '@/services/asariApi.types';
+import {
+  AsariListingDetail,
+  AsariListingIdEntry,
+} from '@/services/asariApi.types';
 import { prisma } from '@/services/prisma';
 import { AsariStatus, Prisma } from '@prisma/client';
 
 const ASARI_IMAGE_BASE_URL_THUMBNAIL = 'https://img.asariweb.pl/thumbnail/';
 const ASARI_IMAGE_BASE_URL_NORMAL = 'https://img.asariweb.pl/normal/';
+const CLOSED_LISTING_WINDOW_DAYS = 7;
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+function safeParseDate(dateInput?: string | Date | null): Date | null {
+  if (!dateInput) return null;
+
+  if (dateInput instanceof Date) {
+    const millis = dateInput.getTime();
+    return Number.isNaN(millis) ? null : new Date(millis);
+  }
+
+  const parsed = new Date(dateInput);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function deriveVisibility(
+  status: AsariStatus,
+  lastUpdated: Date
+): { isVisible: boolean; soldAt: Date | null } {
+  switch (status) {
+    case AsariStatus.Closed:
+      return { isVisible: true, soldAt: lastUpdated };
+    case AsariStatus.Active:
+      return { isVisible: true, soldAt: null };
+    default:
+      return { isVisible: false, soldAt: null };
+  }
+}
+
 function mapAsariDetailToPrismaListing(
   asariDetail: AsariListingDetail,
-  currentTimestamp: Date
+  effectiveLastUpdated: Date
 ): Prisma.ListingUpdateInput {
-  const parseAsariDate = (dateString?: string | null): Date | null => {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    return isNaN(date.getTime()) ? null : date;
-  };
-
   const mapStatus = (status?: string | null): AsariStatus => {
     if (!status) {
       return AsariStatus.Unknown;
@@ -48,13 +72,23 @@ function mapAsariDetailToPrismaListing(
     return AsariStatus.Unknown;
   };
 
+  const asariStatus = mapStatus(asariDetail.status);
+  const lastUpdatedAsari =
+    safeParseDate(asariDetail.lastUpdated) ?? effectiveLastUpdated;
+  const { isVisible, soldAt } = deriveVisibility(
+    asariStatus,
+    lastUpdatedAsari
+  );
+
   const prismaListingData: Prisma.ListingUpdateInput = {
     asariId: asariDetail.id,
-    lastUpdatedAsari:
-      parseAsariDate(asariDetail.lastUpdated) || currentTimestamp,
-    asariStatus: mapStatus(asariDetail.status),
+    lastUpdatedAsari,
+    asariStatus,
+    isVisible,
+    soldAt,
     title: asariDetail.headerAdvertisement,
     description: asariDetail.description,
+    privateDescription: asariDetail.privateDescription,
     englishDescription: asariDetail.englishDescription,
     internalComment: asariDetail.internal_comment,
     exportId: asariDetail.export_id,
@@ -84,8 +118,8 @@ function mapAsariDetailToPrismaListing(
         : typeof asariDetail.parentListingId === 'number'
           ? String(asariDetail.parentListingId)
           : null,
-    createdAtSystem: parseAsariDate(asariDetail.dateCreated),
-    updatedAtSystem: parseAsariDate(asariDetail.actualisationDate),
+    createdAtSystem: safeParseDate(asariDetail.dateCreated),
+    updatedAtSystem: safeParseDate(asariDetail.actualisationDate),
     additionalDetailsJson: {
       contractType: asariDetail.contractType,
       listingIdString: asariDetail.listingId,
@@ -105,13 +139,19 @@ export async function POST() {
   let errorCount = 0;
 
   try {
-    const asariIdsResponse = await fetchExportedListingIds();
+    const asariIdsResponse = await fetchExportedListingIds(
+      CLOSED_LISTING_WINDOW_DAYS
+    );
     if (!asariIdsResponse.success || !asariIdsResponse.data) {
       throw new Error('Nie udało się pobrać listy ID ofert z Asari.');
     }
 
-    const allAsariListingsInfo: { id: number; lastUpdated: Date }[] =
-      asariIdsResponse.data;
+    const allAsariListingsInfo = asariIdsResponse.data.map(
+      (entry: AsariListingIdEntry) => ({
+        id: entry.id,
+        lastUpdated: safeParseDate(entry.lastUpdated) ?? new Date(),
+      })
+    );
     console.log(
       `Pobrano ${allAsariListingsInfo.length} informacji o ofertach z Asari.`
     );
@@ -132,10 +172,16 @@ export async function POST() {
       console.log(
         `Znaleziono ${idsToArchive.length} ofert do archiwizacji: ${idsToArchive.join(', ')}`
       );
+
       const archiveResult = await prisma.listing.updateMany({
         where: { asariId: { in: idsToArchive } },
-        data: { asariStatus: 'Archived' },
+        data: {
+          asariStatus: AsariStatus.Archived,
+          isVisible: false,
+          soldAt: null,
+        },
       });
+
       archivedCount = archiveResult.count;
       console.log(`Zarchiwizowano ${archivedCount} ofert.`);
     }
@@ -147,11 +193,13 @@ export async function POST() {
           select: { lastUpdatedAsari: true },
         });
 
-        const asariLastUpdatedDate = asariListingInfo.lastUpdated;
+        const asariLastUpdatedDate = safeParseDate(
+          asariListingInfo.lastUpdated
+        );
 
         if (
-          existingListing &&
-          existingListing.lastUpdatedAsari &&
+          asariLastUpdatedDate &&
+          existingListing?.lastUpdatedAsari &&
           asariLastUpdatedDate <= existingListing.lastUpdatedAsari
         ) {
           skippedCount++;
@@ -172,13 +220,14 @@ export async function POST() {
           continue;
         }
         const listingDataFromAsari: AsariListingDetail = detailsResponse.data;
-        const effectiveLastUpdated = listingDataFromAsari.lastUpdated
-          ? new Date(listingDataFromAsari.lastUpdated)
-          : asariLastUpdatedDate;
+        const effectiveLastUpdated = safeParseDate(
+          listingDataFromAsari.lastUpdated
+        );
+        const persistedLastUpdated = effectiveLastUpdated || asariLastUpdatedDate;
 
         const prismaReadyData = mapAsariDetailToPrismaListing(
           listingDataFromAsari,
-          effectiveLastUpdated
+          persistedLastUpdated || new Date()
         );
         const imagesToCreate =
           listingDataFromAsari.images?.map(img => ({

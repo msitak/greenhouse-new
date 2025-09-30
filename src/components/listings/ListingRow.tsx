@@ -49,7 +49,7 @@ export default function ListingRow({
             </h3>
 
             <p className='text-gray-600 text-sm'>
-              {listing.addToDescriptionInExport}
+              {listing.privateDescription}
             </p>
 
             <div className='mt-auto pt-3 flex flex-wrap items-center gap-6 text-gray-700'>
