@@ -2,13 +2,18 @@
 
 import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type PaginationProps = {
   className?: string;
   currentPage?: number; // 1-based
   totalPages?: number;
   onPageChange?: (page: number) => void;
-  getHref?: (page: number) => string;
+  getHref?: (page: number) => string; // legacy - avoid passing from Server Components
+  hrefPrefix?: string; // preferred for Server Components: e.g. "/nieruchomosci?page="
+  hrefHash?: string; // optional anchor id, e.g. 'listings' -> adds #listings
+  smoothScrollTargetId?: string; // element id for smooth scroll on navigation
 };
 
 // Front-first pagination UI with future-proof props
@@ -18,7 +23,11 @@ export default function Pagination({
   totalPages = 12,
   onPageChange,
   getHref,
+  hrefPrefix,
+  hrefHash,
+  smoothScrollTargetId,
 }: PaginationProps) {
+  const router = useRouter();
   const makePageItems = (
     page: number,
     total: number
@@ -70,9 +79,52 @@ export default function Pagination({
           </span>
         );
 
-        if (getHref) {
+        const href = hrefPrefix
+          ? `${hrefPrefix}${it}${hrefHash ? `#${hrefHash}` : ''}`
+          : undefined;
+
+        if (hrefPrefix && href) {
           return (
-            <a key={it} href={getHref(it)} aria-label={`Strona ${it}`}>
+            <a
+              key={it}
+              href={href}
+              aria-label={`Strona ${it}`}
+              onClick={(e) => {
+                e.preventDefault();
+                router.push(href, { scroll: false });
+                if (smoothScrollTargetId) {
+                  setTimeout(() => {
+                    document
+                      .getElementById(smoothScrollTargetId)
+                      ?.scrollIntoView({ behavior: 'smooth' });
+                  }, 0);
+                }
+              }}
+            >
+              {content}
+            </a>
+          );
+        }
+
+        if (getHref) {
+          const h = getHref(it);
+          return (
+            <a
+              key={it}
+              href={h}
+              aria-label={`Strona ${it}`}
+              onClick={(e) => {
+                e.preventDefault();
+                router.push(h, { scroll: false });
+                if (smoothScrollTargetId) {
+                  setTimeout(() => {
+                    document
+                      .getElementById(smoothScrollTargetId)
+                      ?.scrollIntoView({ behavior: 'smooth' });
+                  }, 0);
+                }
+              }}
+            >
               {content}
             </a>
           );
@@ -94,7 +146,23 @@ export default function Pagination({
       <button
         type='button'
         aria-label='Następna strona'
-        onClick={() => handleClick(currentPage + 1)}
+        onClick={() => {
+          const next = currentPage + 1;
+          if (next > totalPages) return;
+          if (hrefPrefix) {
+            const href = `${hrefPrefix}${next}${hrefHash ? `#${hrefHash}` : ''}`;
+            router.push(href, { scroll: false });
+            if (smoothScrollTargetId) {
+              setTimeout(() => {
+                document
+                  .getElementById(smoothScrollTargetId)
+                  ?.scrollIntoView({ behavior: 'smooth' });
+              }, 0);
+            }
+            return;
+          }
+          handleClick(next);
+        }}
         disabled={currentPage >= totalPages}
         className={cn(
           'inline-flex size-10 items-center justify-center rounded-full text-[--color-text-primary] hover:bg-[#F4F4F4]',

@@ -33,7 +33,7 @@ export default function PhotoCarousel({
   children,
 }: PhotoCarouselProps) {
   const safeImages = images?.length
-    ? images
+    ? images.slice(0, 20)
     : [
         {
           // fallback
@@ -41,8 +41,10 @@ export default function PhotoCarousel({
           asariId: null as unknown as number,
           urlNormal: '/test-image.jpg',
           urlThumbnail: '/test-image.jpg',
+          urlOriginal: '/test-image.jpg',
           description: null,
           order: null,
+          isScheme: false,
           dbCreatedAt: null as unknown as string,
           dbUpdatedAt: null as unknown as string,
         } as unknown as ListingImageApiResponse,
@@ -78,10 +80,13 @@ export default function PhotoCarousel({
           {safeImages.map((image, index) => (
             <CarouselItem key={index}>
               <Image
-                src={image.urlNormal}
+                src={image.urlOriginal || image.urlNormal}
                 alt={image.description ?? `offer image ${index + 1}`}
-                width={920}
-                height={520}
+                width={1920}
+                height={1080}
+                quality={90}
+                priority={index === 0}
+                sizes='(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px'
                 className={cn('w-full object-cover', imageClassName)}
               />
             </CarouselItem>

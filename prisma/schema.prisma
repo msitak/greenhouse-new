@@ -10,6 +10,7 @@ datasource db {
 model Listing {
   id                    String         @id @default(cuid())
   asariId               Int            @unique
+  slug                  String         @unique
   exportId              String?
   statusId              Int?
   title                 String?
@@ -42,8 +43,8 @@ model Listing {
   buildingMaterialId    Int?
   windowTypeId          Int?
   heatingTypeId         Int?
-  transactionTypeId     Int?
   marketTypeId          Int?
+  propertyDetailsJson   Json?
   agentAsariId          Int?
   agentName             String?
   agentSurname          String?
@@ -59,6 +60,7 @@ model Listing {
   dbUpdatedAt           DateTime       @updatedAt
   lastUpdatedAsari      DateTime?
   offerType             String?
+  virtualTourUrl        String?
   asariStatus           AsariStatus    @default(Draft)
   isVisible             Boolean        @default(true)
   soldAt                DateTime?
@@ -67,10 +69,10 @@ model Listing {
   @@index([asariId])
   @@index([locationCity])
   @@index([propertyTypeId])
-  @@index([transactionTypeId])
   @@index([price])
   @@index([area])
   @@index([asariStatus])
+  @@index([slug])
 }
 
 model ListingImage {
@@ -78,8 +80,10 @@ model ListingImage {
   asariId      Int      @unique
   urlThumbnail String
   urlNormal    String
+  urlOriginal  String?
   description  String?
   order        Int?
+  isScheme     Boolean  @default(false)
   listingId    String
   dbCreatedAt  DateTime @default(now())
   dbUpdatedAt  DateTime @updatedAt

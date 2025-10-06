@@ -20,8 +20,10 @@ export type ListingImageApiResponse = WithStringDates<
     | 'asariId'
     | 'urlNormal'
     | 'urlThumbnail'
+    | 'urlOriginal'
     | 'description'
     | 'order'
+    | 'isScheme'
     | 'dbCreatedAt'
     | 'dbUpdatedAt'
   >

@@ -134,6 +134,7 @@ export interface AsariListingDetail {
   generatedDescription: string | null;
   groundOwnershipType?: string | null;
   headerAdvertisement: string;
+  offerType?: string | null;
   issuedBuildingConditions?: boolean | null;
   localPlan?: string | null;
   location: AsariLocationInfo;

@@ -1,8 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { useState } from 'react';
-import OfferTile from '@/components/layout/offerTile';
+import OfferTile, { OfferTileListing, OfferTileSkeleton } from '@/components/layout/offerTile';
 import Hero from '@/components/layout/hero';
 import { Button } from '@/components/ui/button';
 import Section from '@/components/layout/section';
@@ -16,25 +16,50 @@ import { AreaRangeField } from '../../components/search/AreaRangeField';
 import { PriceRangeField } from '../../components/search/PriceRangeField';
 import { LocationValue } from '../../lib/location/types';
 
-export default function Home() {
-  const [transactionType, setTransactionType] = useState('sale');
-  const [area, setArea] = useState<[number | null, number | null]>([100, 200]);
-  const [price, setPrice] = useState<[number | null, number | null]>([
-    100_000, 200_000,
-  ]);
-  const [location, setLocation] = useState<LocationValue>();
+const SKELETONS = Array.from({ length: 6 }, (_, index) => index);
 
-  // const handleTypeChange = (newType: string) => {
-  //   if (newType) {
-  //     // Zabezpieczenie, aby zawsze była wybrana jakaś opcja
-  //     setTransactionType(newType);
-  //   }
-  // };
+export default function Home() {
+  const [transactionType, setTransactionType] = useState<'sale' | 'rent'>('sale');
+  const [isLoading, setIsLoading] = useState(true);
+  const [offers, setOffers] = useState<OfferTileListing[]>([]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function fetchLatestOffers() {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/listings/latest?kind=${transactionType}`);
+
+        if (!response.ok) {
+          console.error('Failed to load listings:', response.statusText);
+          return;
+        }
+
+        const json = await response.json();
+        if (!isCancelled) {
+          setOffers(json.data ?? []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch latest listings:', error);
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    fetchLatestOffers();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [transactionType]);
 
   return (
     <div>
       <Section id='hero'>
-        <Hero src='/test-image.jpg' alt='Green House' overlay>
+        <Hero src='/hero.png' alt='Green House' overlay>
           <div className='absolute top-[200px] inset-0 z-10 flex items-center justify-center px-[60px]'>
             <div className='text-center font-[family-name:var(--font-montserrat)]'>
               <h1 className='text-white text-4xl md:text-6xl font-semibold'>
@@ -74,43 +99,36 @@ export default function Home() {
         dealType={'sale'}
       /> */}
 
-      <Section id='latest-offers' className='mt-12 mb-12'>
+      <Section id='latest-offers' className='mt-12 mb-12 max-w-[1320px] mx-auto'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-4xl font-bold mb-4'>
             Najnowsze oferty nieruchomości
           </h2>
           <div className='inline-flex gap-0 items-center rounded-xl justify-center bg-gray-100 p-0'>
-            <br />
             <ToggleGroup
               type='single'
               value={transactionType}
-              className='flex items-center' // Używamy flex i space-x do ułożenia przycisków
+              onValueChange={value => {
+                if (value) {
+                  setTransactionType(value as typeof transactionType);
+                }
+              }}
+              className='flex items-center'
             >
-              <ToggleGroupItem
-                value='sprzedaz'
-                variant='pill' // Używamy naszego nowego wariantu
-                className='px-8 py-2' // Dostosuj padding do swojego gustu
-              >
+              <ToggleGroupItem value='sale' variant='pill' className='px-8 py-2'>
                 Sprzedaż
               </ToggleGroupItem>
-              <ToggleGroupItem
-                value='wynajem'
-                variant='pill' // Używamy naszego nowego wariantu
-                className='px-8 py-2' // Dostosuj padding do swojego gustu
-              >
+              <ToggleGroupItem value='rent' variant='pill' className='px-8 py-2'>
                 Wynajem
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
         </div>
 
-        <div className='grid grid-flow-col grid-rows-2 gap-4'>
-          <OfferTile />
-          <OfferTile />
-          <OfferTile />
-          <OfferTile />
-          <OfferTile />
-          <OfferTile />
+        <div className='grid grid-cols-3 gap-4'>
+          {isLoading
+            ? SKELETONS.map(key => <OfferTileSkeleton key={key} />)
+            : offers.map(offer => <OfferTile key={offer.id} listing={offer} />)}
         </div>
 
         <div className='flex justify-center mt-10'>

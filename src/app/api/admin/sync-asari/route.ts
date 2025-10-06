@@ -9,9 +9,11 @@ import {
 } from '@/services/asariApi.types';
 import { prisma } from '@/services/prisma';
 import { AsariStatus, Prisma } from '@prisma/client';
+import { generateListingSlug } from '@/lib/utils';
 
 const ASARI_IMAGE_BASE_URL_THUMBNAIL = 'https://img.asariweb.pl/thumbnail/';
 const ASARI_IMAGE_BASE_URL_NORMAL = 'https://img.asariweb.pl/normal/';
+const ASARI_IMAGE_BASE_URL_ORIGINAL = 'https://img.asariweb.pl/original/';
 const CLOSED_LISTING_WINDOW_DAYS = 7;
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -40,6 +42,27 @@ function deriveVisibility(
     default:
       return { isVisible: false, soldAt: null };
   }
+}
+
+const RENT_TOKENS = ['rent', 'wynajem'];
+const SALE_TOKENS = ['sale', 'sprzed'];
+
+function deriveTransactionKind(
+  offerType: string | null | undefined
+): 'rent' | 'sale' | 'other' | null {
+  if (!offerType) return null;
+
+  const normalized = offerType.toLowerCase();
+
+  if (RENT_TOKENS.some(token => normalized.includes(token))) {
+    return 'rent';
+  }
+
+  if (SALE_TOKENS.some(token => normalized.includes(token))) {
+    return 'sale';
+  }
+
+  return 'other';
 }
 
 function mapAsariDetailToPrismaListing(
@@ -79,11 +102,26 @@ function mapAsariDetailToPrismaListing(
     asariStatus,
     lastUpdatedAsari
   );
+  const transactionKind = deriveTransactionKind(asariDetail.offerType);
+
+  // Generate slug from the listing data
+  const slug = generateListingSlug({
+    propertyTypeId: null, // PropertyType not available in AsariListingDetail
+    offerType: asariDetail.offerType,
+    roomsCount: asariDetail.noOfRooms,
+    locationCity: asariDetail.location?.locality,
+    locationDistrict: asariDetail.location?.quarter,
+    asariId: asariDetail.id,
+    listingIdString: asariDetail.listingId, // Use listingId to determine property type
+  });
 
   const prismaListingData: Prisma.ListingUpdateInput = {
     asariId: asariDetail.id,
+    slug,
     lastUpdatedAsari,
     asariStatus,
+    offerType: asariDetail.offerType ?? null,
+    virtualTourUrl: asariDetail.virtualTourUrl ?? null,
     isVisible,
     soldAt,
     title: asariDetail.headerAdvertisement,
@@ -104,7 +142,44 @@ function mapAsariDetailToPrismaListing(
     roomsCount: asariDetail.noOfRooms,
     floor: asariDetail.floorNo,
     floorCount: asariDetail.noOfFloors,
-    offerType: asariDetail.section,
+    propertyDetailsJson: {
+      lotArea: asariDetail.lotArea,
+      lotForm: asariDetail.lotForm,
+      lotShape: asariDetail.lotShape,
+      lotType: asariDetail.lotType,
+      zoningPlan: asariDetail.zoningPlan,
+      possibleDevelopmentPercent: asariDetail.possibleDevelopmentPercent,
+      overallHeight: asariDetail.overallHeight,
+      groundOwnershipType: asariDetail.groundOwnershipType,
+      waterTypeList: asariDetail.waterTypeList,
+      electricityStatus: asariDetail.electricityStatus,
+      gasStatus: asariDetail.gasStatus,
+      sewerageTypeList: asariDetail.sewerageTypeList,
+      urbanCo: asariDetail.urbanCo,
+      activeBuildingPermit: asariDetail.activeBuildingPermit,
+      issuedBuildingConditions: asariDetail.issuedBuildingConditions,
+      elevator: asariDetail.elevator,
+      condition: asariDetail.condition,
+      buildingType: asariDetail.buildingType,
+      material: asariDetail.material,
+      apartmentTypeList: asariDetail.apartmentTypeList,
+      heatingTypeList: asariDetail.heatingTypeList,
+      hotWaterList: asariDetail.hotWaterList,
+      kitchenType: asariDetail.kitchenType,
+      exchange: asariDetail.exchange,
+      communicationList: asariDetail.communicationList,
+      availableNeighborhoodList: asariDetail.availableNeighborhoodList,
+      vacantFromDate: asariDetail.vacantFromDate,
+      videoUrl: asariDetail.videoUrl,
+      drivewayType: asariDetail.drivewayType,
+      encloseType: asariDetail.encloseType,
+      dividingPossibility: asariDetail.dividingPossibility,
+      plotDimension: asariDetail.plotDimension,
+      intercom: asariDetail.intercom,
+      sharedOwnership: asariDetail.sharedOwnership,
+      groundSharedOwnership: asariDetail.groundSharedOwnership,
+      ownListing: asariDetail.ownListing,
+    },
     agentAsariId: asariDetail.agent?.id,
     agentName:
       `${asariDetail.agent?.firstName || ''} ${asariDetail.agent?.lastName || ''}`.trim(),
@@ -234,8 +309,10 @@ export async function POST() {
             asariId: img.id,
             urlThumbnail: `${ASARI_IMAGE_BASE_URL_THUMBNAIL}${img.id}`,
             urlNormal: `${ASARI_IMAGE_BASE_URL_NORMAL}${img.id}`,
+            urlOriginal: `${ASARI_IMAGE_BASE_URL_ORIGINAL}${img.id}`,
             description: img.description,
             order: img.order,
+            isScheme: img.isScheme || false,
           })) || [];
 
         const createData = {

@@ -7,20 +7,20 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   // Asynchroniczny dostęp do params.id zgodnie z nowymi standardami Next.js
-  const { id: listingId } = await context.params;
+  const { id: slug } = await context.params;
 
-  if (!listingId) {
+  if (!slug) {
     return NextResponse.json(
-      { message: 'ID oferty jest wymagane' },
+      { message: 'Slug oferty jest wymagany' },
       { status: 400 }
     );
   }
 
   try {
-    // Krok 1: Pobierz surowe dane z bazy danych
+    // Krok 1: Pobierz surowe dane z bazy danych używając slug
     const listingFromDb = await prisma.listing.findFirst({
       where: {
-        id: listingId,
+        slug: slug,
         asariStatus: 'Active', // Zabezpieczenie: serwuj tylko aktywne oferty
       },
       include: {
@@ -31,8 +31,10 @@ export async function GET(
             asariId: true,
             urlNormal: true,
             urlThumbnail: true,
+            urlOriginal: true,
             description: true,
             order: true,
+            isScheme: true,
             dbCreatedAt: true,
             dbUpdatedAt: true,
           },
@@ -70,7 +72,7 @@ export async function GET(
     // Krok 3: Zwróć przetransformowane dane w odpowiedzi JSON
     return NextResponse.json(listingForApi);
   } catch (error: any) {
-    console.error(`Błąd podczas pobierania oferty ID ${listingId}:`, error);
+    console.error(`Błąd podczas pobierania oferty ${slug}:`, error);
 
     // Lepsza obsługa błędów Prisma
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
