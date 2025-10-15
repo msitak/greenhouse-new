@@ -37,7 +37,7 @@ export function Autocomplete<T extends AutocompleteItem>({
   placeholder = 'Type…',
   className,
   inputClassName,
-  menuWidth = 520,
+  menuWidth,
   renderItem,
   clearOnCloseIfNoSelection = true,
 }: Props<T>) {
@@ -54,13 +54,15 @@ export function Autocomplete<T extends AutocompleteItem>({
     setOpen(items.length > 0 && !manualClose);
   }, [items, manualClose]);
 
-  useEffect(() => {
-    setManualClose(false);
-  }, [value]);
+  // Do NOT auto-open on programmatic value changes (e.g., after selecting an item).
+  // We will only clear manualClose when the user types.
 
   function handleSelect(it: T) {
     selectionMadeRef.current = true; // zaznaczamy wybór zanim menu się zamknie
     onSelect(it);
+    // Close popover after selection
+    setOpen(false);
+    setManualClose(true);
   }
 
   function handleBlur() {
@@ -96,7 +98,7 @@ export function Autocomplete<T extends AutocompleteItem>({
   }
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('relative w-full', className)}>
       <Popover
         open={open}
         onOpenChange={v => {
@@ -126,7 +128,11 @@ export function Autocomplete<T extends AutocompleteItem>({
               className={cn('h-12 text-base w-full pr-10', inputClassName)}
               placeholder={placeholder}
               value={value}
-              onChange={e => onValueChange(e.target.value)}
+              onChange={e => {
+                // User is typing — allow menu to open on new results
+                setManualClose(false);
+                onValueChange(e.target.value);
+              }}
               onKeyDown={onKeyDown}
               onBlur={handleBlur}
               autoComplete='off'

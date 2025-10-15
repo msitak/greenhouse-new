@@ -3,23 +3,34 @@
 
 import { DualRange, type DualRangeProps } from './DualRange';
 
-export function PriceRangeField(
-  props: Omit<DualRangeProps, 'label' | 'unit' | 'min' | 'max' | 'step'> & {
-    dealType?: 'sale' | 'rent';
-  }
-) {
+type Props = Omit<
+  DualRangeProps,
+  'label' | 'unit' | 'min' | 'max' | 'step'
+> & {
+  dealType?: 'sale' | 'rent';
+  min?: number;
+  max?: number;
+  step?: number;
+};
+
+export function PriceRangeField(props: Props) {
   const sale = props.dealType !== 'rent';
+  const fallbackMin = 0;
+  const fallbackMax = sale ? 2_000_000 : 20_000;
+  const fallbackStep = sale ? 5_000 : 50;
+  const minDistanceFallback = fallbackStep;
+
   return (
     <DualRange
       id={props.id}
       label='Cena'
       unit='zł'
-      min={0}
-      max={sale ? 2_000_000 : 20_000}
-      step={sale ? 5_000 : 50}
+      min={props.min ?? fallbackMin}
+      max={props.max ?? fallbackMax}
+      step={props.step ?? fallbackStep}
       value={props.value}
       onChange={props.onChange}
-      minDistance={sale ? 5_000 : 50}
+      minDistance={props.minDistance ?? minDistanceFallback}
       className={props.className}
       updateStrategy={props.updateStrategy ?? 'commit'}
     />

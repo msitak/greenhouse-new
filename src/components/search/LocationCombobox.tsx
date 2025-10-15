@@ -9,7 +9,7 @@ import { usePlacesAutocomplete } from '@/lib/hooks/usePlacesAutocomplete';
 export function LocationCombobox({
   value,
   onChange,
-  placeholder = 'np. województwo, miasto etc.',
+  placeholder = 'np. Katowice, Częstochowa…',
 }: {
   value?: LocationValue;
   onChange: (v: LocationValue) => void;
@@ -23,20 +23,23 @@ export function LocationCombobox({
       value={text}
       onValueChange={v => setText(v)}
       items={items}
+      inputClassName='rounded-xl bg-white border border-[#CCCCCC] text-[#6E6E6E] font-medium w-full px-4 py-3 text-sm'
       clearOnCloseIfNoSelection
-      onSelect={item => {
-        onChange({
-          label: item.label,
-          placeId: item.id.toString(),
-          lat: 0,
-          lng: 0,
-        }); // bez lat/lng/bbox
-        setText(item.label);
+      menuWidth="400px"
+      onSelect={async item => {
+        // Fetch details to get precise lat/lng and components
+        await pickById(
+          item.id,
+          item.label,
+          next => {
+            onChange(next);
+            setText(next.label);
+          }
+        );
       }}
       placeholder={placeholder}
-      menuWidth={520}
       renderItem={it => (
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center gap-2 w-full'>
           <MapPin className='h-4 w-4' />
           <span>{it.label}</span>
         </div>

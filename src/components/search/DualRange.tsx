@@ -90,18 +90,18 @@ export function DualRange({
 
   return (
     <div className={className}>
-      <Label htmlFor={id} className='mb-2 block'>
-        {label}
-      </Label>
 
       {/* INPUTY — swobodne wpisywanie, korekta dopiero na blur/Enter */}
-      <div className='flex items-center gap-4'>
+      <div className='flex items-center gap-2 justify-end items-center'>
+        <Label htmlFor={id} className='block mr-auto'>
+          {label}
+        </Label>
         <div className='flex items-center gap-1'>
           <input
             inputMode='numeric'
             aria-label={`${label} od`}
             className={cn(
-              'w-28 bg-transparent font-medium outline-none border-b border-transparent focus:border-primary'
+              'w-22 bg-transparent text-right text-primary font-medium outline-none border-b border-transparent focus:border-primary'
             )}
             value={R.minText}
             onChange={e => R.changeMinText(e.target.value)}
@@ -130,7 +130,7 @@ export function DualRange({
             inputMode='numeric'
             aria-label={`${label} do`}
             className={cn(
-              'w-28 bg-transparent font-medium outline-none border-b border-transparent focus:border-primary'
+              'w-22 bg-transparent text-right text-primary font-medium outline-none border-b border-transparent focus:border-primary'
             )}
             value={R.maxText}
             onChange={e => R.changeMaxText(e.target.value)}
@@ -151,16 +151,6 @@ export function DualRange({
             <span className='text-sm text-muted-foreground'>{unit}</span>
           )}
         </div>
-
-        {(R.lo != null || R.hi != null) && (
-          <button
-            type='button'
-            className='ml-auto text-sm text-muted-foreground hover:text-foreground'
-            onClick={R.clear}
-          >
-            Wyczyść
-          </button>
-        )}
       </div>
 
       {/* SLIDER */}

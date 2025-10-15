@@ -10,4 +10,11 @@ export type LocationValue = {
   lat: number;
   lng: number;
   viewport?: BBox;
+  // optional semantic breakdown
+  types?: string[];
+  addressComponents?: Array<{
+    longText?: string;
+    shortText?: string;
+    types?: string[];
+  }>;
 };

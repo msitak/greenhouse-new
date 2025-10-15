@@ -10,19 +10,31 @@ import { AsariStatus, Prisma } from '@prisma/client';
 import { ListingApiResponse } from '@/types/api.types';
 import SortSelect from './SortSelect';
 import Pagination from '@/components/ui/pagination';
+import SearchTabs from '@/components/search/SearchTabs';
 
 const PAGE_SIZE = 10;
 
 type PageProps = {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export default async function Page({ searchParams }: PageProps) {
-  const pageParam = typeof searchParams?.page === 'string' ? searchParams?.page : Array.isArray(searchParams?.page) ? searchParams?.page?.[0] : undefined;
+  const sp = await searchParams;
+  const pageParam = typeof sp?.page === 'string' ? sp.page : Array.isArray(sp?.page) ? sp.page?.[0] : undefined;
   const currentPage = Math.max(1, Number(pageParam) || 1);
-  const sortParamRaw = typeof searchParams?.sort === 'string' ? searchParams?.sort : Array.isArray(searchParams?.sort) ? searchParams?.sort?.[0] : undefined;
-  const transitionParam = typeof searchParams?.transition === 'string' ? searchParams?.transition : Array.isArray(searchParams?.transition) ? searchParams?.transition?.[0] : undefined;
+  const sortParamRaw = typeof sp?.sort === 'string' ? sp.sort : Array.isArray(sp?.sort) ? sp.sort?.[0] : undefined;
+  const transitionParam = typeof sp?.transition === 'string' ? sp.transition : Array.isArray(sp?.transition) ? sp.transition?.[0] : undefined;
   const sortKey = (['newest','price-desc','price-asc','area-asc','area-desc'] as const).includes((sortParamRaw as any)) ? (sortParamRaw as any) : 'newest';
+  const kindParamRaw = typeof sp?.kind === 'string' ? sp.kind : Array.isArray(sp?.kind) ? sp.kind?.[0] : undefined;
+  const kind: 'sale' | 'rent' = kindParamRaw === 'rent' || kindParamRaw === 'sale' ? (kindParamRaw as 'sale' | 'rent') : 'sale';
+  const cityParam = typeof sp?.city === 'string' ? sp.city : Array.isArray(sp?.city) ? sp.city?.[0] : undefined;
+  const districtParam = typeof sp?.district === 'string' ? sp.district : Array.isArray(sp?.district) ? sp.district?.[0] : undefined;
+  const streetParam = typeof sp?.street === 'string' ? sp.street : Array.isArray(sp?.street) ? sp.street?.[0] : undefined;
+  const propertyTypeParam = typeof sp?.propertyType === 'string' ? sp.propertyType : Array.isArray(sp?.propertyType) ? sp.propertyType?.[0] : undefined;
+  const priceMin = typeof sp?.priceMin === 'string' ? Number(sp.priceMin) : undefined;
+  const priceMax = typeof sp?.priceMax === 'string' ? Number(sp.priceMax) : undefined;
+  const areaMin = typeof sp?.areaMin === 'string' ? Number(sp.areaMin) : undefined;
+  const areaMax = typeof sp?.areaMax === 'string' ? Number(sp.areaMax) : undefined;
 
   // Build base filters (only visible and active/closed)
   const filters: Prisma.ListingWhereInput = {
@@ -31,6 +43,70 @@ export default async function Page({ searchParams }: PageProps) {
       in: [AsariStatus.Active, AsariStatus.Closed],
     },
   };
+
+  // Filter by offer type based on selected tab (sale/rent)
+  const offerTypeFilter = (() => {
+    if (kind === 'rent') return { endsWith: 'Rental', mode: 'insensitive' } as Prisma.StringNullableFilter;
+    if (kind === 'sale') return { endsWith: 'Sale', mode: 'insensitive' } as Prisma.StringNullableFilter;
+    return undefined;
+  })();
+
+  if (offerTypeFilter) {
+    (filters as any).offerType = offerTypeFilter;
+  }
+
+  // Optional location filters
+  if (cityParam) {
+    (filters as any).locationCity = { contains: cityParam, mode: 'insensitive' } as Prisma.StringFilter;
+  }
+  if (districtParam) {
+    (filters as any).locationDistrict = { contains: districtParam, mode: 'insensitive' } as Prisma.StringNullableFilter;
+  }
+  if (streetParam) {
+    (filters as any).locationStreet = { contains: streetParam, mode: 'insensitive' } as Prisma.StringNullableFilter;
+  }
+
+  // Optional property type mapping – try to infer from listingIdString codes
+  if (propertyTypeParam && propertyTypeParam !== 'any') {
+    const codeFilters: Prisma.ListingWhereInput[] = [];
+    if (propertyTypeParam === 'mieszkanie') {
+      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OM' } as any });
+    } else if (propertyTypeParam === 'dom') {
+      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OD' } as any });
+    } else if (propertyTypeParam === 'dzialka') {
+      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OG' } as any });
+    } else if (propertyTypeParam === 'lokal') {
+      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OL' } as any });
+      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'BL' } as any });
+    }
+    if (codeFilters.length) {
+      (filters as any).OR = [
+        ...(filters as any).OR ?? [],
+        ...codeFilters,
+      ];
+    }
+  }
+
+  // Compute bounds for price/area based on current non-price filters (includes propertyType)
+  const bounds = await prisma.listing.aggregate({
+    where: filters,
+    _min: { price: true, area: true },
+    _max: { price: true, area: true },
+  });
+
+  // Apply numeric range filters (for actual listing query)
+  if (!Number.isNaN(priceMin!) && priceMin != null) {
+    (filters as any).price = { ...(filters as any).price, gte: priceMin } as Prisma.FloatNullableFilter;
+  }
+  if (!Number.isNaN(priceMax!) && priceMax != null) {
+    (filters as any).price = { ...(filters as any).price, lte: priceMax } as Prisma.FloatNullableFilter;
+  }
+  if (!Number.isNaN(areaMin!) && areaMin != null) {
+    (filters as any).area = { ...(filters as any).area, gte: areaMin } as Prisma.FloatNullableFilter;
+  }
+  if (!Number.isNaN(areaMax!) && areaMax != null) {
+    (filters as any).area = { ...(filters as any).area, lte: areaMax } as Prisma.FloatNullableFilter;
+  }
 
   const totalCount = await prisma.listing.count({ where: filters });
 
@@ -61,6 +137,16 @@ export default async function Page({ searchParams }: PageProps) {
           </div> */}
         </div>
       </div>
+      {/* Search tabs box */}
+      <div className='max-w-[872px] mx-auto -mt-16 relative z-20 px-4 lg:px-0'>
+        <SearchTabs
+          priceMin={typeof bounds._min.price === 'number' ? bounds._min.price : undefined}
+          priceMax={typeof bounds._max.price === 'number' ? bounds._max.price : undefined}
+          areaMin={typeof bounds._min.area === 'number' ? bounds._min.area : undefined}
+          areaMax={typeof bounds._max.area === 'number' ? bounds._max.area : undefined}
+        />
+      </div>
+
       <Breadcrumbs className='my-6' />
 
       <div className='flex items-center justify-between'>
@@ -70,7 +156,7 @@ export default async function Page({ searchParams }: PageProps) {
             <span className='text-green-primary font-bold'>
               {totalCount} nieruchomości
             </span>{' '}
-            na sprzedaż
+            {kind === 'rent' ? 'na wynajem' : 'na sprzedaż'}
           </p>
         </div>
         <div className='flex items-center gap-3 self-end'>
@@ -89,7 +175,7 @@ export default async function Page({ searchParams }: PageProps) {
         {/* Show skeleton only for sort transitions; skip for pagination for smoother feel */}
         {transitionParam === 'sort' ? (
           <Suspense
-            key={`${currentPage}-${sortKey}`}
+            key={`${currentPage}-${sortKey}-${cityParam ?? ''}-${districtParam ?? ''}-${streetParam ?? ''}-${propertyTypeParam ?? ''}-${priceMin ?? ''}-${priceMax ?? ''}-${areaMin ?? ''}-${areaMax ?? ''}`}
             fallback={
               <div className='space-y-6'>
                 {Array.from({ length: 3 }).map((_, i) => (
@@ -130,13 +216,35 @@ export default async function Page({ searchParams }: PageProps) {
               </div>
             }
           >
-            {/* @ts-expect-error Async Server Component */}
-            <ListingsSection page={currentPage} sort={sortKey} />
+            <ListingsSection
+              page={currentPage}
+              sort={sortKey}
+              kind={kind}
+              city={cityParam}
+              district={districtParam}
+              street={streetParam}
+              propertyType={propertyTypeParam as any}
+              priceMin={priceMin}
+              priceMax={priceMax}
+              areaMin={areaMin}
+              areaMax={areaMax}
+            />
           </Suspense>
         ) : (
           // Pagination path: render directly, no skeleton fallback (quick enough)
-          // @ts-expect-error Async Server Component
-          <ListingsSection page={currentPage} sort={sortKey} />
+          <ListingsSection
+            page={currentPage}
+            sort={sortKey}
+            kind={kind}
+            city={cityParam}
+            district={districtParam}
+            street={streetParam}
+            propertyType={propertyTypeParam as any}
+            priceMin={priceMin}
+            priceMax={priceMax}
+            areaMin={areaMin}
+            areaMax={areaMax}
+          />
         )}
       </div>
 
@@ -144,7 +252,16 @@ export default async function Page({ searchParams }: PageProps) {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          hrefPrefix={`/nieruchomosci?sort=${sortKey}&page=`}
+          hrefPrefix={`/nieruchomosci?sort=${sortKey}&kind=${kind}`
+            + `${cityParam ? `&city=${encodeURIComponent(cityParam)}` : ''}`
+            + `${districtParam ? `&district=${encodeURIComponent(districtParam)}` : ''}`
+            + `${streetParam ? `&street=${encodeURIComponent(streetParam)}` : ''}`
+            + `${propertyTypeParam ? `&propertyType=${encodeURIComponent(propertyTypeParam)}` : ''}`
+            + `${priceMin != null && !Number.isNaN(priceMin) ? `&priceMin=${priceMin}` : ''}`
+            + `${priceMax != null && !Number.isNaN(priceMax) ? `&priceMax=${priceMax}` : ''}`
+            + `${areaMin != null && !Number.isNaN(areaMin) ? `&areaMin=${areaMin}` : ''}`
+            + `${areaMax != null && !Number.isNaN(areaMax) ? `&areaMax=${areaMax}` : ''}`
+            + `&page=`}
           hrefHash='listings'
           smoothScrollTargetId='listings'
         />

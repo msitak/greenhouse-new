@@ -14,9 +14,16 @@ export async function GET(req: NextRequest) {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'X-Goog-Api-Key': process.env.PLACES_API_KEY || '',
+      'X-Goog-Api-Key': process.env.PLACES_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
       'X-Goog-FieldMask':
-        'id,displayName,location,viewport,types,addressComponents',
+        [
+          'id',
+          'displayName',
+          'location',
+          'viewport',
+          'types',
+          'addressComponents',
+        ].join(','),
       ...(sessionToken ? { 'X-Goog-Maps-Session-Token': sessionToken } : {}),
       ...(languageCode ? { 'Accept-Language': languageCode } : {}),
     },
@@ -57,5 +64,5 @@ export async function GET(req: NextRequest) {
       }
     : undefined;
 
-  return NextResponse.json({ id, label, lat, lng, viewport });
+  return NextResponse.json({ id, label, lat, lng, viewport, types: d?.types || [], addressComponents: d?.addressComponents || [] });
 }

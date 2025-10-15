@@ -40,10 +40,15 @@ export function formatAddedByAgentAgo(
   if (weeks === 1) return `${verb} to ogłoszenie tydzień temu`;
   if (weeks === 2) return `${verb} to ogłoszenie 2 tygodnie temu`;
   if (weeks === 3) return `${verb} to ogłoszenie 3 tygodnie temu`;
+  // Handle 4 weeks explicitly to avoid "0 miesiące temu" for 28-29 days
+  if (weeks >= 4 && days < 30) return `${verb} to ogłoszenie 4 tygodnie temu`;
   const months = Math.floor(days / 30);
   if (months === 1) return `${verb} to ogłoszenie miesiąc temu`;
-  if (months === 2) return `${verb} to ogłoszenie 2 miesiące temu`;
-  return `${verb} to ogłoszenie ${months} miesiące temu`;
+  // Correct Polish pluralization for months
+  const lastTwo = months % 100;
+  const last = months % 10;
+  const monthUnit = lastTwo >= 12 && lastTwo <= 14 ? 'miesięcy' : (last >= 2 && last <= 4 ? 'miesiące' : 'miesięcy');
+  return `${verb} to ogłoszenie ${months} ${monthUnit} temu`;
 }
 
 type ListingForSlug = {

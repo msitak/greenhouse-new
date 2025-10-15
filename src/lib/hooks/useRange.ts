@@ -28,8 +28,9 @@ export function useRange({
   const [lo, hi] = value;
 
   // local drafts (nie zmieniamy parenta podczas pisania)
-  const [minText, setMinText] = useState(lo == null ? '' : format(lo));
-  const [maxText, setMaxText] = useState(hi == null ? '' : format(hi));
+  // Show full available range in inputs when no filter is set yet
+  const [minText, setMinText] = useState(lo == null ? format(min) : format(lo));
+  const [maxText, setMaxText] = useState(hi == null ? format(max) : format(hi));
 
   // czy aktualnie edytujemy pole (żeby nie nadpisywać draftu zmianą z zewnątrz)
   const [editingMin, setEditingMin] = useState(false);
@@ -37,12 +38,12 @@ export function useRange({
 
   // synchronizacja z parentem, ale nie kiedy użytkownik edytuje to pole
   useEffect(() => {
-    if (!editingMin) setMinText(lo == null ? '' : format(lo));
-  }, [lo, format, editingMin]);
+    if (!editingMin) setMinText(lo == null ? format(min) : format(lo));
+  }, [lo, min, format, editingMin]);
 
   useEffect(() => {
-    if (!editingMax) setMaxText(hi == null ? '' : format(hi));
-  }, [hi, format, editingMax]);
+    if (!editingMax) setMaxText(hi == null ? format(max) : format(hi));
+  }, [hi, max, format, editingMax]);
 
   // public API
   function changeMinText(s: string) {
@@ -60,7 +61,7 @@ export function useRange({
     // null => brak ograniczenia min
     if (a == null) {
       onChange([null, hi ?? null]);
-      setMinText('');
+      setMinText(format(min));
       setEditingMin(false);
       return;
     }
@@ -77,7 +78,7 @@ export function useRange({
     let b = parse(maxText);
     if (b == null) {
       onChange([lo ?? null, null]);
-      setMaxText('');
+      setMaxText(format(max));
       setEditingMax(false);
       return;
     }
@@ -91,8 +92,8 @@ export function useRange({
 
   function clear() {
     onChange([null, null]);
-    setMinText('');
-    setMaxText('');
+    setMinText(format(min));
+    setMaxText(format(max));
     setEditingMin(false);
     setEditingMax(false);
   }
