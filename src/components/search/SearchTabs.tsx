@@ -18,6 +18,44 @@ import { AreaRangeField } from '@/components/search/AreaRangeField';
 import { DualRange } from '@/components/search/DualRange';
 import type { RangeValue } from '@/lib/hooks/useRange';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Helper: pull a specific address component text (long or short)
+function getAddressComponentText(
+  comps: Array<{ longText?: string; shortText?: string; types?: string[] }> | undefined,
+  type: string
+): string | undefined {
+  if (!comps?.length) return undefined;
+  const hit = comps.find(c => (c.types || []).includes(type));
+  return hit?.longText || hit?.shortText || undefined;
+}
+
+// Helper: build query params from staged filters (KISS – one place to change)
+function buildQueryParams(args: {
+  kind: 'sale' | 'rent';
+  propertyType: string;
+  location?: { label?: string | null; addressComponents?: Array<{ longText?: string; shortText?: string; types?: string[] }> };
+  price: [number | null, number | null];
+  area: [number | null, number | null];
+}): URLSearchParams {
+  const { kind, propertyType, location, price, area } = args;
+  const params = new URLSearchParams();
+  params.set('kind', kind);
+  if (propertyType && propertyType !== 'any') params.set('propertyType', propertyType);
+
+  if (location?.label) params.set('city', location.label);
+  const district = getAddressComponentText(location?.addressComponents, 'sublocality')
+    || getAddressComponentText(location?.addressComponents, 'administrative_area_level_3');
+  const route = getAddressComponentText(location?.addressComponents, 'route');
+  if (district) params.set('district', district);
+  if (route) params.set('street', route);
+
+  if (price[0] != null) params.set('priceMin', String(price[0]));
+  if (price[1] != null) params.set('priceMax', String(price[1]));
+  if (area[0] != null) params.set('areaMin', String(area[0]));
+  if (area[1] != null) params.set('areaMax', String(area[1]));
+  return params;
+}
 
 type SearchTabsProps = {
   className?: string;
@@ -108,37 +146,40 @@ export default function SearchTabs({
     // No-op here, we keep the helper for future use
   };
 
-  // Live count fetcher
+  // Live count fetcher (updates with all staged inputs including ranges)
   const [count, setCount] = React.useState<number | null>(null);
+  const [loadingBounds, setLoadingBounds] = React.useState(false);
+  const [loadingCount, setLoadingCount] = React.useState(false);
+
   React.useEffect(() => {
     const controller = new AbortController();
-    const params = new URLSearchParams();
-    params.set('kind', currentKind);
-    if (filters.propertyType && filters.propertyType !== 'any') {
-      params.set('propertyType', filters.propertyType);
-    }
-    // Stage location -> city/district/street
-    if (location?.label) params.set('city', location.label);
-    const comps = location?.addressComponents || [];
-    const findComp = (type: string) =>
-      comps.find(c => (c.types || []).includes(type))?.longText ||
-      comps.find(c => (c.types || []).includes(type))?.shortText;
-    const district = findComp('sublocality') || findComp('administrative_area_level_3');
-    const route = findComp('route');
-    if (district) params.set('district', district);
-    if (route) params.set('street', route);
-    // Stage ranges
-    if (price[0] != null) params.set('priceMin', String(price[0]));
-    if (price[1] != null) params.set('priceMax', String(price[1]));
-    if (area[0] != null) params.set('areaMin', String(area[0]));
-    if (area[1] != null) params.set('areaMax', String(area[1]));
-
+    const params = buildQueryParams({
+      kind: currentKind,
+      propertyType: filters.propertyType,
+      location,
+      price,
+      area,
+    });
+    setLoadingCount(true);
     fetch(`/api/listings/count?${params.toString()}`, { signal: controller.signal })
       .then(r => r.json())
       .then(d => setCount(typeof d?.count === 'number' ? d.count : 0))
-      .catch(() => setCount(null));
+      .catch(() => setCount(null))
+      .finally(() => setLoadingCount(false));
+    return () => controller.abort();
+  }, [currentKind, filters.propertyType, location, price, area]);
 
-    // Also fetch dynamic bounds whenever staged filters that affect dataset change
+  // Bounds fetcher (updates only when dataset changes: kind, propertyType, location)
+  React.useEffect(() => {
+    const controller = new AbortController();
+    const params = buildQueryParams({
+      kind: currentKind,
+      propertyType: filters.propertyType,
+      location,
+      price: [null, null],
+      area: [null, null],
+    });
+    setLoadingBounds(true);
     fetch(`/api/listings/bounds?${params.toString()}`, { signal: controller.signal })
       .then(r => r.json())
       .then(d => {
@@ -149,9 +190,10 @@ export default function SearchTabs({
           maxArea: typeof d?.maxArea === 'number' ? d.maxArea : 1000,
         });
       })
-      .catch(() => void 0);
+      .catch(() => void 0)
+      .finally(() => setLoadingBounds(false));
     return () => controller.abort();
-  }, [currentKind, filters.propertyType, location, price, area]);
+  }, [currentKind, filters.propertyType, location]);
 
   const clearLocation = () => {
     setLocation(undefined);
@@ -168,6 +210,7 @@ export default function SearchTabs({
         className
       )}
     >
+      {/** spacer for potential notices; remove no-op node causing linter error */}
       <Tabs value={currentKind} onValueChange={onTabChange}>
         <TabsList className='grid grid-cols-2 w-full'>
           <TabsTrigger value='sale'>Sprzedaż</TabsTrigger>
@@ -201,32 +244,107 @@ export default function SearchTabs({
             </div>
             <div className='md:col-span-2'>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
-                <PriceRangeField
-                  id='price-sale'
-                  dealType='sale'
-                  min={bounds.minPrice}
-                  max={bounds.maxPrice}
-                  value={price}
-                  onChange={v => {
-                    setPrice(v);
-                    updateUrlRange('priceMin', 'priceMax', v);
-                  }}
-                />
-                <DualRange
-                  id='area'
-                  label='Powierzchnia'
-                  unit='m²'
-                  min={bounds.minArea}
-                  max={bounds.maxArea}
-                  step={1}
-                  value={area}
-                  onChange={v => {
-                    setArea(v);
-                    updateUrlRange('areaMin', 'areaMax', v);
-                  }}
-                  minDistance={1}
-                  updateStrategy='throttle'
-                />
+                {loadingBounds ? (
+                  <div className='relative' aria-busy>
+                    {/* Reserve exact layout by rendering invisible control */}
+                    <div className='opacity-0 pointer-events-none'>
+                      <PriceRangeField
+                        id='price-sale-hidden'
+                        dealType='sale'
+                        min={bounds.minPrice}
+                        max={bounds.maxPrice}
+                        value={price}
+                        onChange={() => {}}
+                      />
+                    </div>
+                    {/* Skeleton overlay roughly matching inner elements */}
+                    <div className='absolute inset-0 flex flex-col gap-2'>
+                      <Skeleton className='h-4 w-28 rounded self-start' />
+                      <div className='flex items-center gap-4'>
+                        <div className='flex items-center gap-1'>
+                          <Skeleton className='h-7 w-28 rounded-md' />
+                          <Skeleton className='h-3 w-6 rounded' />
+                        </div>
+                        <span className='text-muted-foreground'>–</span>
+                        <div className='flex items-center gap-1'>
+                          <Skeleton className='h-7 w-28 rounded-md' />
+                          <Skeleton className='h-3 w-6 rounded' />
+                        </div>
+                      </div>
+                      <Skeleton className='h-[6px] w-full rounded' />
+                      <div className='mt-1 flex justify-between'>
+                        <Skeleton className='h-3 w-16 rounded' />
+                        <Skeleton className='h-3 w-16 rounded' />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <PriceRangeField
+                    id='price-sale'
+                    dealType='sale'
+                    min={bounds.minPrice}
+                    max={bounds.maxPrice}
+                    value={price}
+                    onChange={v => {
+                      setPrice(v);
+                      updateUrlRange('priceMin', 'priceMax', v);
+                    }}
+                  />
+                )}
+                {loadingBounds ? (
+                  <div className='relative' aria-busy>
+                    <div className='opacity-0 pointer-events-none'>
+                      <DualRange
+                        id='area-hidden'
+                        label='Powierzchnia'
+                        unit='m²'
+                        min={bounds.minArea}
+                        max={bounds.maxArea}
+                        step={1}
+                        value={area}
+                        onChange={() => {}}
+                        minDistance={1}
+                        updateStrategy='throttle'
+                      />
+                    </div>
+                    <div className='absolute inset-0 flex flex-col gap-2'>
+                      <Skeleton className='h-4 w-32 rounded self-start' />
+                      <div className='flex items-center gap-4'>
+                        <div className='flex items-center gap-1'>
+                          <Skeleton className='h-7 w-28 rounded-md' />
+                          <Skeleton className='h-3 w-6 rounded' />
+                        </div>
+                        <span className='text-muted-foreground'>–</span>
+                        <div className='flex items-center gap-1'>
+                          <Skeleton className='h-7 w-28 rounded-md' />
+                          <Skeleton className='h-3 w-6 rounded' />
+                        </div>
+                      </div>
+                      <Skeleton className='h-[6px] w-full rounded' />
+                      <div className='mt-1 flex justify-between'>
+                        <Skeleton className='h-3 w-16 rounded' />
+                        <Skeleton className='h-3 w-16 rounded' />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <DualRange
+                    id='area'
+                    label='Powierzchnia'
+                    unit='m²'
+                    min={bounds.minArea}
+                    max={bounds.maxArea}
+                    step={1}
+                    value={area}
+                    onChange={v => {
+                      // Called on commit when updateStrategy='commit'
+                      setArea(v);
+                      updateUrlRange('areaMin', 'areaMax', v);
+                    }}
+                    minDistance={1}
+                    updateStrategy='commit'
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -258,32 +376,104 @@ export default function SearchTabs({
             </div>
             <div className='md:col-span-2'>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
-                <PriceRangeField
-                  id='price-rent'
-                  dealType='rent'
-                  min={bounds.minPrice}
-                  max={bounds.maxPrice}
-                  value={price}
-                  onChange={v => {
-                    setPrice(v);
-                    updateUrlRange('priceMin', 'priceMax', v);
-                  }}
-                />
-                <DualRange
-                  id='area-rent'
-                  label='Powierzchnia'
-                  unit='m²'
-                  min={bounds.minArea}
-                  max={bounds.maxArea}
-                  step={1}
-                  value={area}
-                  onChange={v => {
-                    setArea(v);
-                    updateUrlRange('areaMin', 'areaMax', v);
-                  }}
-                  minDistance={1}
-                  updateStrategy='throttle'
-                />
+                {loadingBounds ? (
+                  <div className='relative' aria-busy>
+                    <div className='opacity-0 pointer-events-none'>
+                      <PriceRangeField
+                        id='price-rent-hidden'
+                        dealType='rent'
+                        min={bounds.minPrice}
+                        max={bounds.maxPrice}
+                        value={price}
+                        onChange={() => {}}
+                      />
+                    </div>
+                    <div className='absolute inset-0 flex flex-col gap-2'>
+                      <Skeleton className='h-4 w-28 rounded self-start' />
+                      <div className='flex items-center gap-4'>
+                        <div className='flex items-center gap-1'>
+                          <Skeleton className='h-7 w-28 rounded-md' />
+                          <Skeleton className='h-3 w-6 rounded' />
+                        </div>
+                        <span className='text-muted-foreground'>–</span>
+                        <div className='flex items-center gap-1'>
+                          <Skeleton className='h-7 w-28 rounded-md' />
+                          <Skeleton className='h-3 w-6 rounded' />
+                        </div>
+                      </div>
+                      <Skeleton className='h-[6px] w-full rounded' />
+                      <div className='mt-1 flex justify-between'>
+                        <Skeleton className='h-3 w-16 rounded' />
+                        <Skeleton className='h-3 w-16 rounded' />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <PriceRangeField
+                    id='price-rent'
+                    dealType='rent'
+                    min={bounds.minPrice}
+                    max={bounds.maxPrice}
+                    value={price}
+                    onChange={v => {
+                      setPrice(v);
+                      updateUrlRange('priceMin', 'priceMax', v);
+                    }}
+                  />
+                )}
+                {loadingBounds ? (
+                  <div className='relative' aria-busy>
+                    <div className='opacity-0 pointer-events-none'>
+                      <DualRange
+                        id='area-rent-hidden'
+                        label='Powierzchnia'
+                        unit='m²'
+                        min={bounds.minArea}
+                        max={bounds.maxArea}
+                        step={1}
+                        value={area}
+                        onChange={() => {}}
+                        minDistance={1}
+                        updateStrategy='throttle'
+                      />
+                    </div>
+                    <div className='absolute inset-0 flex flex-col gap-2'>
+                      <Skeleton className='h-4 w-32 rounded self-start' />
+                      <div className='flex items-center gap-4'>
+                        <div className='flex items-center gap-1'>
+                          <Skeleton className='h-7 w-28 rounded-md' />
+                          <Skeleton className='h-3 w-6 rounded' />
+                        </div>
+                        <span className='text-muted-foreground'>–</span>
+                        <div className='flex items-center gap-1'>
+                          <Skeleton className='h-7 w-28 rounded-md' />
+                          <Skeleton className='h-3 w-6 rounded' />
+                        </div>
+                      </div>
+                      <Skeleton className='h-[6px] w-full rounded' />
+                      <div className='mt-1 flex justify-between'>
+                        <Skeleton className='h-3 w-16 rounded' />
+                        <Skeleton className='h-3 w-16 rounded' />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <DualRange
+                    id='area-rent'
+                    label='Powierzchnia'
+                    unit='m²'
+                    min={bounds.minArea}
+                    max={bounds.maxArea}
+                    step={1}
+                    value={area}
+                    onChange={v => {
+                      setArea(v);
+                      updateUrlRange('areaMin', 'areaMax', v);
+                    }}
+                    minDistance={1}
+                    updateStrategy='commit'
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -292,7 +482,12 @@ export default function SearchTabs({
       <div className='flex items-center justify-between px-6 pb-4'>
         <button
           type='button'
-          className='flex items-center gap-2 text-xs font-semibold hover:bg-[#00000006] py-4 px-8 rounded-xl cursor-pointer'
+          className={cn(
+            'flex items-center gap-2 text-xs font-semibold hover:bg-[#00000006] py-4 px-8 rounded-xl cursor-pointer hidden md:block',
+            !(filters.propertyType !== 'any' || !!location || price[0] != null || price[1] != null || area[0] != null || area[1] != null)
+              ? 'invisible pointer-events-none'
+              : ''
+          )}
           onClick={() => {
             // Clear staged state
             setLocation(undefined);
@@ -306,37 +501,28 @@ export default function SearchTabs({
           }}
         >
           Wyczyść kryteria
-          <span aria-hidden>×</span>
+          <span aria-hidden> ×</span>
         </button>
 
         <button
           type='button'
-          className='bg-green-primary text-white rounded-[8px] px-6 py-4 text-sm/[20px] font-semibold flex items-center gap-3 cursor-pointer hover:bg-[#76B837]'
+          className='bg-green-primary text-white rounded-[8px] px-6 py-4 text-sm/[20px] font-semibold flex items-center gap-3 cursor-pointer hover:bg-[#76B837] w-full md:w-auto justify-center'
           onClick={() => {
-            const params = new URLSearchParams(searchParams?.toString() || '');
-            // Apply staged filters
-            params.set('kind', currentKind);
-            if (filters.propertyType && filters.propertyType !== 'any') params.set('propertyType', filters.propertyType); else params.delete('propertyType');
-            if (location?.label) params.set('city', location.label); else params.delete('city');
-            const comps = location?.addressComponents || [];
-            const findComp = (type: string) =>
-              comps.find(c => (c.types || []).includes(type))?.longText ||
-              comps.find(c => (c.types || []).includes(type))?.shortText;
-            const district = findComp('sublocality') || findComp('administrative_area_level_3');
-            const route = findComp('route');
-            if (district) params.set('district', district); else params.delete('district');
-            if (route) params.set('street', route); else params.delete('street');
-            if (price[0] != null) params.set('priceMin', String(price[0])); else params.delete('priceMin');
-            if (price[1] != null) params.set('priceMax', String(price[1])); else params.delete('priceMax');
-            if (area[0] != null) params.set('areaMin', String(area[0])); else params.delete('areaMin');
-            if (area[1] != null) params.set('areaMax', String(area[1])); else params.delete('areaMax');
-            params.set('page','1');
+            const paramsCurrent = new URLSearchParams(searchParams?.toString() || '');
+            const params = buildQueryParams({
+              kind: currentKind,
+              propertyType: filters.propertyType,
+              location,
+              price,
+              area,
+            });
+            params.set('page', '1');
             router.replace(`${pathname}?${params.toString()}`, { scroll: false });
           }}
         >
           Szukaj
-          <span className='bg-white text-black rounded-[6px] px-[10px] text-[12px]/[16px] font-medium'>
-            {count ?? '—'}
+          <span className='bg-white text-black rounded-[6px] px-[10px] text-[12px]/[16px] font-medium min-w-[28px] grid place-items-center'>
+            {loadingCount ? '' : (count ?? '')}
           </span>
         </button>
       </div>

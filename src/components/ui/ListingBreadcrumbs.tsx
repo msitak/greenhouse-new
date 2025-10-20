@@ -109,7 +109,7 @@ export default function ListingBreadcrumbs({ listing }: ListingBreadcrumbsProps)
   const currentPageTitle = currentPageParts.join(' ');
 
   return (
-    <nav aria-label='Breadcrumb' className='leading-none py-5 mb-10'>
+    <nav aria-label='Breadcrumb' className='leading-none py-5 mb-10 hidden md:block'>
       <ol className='flex flex-wrap items-center gap-1.5 leading-none text-sm max-w-[1200px] mx-auto'>
         {/* Level 1: Home */}
         <li className='flex items-center gap-1 text-secondary font-medium leading-none'>

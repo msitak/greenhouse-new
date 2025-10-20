@@ -41,7 +41,7 @@ const agentBadge = ({ agentName, name, fullNameForImage, className, placement = 
   return (
     <div
       className={cn(
-        'flex gap-2 items-center py-0.5 pl-0.5 pr-2 rounded-full w-fit',
+        'flex gap-2 items-center py-0.5 pl-0.5 pr-2 rounded-full w-fit shrink-0',
         placement === 'listing'
           ? 'bg-[#000000]/5 shadow-[0_8px_40px_0_rgba(164,167,174,0.12),_0_4px_16px_0_rgba(164,167,174,0.04)]'
           : 'bg-[#FFFFFF]/60 backdrop-blur-xs shadow-[0_4px_16px_0_rgba(164,167,174,0.12)]',

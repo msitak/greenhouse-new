@@ -115,14 +115,24 @@ export default async function Page({ searchParams }: PageProps) {
 
   return (
     <div>
-      <div className='full-bleed relative h-[525px] overflow-hidden'>
+      <div className='full-bleed relative h-[360px] md:h-[525px] overflow-hidden'>
+        {/* Mobile: default object position */}
         <Image
           src='/hero-2.png'
           alt='Okładka nieruchomości'
           fill
           priority
           sizes='100vw'
-          className='object-cover'
+          className='object-cover md:hidden'
+        />
+        {/* Desktop/tablet: shifted object position */}
+        <Image
+          src='/hero-2.png'
+          alt='Okładka nieruchomości'
+          fill
+          priority
+          sizes='100vw'
+          className='object-cover hidden md:block'
           style={{ objectPosition: '50% -110px' }}
         />
         <div className='absolute inset-0 bg-[#00000080]' />
@@ -138,7 +148,7 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
       </div>
       {/* Search tabs box */}
-      <div className='max-w-[872px] mx-auto -mt-16 relative z-20 px-4 lg:px-0'>
+      <div className='max-w-[872px] mx-auto -mt-16 relative z-20 px-0'>
         <SearchTabs
           priceMin={typeof bounds._min.price === 'number' ? bounds._min.price : undefined}
           priceMax={typeof bounds._max.price === 'number' ? bounds._max.price : undefined}
@@ -149,17 +159,17 @@ export default async function Page({ searchParams }: PageProps) {
 
       <Breadcrumbs className='my-6' />
 
-      <div className='flex items-center justify-between'>
+      <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0'>
         <div>
-          <h1 className='text-[40px]/[48px] font-bold'>Oferty nieruchomości</h1>
-          <p className='text-xl/[48px] text-gray-700'>
+          <h1 className='text-3xl md:text-[40px]/[48px] mt-6 md:mt-0 font-bold'>Oferty nieruchomości</h1>
+          <p className='text-base/[24px] md:text-xl/[48px] font-medium text-gray-700'>
             <span className='text-green-primary font-bold'>
               {totalCount} nieruchomości
             </span>{' '}
             {kind === 'rent' ? 'na wynajem' : 'na sprzedaż'}
           </p>
         </div>
-        <div className='flex items-center gap-3 self-end'>
+        <div className='flex items-center gap-3 self-stretch md:self-end order-2 md:order-none'>
           <Button
             variant='outlineContrast'
             size='icon'

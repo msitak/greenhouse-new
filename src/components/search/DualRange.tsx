@@ -58,6 +58,8 @@ export function DualRange({
 
   const sliderValue = dragSlider ?? committedSlider;
   const minSteps = stepsForMinDistance(minDistance, step);
+  const minDisplay = dragSlider ? R.format(sliderValue[0]) : R.minText;
+  const maxDisplay = dragSlider ? R.format(sliderValue[1]) : R.maxText;
 
   function emit([a, b]: [number, number]) {
     let lo = clamp(a, min, max);
@@ -91,8 +93,8 @@ export function DualRange({
   return (
     <div className={className}>
 
-      {/* INPUTY — swobodne wpisywanie, korekta dopiero na blur/Enter */}
-      <div className='flex items-center gap-2 justify-end items-center'>
+      {/* Desktop (lg+): inline label + inputs row; tablet/mobile use the below-mobile layout */}
+      <div className='hidden lg:flex items-center gap-2 justify-end items-center'>
         <Label htmlFor={id} className='block mr-auto'>
           {label}
         </Label>
@@ -100,23 +102,10 @@ export function DualRange({
           <input
             inputMode='numeric'
             aria-label={`${label} od`}
-            className={cn(
-              'w-22 bg-transparent text-right text-primary font-medium outline-none border-b border-transparent focus:border-primary'
-            )}
-            value={R.minText}
+            className={cn('w-22 bg-transparent text-right text-primary font-medium outline-none border-b border-transparent focus:border-primary')}
+            value={minDisplay}
             onChange={e => R.changeMinText(e.target.value)}
             onBlur={R.commitMin}
-            onKeyDown={e => {
-              if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
-              if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                R.bumpMin(e.shiftKey ? 10 : 1);
-              }
-              if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                R.bumpMin(e.shiftKey ? -10 : -1);
-              }
-            }}
           />
           {unit && (
             <span className='text-sm text-muted-foreground'>{unit}</span>
@@ -129,23 +118,10 @@ export function DualRange({
           <input
             inputMode='numeric'
             aria-label={`${label} do`}
-            className={cn(
-              'w-22 bg-transparent text-right text-primary font-medium outline-none border-b border-transparent focus:border-primary'
-            )}
-            value={R.maxText}
+            className={cn('w-22 bg-transparent text-right text-primary font-medium outline-none border-b border-transparent focus:border-primary')}
+            value={maxDisplay}
             onChange={e => R.changeMaxText(e.target.value)}
             onBlur={R.commitMax}
-            onKeyDown={e => {
-              if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
-              if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                R.bumpMax(e.shiftKey ? 10 : 1);
-              }
-              if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                R.bumpMax(e.shiftKey ? -10 : -1);
-              }
-            }}
           />
           {unit && (
             <span className='text-sm text-muted-foreground'>{unit}</span>
@@ -153,8 +129,15 @@ export function DualRange({
         </div>
       </div>
 
+      {/* Mobile/Tablet label */}
+      <div className='flex items-center justify-between lg:hidden'>
+        <Label htmlFor={id} className='block'>
+          {label}
+        </Label>
+      </div>
+
       {/* SLIDER */}
-      <div className='mt-3'>
+      <div className='mt-2'>
         <Slider
           min={cfg.min}
           max={cfg.max}
@@ -164,7 +147,7 @@ export function DualRange({
           onValueChange={onSliderChange}
           onValueCommit={onSliderCommit}
         />
-        <div className='mt-1 flex justify-between text-xs text-muted-foreground'>
+        <div className='mt-1 hidden md:flex justify-between text-xs text-muted-foreground'>
           <span>
             {R.format(min)}
             {unit ? ` ${unit}` : ''}
@@ -173,6 +156,37 @@ export function DualRange({
             {R.format(max)}
             {unit ? ` ${unit}` : ''}
           </span>
+        </div>
+      </div>
+
+      {/* INPUTS — mobile/tablet-only, below slider */}
+      <div className='mt-3 flex items-center justify-between gap-6 lg:hidden'>
+        <div className='flex items-center rounded-xl bg-[#F7F7F7] md:bg-white px-3 py-2 w-[140px]'>
+          <input
+            inputMode='numeric'
+            aria-label={`${label} od`}
+            className={cn('bg-transparent outline-none border-0 text-left md:text-right text-[14px]/[20px] text-[#6E6E6E] w-full')}
+            value={minDisplay}
+            onChange={e => R.changeMinText(e.target.value)}
+            onBlur={R.commitMin}
+          />
+          {unit && (
+            <span className='ml-2 text-sm text-[#212121]'>{unit}</span>
+          )}
+        </div>
+
+        <div className='flex items-center rounded-xl bg-[#F7F7F7] md:bg-white px-3 py-2 w-[140px]'>
+          <input
+            inputMode='numeric'
+            aria-label={`${label} do`}
+            className={cn('bg-transparent outline-none border-0 text-left md:text-right text-[14px]/[20px] text-[#6E6E6E] w-full')}
+            value={maxDisplay}
+            onChange={e => R.changeMaxText(e.target.value)}
+            onBlur={R.commitMax}
+          />
+          {unit && (
+            <span className='ml-2 text-sm text-[#212121]'>{unit}</span>
+          )}
         </div>
       </div>
     </div>

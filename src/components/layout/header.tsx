@@ -23,7 +23,7 @@ const Header = () => {
   return (
     <>
       {/* Mobile header */}
-      <header className='lg:hidden bg-white shadow-[0_8px_40px_rgba(164,167,174,0.12)] mb-6 mx-[-16px]'>
+      <header className='lg:hidden bg-white shadow-[0_8px_40px_rgba(164,167,174,0.12)] md:mb-6 mx-[-16px]'>
         <div className='flex items-center justify-between p-4'>
           <Image
             src='/logo.svg'

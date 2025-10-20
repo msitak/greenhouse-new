@@ -125,7 +125,10 @@ export function Autocomplete<T extends AutocompleteItem>({
           <div className='relative'>
             <Input
               ref={inputRef}
-              className={cn('h-12 text-base w-full pr-10', inputClassName)}
+              className={cn(
+                'h-12 text-base w-full pr-10 bg-[#F7F7F7] text-[#6E6E6E] lg:bg-white lg:text-inherit',
+                inputClassName
+              )}
               placeholder={placeholder}
               value={value}
               onChange={e => {
