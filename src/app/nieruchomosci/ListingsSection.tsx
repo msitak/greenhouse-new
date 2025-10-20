@@ -21,7 +21,19 @@ type Props = {
   areaMax?: number;
 };
 
-export default async function ListingsSection({ page, sort, kind, city, district, street, propertyType, priceMin, priceMax, areaMin, areaMax }: Props) {
+export default async function ListingsSection({
+  page,
+  sort,
+  kind,
+  city,
+  district,
+  street,
+  propertyType,
+  priceMin,
+  priceMax,
+  areaMin,
+  areaMax,
+}: Props) {
   const filters: Prisma.ListingWhereInput = {
     isVisible: true,
     asariStatus: { in: [AsariStatus.Active, AsariStatus.Closed] },
@@ -29,41 +41,104 @@ export default async function ListingsSection({ page, sort, kind, city, district
 
   // Filter by offer type based on selected tab (sale/rent)
   const offerTypeFilter = (() => {
-    if (kind === 'rent') return { endsWith: 'Rental', mode: 'insensitive' } as Prisma.StringNullableFilter;
-    if (kind === 'sale') return { endsWith: 'Sale', mode: 'insensitive' } as Prisma.StringNullableFilter;
+    if (kind === 'rent')
+      return {
+        endsWith: 'Rental',
+        mode: 'insensitive',
+      } as Prisma.StringNullableFilter;
+    if (kind === 'sale')
+      return {
+        endsWith: 'Sale',
+        mode: 'insensitive',
+      } as Prisma.StringNullableFilter;
     return undefined;
   })();
 
   if (offerTypeFilter) {
-    (filters as any).offerType = offerTypeFilter;
+    filters.offerType =
+      offerTypeFilter as Prisma.StringNullableFilter<'Listing'>;
   }
 
   // Location filters
-  if (city) (filters as any).locationCity = { contains: city, mode: 'insensitive' } as Prisma.StringFilter;
-  if (district) (filters as any).locationDistrict = { contains: district, mode: 'insensitive' } as Prisma.StringNullableFilter;
-  if (street) (filters as any).locationStreet = { contains: street, mode: 'insensitive' } as Prisma.StringNullableFilter;
+  if (city)
+    filters.locationCity = {
+      contains: city,
+      mode: 'insensitive',
+    } as Prisma.StringNullableFilter<'Listing'>;
+  if (district)
+    filters.locationDistrict = {
+      contains: district,
+      mode: 'insensitive',
+    } as Prisma.StringNullableFilter<'Listing'>;
+  if (street)
+    filters.locationStreet = {
+      contains: street,
+      mode: 'insensitive',
+    } as Prisma.StringNullableFilter<'Listing'>;
 
   // Property type mapping via listingIdString codes (same as page and count)
   if (propertyType && propertyType !== 'any') {
     const codeFilters: Prisma.ListingWhereInput[] = [];
     if (propertyType === 'mieszkanie') {
-      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OM' } as any });
+      codeFilters.push({
+        additionalDetailsJson: {
+          path: ['listingIdString'],
+          string_contains: 'OM',
+        } as Prisma.JsonNullableFilter<'Listing'>,
+      });
     } else if (propertyType === 'dom') {
-      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OD' } as any });
+      codeFilters.push({
+        additionalDetailsJson: {
+          path: ['listingIdString'],
+          string_contains: 'OD',
+        } as Prisma.JsonNullableFilter<'Listing'>,
+      });
     } else if (propertyType === 'dzialka') {
-      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OG' } as any });
+      codeFilters.push({
+        additionalDetailsJson: {
+          path: ['listingIdString'],
+          string_contains: 'OG',
+        } as Prisma.JsonNullableFilter<'Listing'>,
+      });
     } else if (propertyType === 'lokal') {
-      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OL' } as any });
-      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'BL' } as any });
+      codeFilters.push({
+        additionalDetailsJson: {
+          path: ['listingIdString'],
+          string_contains: 'OL',
+        } as Prisma.JsonNullableFilter<'Listing'>,
+      });
+      codeFilters.push({
+        additionalDetailsJson: {
+          path: ['listingIdString'],
+          string_contains: 'BL',
+        } as Prisma.JsonNullableFilter<'Listing'>,
+      });
     }
-    if (codeFilters.length) (filters as any).OR = [...((filters as any).OR ?? []), ...codeFilters];
+    if (codeFilters.length)
+      filters.OR = [...(filters.OR ?? []), ...codeFilters];
   }
 
   // Numeric ranges
-  if (priceMin != null && !Number.isNaN(priceMin)) (filters as any).price = { ...(filters as any).price, gte: priceMin } as Prisma.FloatNullableFilter;
-  if (priceMax != null && !Number.isNaN(priceMax)) (filters as any).price = { ...(filters as any).price, lte: priceMax } as Prisma.FloatNullableFilter;
-  if (areaMin != null && !Number.isNaN(areaMin)) (filters as any).area = { ...(filters as any).area, gte: areaMin } as Prisma.FloatNullableFilter;
-  if (areaMax != null && !Number.isNaN(areaMax)) (filters as any).area = { ...(filters as any).area, lte: areaMax } as Prisma.FloatNullableFilter;
+  if (priceMin != null && !Number.isNaN(priceMin))
+    filters.price = {
+      ...(filters.price as Prisma.FloatNullableFilter<'Listing'>),
+      gte: priceMin,
+    } as Prisma.FloatNullableFilter<'Listing'>;
+  if (priceMax != null && !Number.isNaN(priceMax))
+    filters.price = {
+      ...(filters.price as Prisma.FloatNullableFilter<'Listing'>),
+      lte: priceMax,
+    } as Prisma.FloatNullableFilter<'Listing'>;
+  if (areaMin != null && !Number.isNaN(areaMin))
+    filters.area = {
+      ...(filters.area as Prisma.FloatNullableFilter<'Listing'>),
+      gte: areaMin,
+    } as Prisma.FloatNullableFilter<'Listing'>;
+  if (areaMax != null && !Number.isNaN(areaMax))
+    filters.area = {
+      ...(filters.area as Prisma.FloatNullableFilter<'Listing'>),
+      lte: areaMax,
+    } as Prisma.FloatNullableFilter<'Listing'>;
 
   const orderBy = (() => {
     switch (sort) {
@@ -117,11 +192,14 @@ export default async function ListingsSection({ page, sort, kind, city, district
 
   return (
     <div className='space-y-6'>
-      {listings.map((l) => (
-        <ListingRow key={l.id} listing={l} isReservation={false} isSpecial={false} />
+      {listings.map(l => (
+        <ListingRow
+          key={l.id}
+          listing={l}
+          isReservation={false}
+          isSpecial={false}
+        />
       ))}
     </div>
   );
 }
-
-

@@ -71,7 +71,7 @@ export async function GET(
 
     // Krok 3: Zwróć przetransformowane dane w odpowiedzi JSON
     return NextResponse.json(listingForApi);
-  } catch (error: any) {
+  } catch (error) {
     console.error(`Błąd podczas pobierania oferty ${slug}:`, error);
 
     // Lepsza obsługa błędów Prisma

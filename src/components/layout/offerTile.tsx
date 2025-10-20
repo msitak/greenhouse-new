@@ -14,7 +14,14 @@ import {
   type CarouselApi,
 } from '../ui/carousel';
 import { formatPrice, formatFloor } from '@/lib/utils';
-import { ChevronRight, Layers, MapPin, Home, MoveUpRight, RulerDimensionLine, CircleDollarSign } from 'lucide-react';
+import {
+  ChevronRight,
+  Layers,
+  MapPin,
+  Home,
+  RulerDimensionLine,
+  CircleDollarSign,
+} from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export type OfferTileListing = {
@@ -44,28 +51,31 @@ type OfferTileProps = {
 };
 
 const FALLBACK_IMAGE = '/test-image.jpg';
-const FALLBACK_ROOMS_LABEL = '—';
-const FALLBACK_AREA_LABEL = '—';
-const FALLBACK_FLOOR_LABEL = '—';
+// const FALLBACK_ROOMS_LABEL = '—';
+// const FALLBACK_AREA_LABEL = '—';
+// const FALLBACK_FLOOR_LABEL = '—';
 const MAX_INDICATORS = 20;
 const TILE_WIDTH = 424;
 const TILE_HEIGHT = 239;
 
 const OfferTileSkeleton: React.FC = () => {
   return (
-    <div className="relative rounded-2xl w-full overflow-hidden bg-white shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]">
-      <Skeleton className="w-full rounded-t-2xl" style={{ aspectRatio: `${TILE_WIDTH} / ${TILE_HEIGHT}` }} />
-      <div className="p-4">
-        <Skeleton className="h-6 w-3/4 mb-3" />
-        <div className="flex gap-6 mb-3 min-h-[24px]">
-          <Skeleton className="h-6 w-20" />
-          <Skeleton className="h-6 w-16" />
-          <Skeleton className="h-6 w-20" />
+    <div className='relative rounded-2xl w-full overflow-hidden bg-white shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]'>
+      <Skeleton
+        className='w-full rounded-t-2xl'
+        style={{ aspectRatio: `${TILE_WIDTH} / ${TILE_HEIGHT}` }}
+      />
+      <div className='p-4'>
+        <Skeleton className='h-6 w-3/4 mb-3' />
+        <div className='flex gap-6 mb-3 min-h-[24px]'>
+          <Skeleton className='h-6 w-20' />
+          <Skeleton className='h-6 w-16' />
+          <Skeleton className='h-6 w-20' />
         </div>
-        <Skeleton className="h-[1px] w-full my-2" />
-        <div className="flex items-center justify-between pt-2">
-          <Skeleton className="h-8 w-32" />
-          <Skeleton className="h-8 w-8 rounded" />
+        <Skeleton className='h-[1px] w-full my-2' />
+        <div className='flex items-center justify-between pt-2'>
+          <Skeleton className='h-8 w-32' />
+          <Skeleton className='h-8 w-8 rounded' />
         </div>
       </div>
     </div>
@@ -92,7 +102,13 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
 
   const images = listing.images?.length
     ? listing.images
-    : [{ urlNormal: FALLBACK_IMAGE, urlThumbnail: FALLBACK_IMAGE, description: null }];
+    : [
+        {
+          urlNormal: FALLBACK_IMAGE,
+          urlThumbnail: FALLBACK_IMAGE,
+          description: null,
+        },
+      ];
   const totalSlides = images.length;
   const limitedIndicators = images.slice(0, MAX_INDICATORS);
 
@@ -104,9 +120,11 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
   // W bazie agentName zawiera pełne imię i nazwisko (np. "Małgorzata Walas")
   const agentFullName = listing.agentName;
   const agentFirstName = agentFullName ? agentFullName.split(' ')[0] : null;
-  
+
   // Automatycznie generuj ścieżkę do pliku: "Małgorzata Walas" → "Małgorzata_Walas.png"
-  const agentImagePath = agentFullName ? agentFullName.replace(/ /g, '_') : null;
+  const agentImagePath = agentFullName
+    ? agentFullName.replace(/ /g, '_')
+    : null;
 
   const handleIndicatorClick = (index: number) => {
     if (!api) return;
@@ -146,7 +164,9 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
           <div className='absolute top-3 left-3 flex gap-2 items-center py-0.5 pl-0.5 pr-2 rounded-full w-fit bg-[#FFFFFF]/60 backdrop-blur-xs shadow-[0_4px_16px_0_rgba(164,167,174,0.12)]'>
             <AgentAvatar
               agentName={agentFullName}
-              agentImagePath={agentImagePath ? `/agents/${agentImagePath}.png` : null}
+              agentImagePath={
+                agentImagePath ? `/agents/${agentImagePath}.png` : null
+              }
               size='small'
             />
             <span className='font-bold text-xs'>{agentFirstName}</span>
@@ -181,7 +201,9 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
                   aria-current={isActive}
                   onClick={() => handleIndicatorClick(index)}
                   className={`rounded-full cursor-pointer outline-none focus-visible:ring-[2px] focus-visible:ring-white/60 ${
-                    isActive ? 'h-1.5 w-1.5 bg-green-primary' : 'h-1 w-1 bg-white/70'
+                    isActive
+                      ? 'h-1.5 w-1.5 bg-green-primary'
+                      : 'h-1 w-1 bg-white/70'
                   }`}
                 />
               );
@@ -201,17 +223,13 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
           {listing.area != null && (
             <div className='flex items-center gap-2'>
               <RulerDimensionLine className='size-4 text-gray-600' />
-              <span className='text-sm'>
-                {Math.round(listing.area)} m²
-              </span>
+              <span className='text-sm'>{Math.round(listing.area)} m²</span>
             </div>
           )}
           {listing.roomsCount != null && (
             <div className='flex items-center gap-2'>
               <Home className='size-4 text-gray-600' />
-              <span className='text-sm'>
-                {listing.roomsCount} pokoje
-              </span>
+              <span className='text-sm'>{listing.roomsCount} pokoje</span>
             </div>
           )}
           {listing.floor != null && (
@@ -236,7 +254,9 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
 
         <div className='flex items-center justify-between pt-2'>
           <h2 className='font-black text-2xl text-green-primary leading-none font-[family-name:var(--font-satoshi)]'>
-            {listing.price != null ? formatPrice(listing.price) : 'Cena w ofercie'}
+            {listing.price != null
+              ? formatPrice(listing.price)
+              : 'Cena w ofercie'}
           </h2>
 
           <Link

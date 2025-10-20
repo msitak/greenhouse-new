@@ -21,7 +21,13 @@ interface IProps {
   placement?: 'homepage' | 'listing';
 }
 
-const agentBadge = ({ agentName, name, fullNameForImage, className, placement = 'homepage' }: IProps) => {
+const agentBadge = ({
+  agentName,
+  name,
+  fullNameForImage,
+  className,
+  placement = 'homepage',
+}: IProps) => {
   // Map short agent names to actual asset filenames in public/agents
   const AGENT_FILE_MAP: Record<AGENT_NAME, string> = {
     [AGENT_NAME.PATRYK]: 'Patryk_Bugaj.png',
@@ -36,8 +42,8 @@ const agentBadge = ({ agentName, name, fullNameForImage, className, placement = 
   const imageSrc = sourceName
     ? `/agents/${sourceName.replace(/ /g, '_')}.png`
     : agentName
-    ? `/agents/${AGENT_FILE_MAP[agentName]}`
-    : undefined;
+      ? `/agents/${AGENT_FILE_MAP[agentName]}`
+      : undefined;
   return (
     <div
       className={cn(

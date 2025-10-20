@@ -92,7 +92,6 @@ export function DualRange({
 
   return (
     <div className={className}>
-
       {/* Desktop (lg+): inline label + inputs row; tablet/mobile use the below-mobile layout */}
       <div className='hidden lg:flex items-center gap-2 justify-end items-center'>
         <Label htmlFor={id} className='block mr-auto'>
@@ -102,7 +101,9 @@ export function DualRange({
           <input
             inputMode='numeric'
             aria-label={`${label} od`}
-            className={cn('w-22 bg-transparent text-right text-primary font-medium outline-none border-b border-transparent focus:border-primary')}
+            className={cn(
+              'w-22 bg-transparent text-right text-primary font-medium outline-none border-b border-transparent focus:border-primary'
+            )}
             value={minDisplay}
             onChange={e => R.changeMinText(e.target.value)}
             onBlur={R.commitMin}
@@ -118,7 +119,9 @@ export function DualRange({
           <input
             inputMode='numeric'
             aria-label={`${label} do`}
-            className={cn('w-22 bg-transparent text-right text-primary font-medium outline-none border-b border-transparent focus:border-primary')}
+            className={cn(
+              'w-22 bg-transparent text-right text-primary font-medium outline-none border-b border-transparent focus:border-primary'
+            )}
             value={maxDisplay}
             onChange={e => R.changeMaxText(e.target.value)}
             onBlur={R.commitMax}
@@ -165,28 +168,28 @@ export function DualRange({
           <input
             inputMode='numeric'
             aria-label={`${label} od`}
-            className={cn('bg-transparent outline-none border-0 text-left md:text-right text-[14px]/[20px] text-[#6E6E6E] w-full')}
+            className={cn(
+              'bg-transparent outline-none border-0 text-left md:text-right text-[14px]/[20px] text-[#6E6E6E] w-full'
+            )}
             value={minDisplay}
             onChange={e => R.changeMinText(e.target.value)}
             onBlur={R.commitMin}
           />
-          {unit && (
-            <span className='ml-2 text-sm text-[#212121]'>{unit}</span>
-          )}
+          {unit && <span className='ml-2 text-sm text-[#212121]'>{unit}</span>}
         </div>
 
         <div className='flex items-center rounded-xl bg-[#F7F7F7] md:bg-white px-3 py-2 w-[140px]'>
           <input
             inputMode='numeric'
             aria-label={`${label} do`}
-            className={cn('bg-transparent outline-none border-0 text-left md:text-right text-[14px]/[20px] text-[#6E6E6E] w-full')}
+            className={cn(
+              'bg-transparent outline-none border-0 text-left md:text-right text-[14px]/[20px] text-[#6E6E6E] w-full'
+            )}
             value={maxDisplay}
             onChange={e => R.changeMaxText(e.target.value)}
             onBlur={R.commitMax}
           />
-          {unit && (
-            <span className='ml-2 text-sm text-[#212121]'>{unit}</span>
-          )}
+          {unit && <span className='ml-2 text-sm text-[#212121]'>{unit}</span>}
         </div>
       </div>
     </div>

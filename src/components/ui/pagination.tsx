@@ -2,7 +2,6 @@
 
 import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 type PaginationProps = {
@@ -89,7 +88,7 @@ export default function Pagination({
               key={it}
               href={href}
               aria-label={`Strona ${it}`}
-              onClick={(e) => {
+              onClick={e => {
                 e.preventDefault();
                 router.push(href, { scroll: false });
                 if (smoothScrollTargetId) {
@@ -113,7 +112,7 @@ export default function Pagination({
               key={it}
               href={h}
               aria-label={`Strona ${it}`}
-              onClick={(e) => {
+              onClick={e => {
                 e.preventDefault();
                 router.push(h, { scroll: false });
                 if (smoothScrollTargetId) {

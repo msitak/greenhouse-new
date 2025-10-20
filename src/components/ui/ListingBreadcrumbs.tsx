@@ -7,12 +7,16 @@ type ListingBreadcrumbsProps = {
 };
 
 // Helper function to extract property type from listingIdString
-function getPropertyTypeFromListingId(additionalDetailsJson: any): string | null {
+function getPropertyTypeFromListingId(
+  additionalDetailsJson: unknown
+): string | null {
   if (!additionalDetailsJson || typeof additionalDetailsJson !== 'object') {
     return null;
   }
 
-  const listingIdString = additionalDetailsJson.listingIdString;
+  const listingIdString = (
+    additionalDetailsJson as { listingIdString?: unknown }
+  ).listingIdString;
   if (!listingIdString || typeof listingIdString !== 'string') {
     return null;
   }
@@ -39,7 +43,9 @@ function getPropertyTypeSingular(propertyType: string | null): string {
     lokal: 'Lokal użytkowy',
   };
 
-  return propertyType ? (singularMap[propertyType] || 'Nieruchomość') : 'Nieruchomość';
+  return propertyType
+    ? singularMap[propertyType] || 'Nieruchomość'
+    : 'Nieruchomość';
 }
 
 // Helper function to get plural form of property type
@@ -51,11 +57,15 @@ function getPropertyTypePlural(propertyType: string | null): string {
     lokal: 'Lokale użytkowe',
   };
 
-  return propertyType ? (pluralMap[propertyType] || 'Nieruchomości') : 'Nieruchomości';
+  return propertyType
+    ? pluralMap[propertyType] || 'Nieruchomości'
+    : 'Nieruchomości';
 }
 
 // Helper function to get transaction type label
-function getTransactionTypeLabel(offerType: string | null): { label: string; param: string } | null {
+function getTransactionTypeLabel(
+  offerType: string | null
+): { label: string; param: string } | null {
   if (!offerType) return null;
 
   const offerTypeLower = offerType.toLowerCase();
@@ -71,9 +81,13 @@ function getTransactionTypeLabel(offerType: string | null): { label: string; par
   return null;
 }
 
-export default function ListingBreadcrumbs({ listing }: ListingBreadcrumbsProps) {
+export default function ListingBreadcrumbs({
+  listing,
+}: ListingBreadcrumbsProps) {
   // Extract property type and transaction type
-  const propertyType = getPropertyTypeFromListingId(listing.additionalDetailsJson);
+  const propertyType = getPropertyTypeFromListingId(
+    listing.additionalDetailsJson
+  );
   const propertyTypePlural = getPropertyTypePlural(propertyType);
   const transactionType = getTransactionTypeLabel(listing.offerType);
 
@@ -97,11 +111,11 @@ export default function ListingBreadcrumbs({ listing }: ListingBreadcrumbsProps)
   // Build current page title: "Mieszkanie 3-pokojowe, Częstochowa"
   const propertyTypeSingular = getPropertyTypeSingular(propertyType);
   const currentPageParts: string[] = [propertyTypeSingular];
-  
+
   if (listing.roomsCount) {
     currentPageParts.push(`${listing.roomsCount}-pokojowe`);
   }
-  
+
   if (listing.locationCity) {
     currentPageParts.push(listing.locationCity);
   }
@@ -109,7 +123,10 @@ export default function ListingBreadcrumbs({ listing }: ListingBreadcrumbsProps)
   const currentPageTitle = currentPageParts.join(' ');
 
   return (
-    <nav aria-label='Breadcrumb' className='leading-none py-5 mb-10 hidden md:block'>
+    <nav
+      aria-label='Breadcrumb'
+      className='leading-none py-5 mb-10 hidden md:block'
+    >
       <ol className='flex flex-wrap items-center gap-1.5 leading-none text-sm max-w-[1200px] mx-auto'>
         {/* Level 1: Home */}
         <li className='flex items-center gap-1 text-secondary font-medium leading-none'>
@@ -121,9 +138,15 @@ export default function ListingBreadcrumbs({ listing }: ListingBreadcrumbsProps)
 
         {/* Level 2: Nieruchomości */}
         <li className='flex items-center gap-2 leading-none'>
-          <ChevronRight className='h-[1em] w-[1em] text-gray-400' aria-hidden='true' />
+          <ChevronRight
+            className='h-[1em] w-[1em] text-gray-400'
+            aria-hidden='true'
+          />
           <span className='hidden md:inline'>
-            <Link href='/nieruchomosci' className='text-gray-500 font-medium hover:underline'>
+            <Link
+              href='/nieruchomosci'
+              className='text-gray-500 font-medium hover:underline'
+            >
               Nieruchomości
             </Link>
           </span>
@@ -132,16 +155,28 @@ export default function ListingBreadcrumbs({ listing }: ListingBreadcrumbsProps)
 
         {/* Level 3: Category (dynamic) */}
         <li className='hidden md:flex items-center gap-2 leading-none'>
-          <ChevronRight className='h-[1em] w-[1em] text-gray-400' aria-hidden='true' />
-          <Link href={categoryUrl} className='text-gray-500 font-medium hover:underline'>
+          <ChevronRight
+            className='h-[1em] w-[1em] text-gray-400'
+            aria-hidden='true'
+          />
+          <Link
+            href={categoryUrl}
+            className='text-gray-500 font-medium hover:underline'
+          >
             {categoryLabel}
           </Link>
         </li>
 
         {/* Level 4: Current page (not a link) */}
         <li className='flex items-center gap-2 leading-none'>
-          <ChevronRight className='h-[1em] w-[1em] text-gray-400' aria-hidden='true' />
-          <span aria-current='page' className='font-bold text-black line-clamp-1'>
+          <ChevronRight
+            className='h-[1em] w-[1em] text-gray-400'
+            aria-hidden='true'
+          />
+          <span
+            aria-current='page'
+            className='font-bold text-black line-clamp-1'
+          >
             {currentPageTitle}
           </span>
         </li>
@@ -149,4 +184,3 @@ export default function ListingBreadcrumbs({ listing }: ListingBreadcrumbsProps)
     </nav>
   );
 }
-

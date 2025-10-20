@@ -44,26 +44,7 @@ function deriveVisibility(
   }
 }
 
-const RENT_TOKENS = ['rent', 'wynajem'];
-const SALE_TOKENS = ['sale', 'sprzed'];
-
-function deriveTransactionKind(
-  offerType: string | null | undefined
-): 'rent' | 'sale' | 'other' | null {
-  if (!offerType) return null;
-
-  const normalized = offerType.toLowerCase();
-
-  if (RENT_TOKENS.some(token => normalized.includes(token))) {
-    return 'rent';
-  }
-
-  if (SALE_TOKENS.some(token => normalized.includes(token))) {
-    return 'sale';
-  }
-
-  return 'other';
-}
+// Transaction kind derivation removed as unused
 
 function mapAsariDetailToPrismaListing(
   asariDetail: AsariListingDetail,
@@ -98,11 +79,7 @@ function mapAsariDetailToPrismaListing(
   const asariStatus = mapStatus(asariDetail.status);
   const lastUpdatedAsari =
     safeParseDate(asariDetail.lastUpdated) ?? effectiveLastUpdated;
-  const { isVisible, soldAt } = deriveVisibility(
-    asariStatus,
-    lastUpdatedAsari
-  );
-  const transactionKind = deriveTransactionKind(asariDetail.offerType);
+  const { isVisible, soldAt } = deriveVisibility(asariStatus, lastUpdatedAsari);
 
   // Generate slug from the listing data
   const slug = generateListingSlug({
@@ -298,7 +275,8 @@ export async function POST() {
         const effectiveLastUpdated = safeParseDate(
           listingDataFromAsari.lastUpdated
         );
-        const persistedLastUpdated = effectiveLastUpdated || asariLastUpdatedDate;
+        const persistedLastUpdated =
+          effectiveLastUpdated || asariLastUpdatedDate;
 
         const prismaReadyData = mapAsariDetailToPrismaListing(
           listingDataFromAsari,
@@ -341,10 +319,10 @@ export async function POST() {
         } else {
           createdCount++;
         }
-      } catch (errorForSingleListing: any) {
+      } catch (errorForSingleListing) {
         console.error(
           `Błąd przetwarzania oferty Asari ID: ${asariListingInfo.id}:`,
-          errorForSingleListing.message
+          (errorForSingleListing as Error).message
         );
         errorCount++;
       }
@@ -364,14 +342,17 @@ export async function POST() {
       archived: archivedCount,
       errors: errorCount,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error(
       'Krytyczny błąd podczas synchronizacji:',
-      error.message,
-      error.stack
+      (error as Error).message,
+      (error as Error).stack
     );
     return NextResponse.json(
-      { message: 'Błąd podczas synchronizacji', error: error.message },
+      {
+        message: 'Błąd podczas synchronizacji',
+        error: (error as Error).message,
+      },
       { status: 500 }
     );
   } finally {

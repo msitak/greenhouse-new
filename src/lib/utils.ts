@@ -14,7 +14,10 @@ export function formatPrice(price: number | null): string {
   }).format(price ? price : 0);
 }
 
-export function formatFloor(floor: number | null | undefined, includeLabel: boolean = false): string | null {
+export function formatFloor(
+  floor: number | null | undefined,
+  includeLabel: boolean = false
+): string | null {
   if (floor === null || floor === undefined) return null;
   if (floor === 0) return 'Parter';
   return includeLabel ? `${floor} piętro` : floor.toString();
@@ -31,7 +34,9 @@ export function formatAddedByAgentAgo(
   const dayMs = 24 * 60 * 60 * 1000;
   const days = Math.floor(diffMs / dayMs);
   const firstName = agentFullName ? agentFullName.split(' ')[0] : undefined;
-  const isFemale = firstName ? firstName.trim().slice(-1).toLowerCase() === 'a' : false;
+  const isFemale = firstName
+    ? firstName.trim().slice(-1).toLowerCase() === 'a'
+    : false;
   const verb = isFemale ? 'dodała' : 'dodał';
   if (days <= 0) return `${verb} to ogłoszenie dzisiaj`;
   if (days === 1) return `${verb} to ogłoszenie wczoraj`;
@@ -47,7 +52,12 @@ export function formatAddedByAgentAgo(
   // Correct Polish pluralization for months
   const lastTwo = months % 100;
   const last = months % 10;
-  const monthUnit = lastTwo >= 12 && lastTwo <= 14 ? 'miesięcy' : (last >= 2 && last <= 4 ? 'miesiące' : 'miesięcy');
+  const monthUnit =
+    lastTwo >= 12 && lastTwo <= 14
+      ? 'miesięcy'
+      : last >= 2 && last <= 4
+        ? 'miesiące'
+        : 'miesięcy';
   return `${verb} to ogłoszenie ${months} ${monthUnit} temu`;
 }
 
@@ -62,13 +72,15 @@ type ListingForSlug = {
 };
 
 // Helper function to extract property type from listingIdString
-function getPropertyTypeFromListingId(listingIdString?: string | null): string | null {
+function getPropertyTypeFromListingId(
+  listingIdString?: string | null
+): string | null {
   if (!listingIdString) return null;
-  
+
   // Extract the last part after the last slash (e.g., "554/10314/OMS" -> "OMS")
   const parts = listingIdString.split('/');
   const code = parts[parts.length - 1];
-  
+
   // Map codes to property types
   if (code.includes('OM')) return 'mieszkanie'; // Oferta Mieszkania
   if (code.includes('OD')) return 'dom'; // Oferta Domu
@@ -76,7 +88,7 @@ function getPropertyTypeFromListingId(listingIdString?: string | null): string |
   if (code.includes('OL') || code.includes('BL')) return 'lokal-uzytkowy'; // Oferta Lokalu
   if (code.includes('OG') && code.includes('A')) return 'garaz'; // Oferta Garażu
   if (code.includes('OH')) return 'hala'; // Oferta Hali
-  
+
   return null;
 }
 
@@ -95,13 +107,13 @@ export function generateListingSlug(listing: ListingForSlug): string {
 
   // 1. Property type (FIRST - rodzaj nieruchomości)
   let propertyType: string | null = null;
-  
+
   if (listing.propertyTypeId) {
     propertyType = propertyTypeMap[listing.propertyTypeId];
   } else if (listing.listingIdString) {
     propertyType = getPropertyTypeFromListingId(listing.listingIdString);
   }
-  
+
   if (propertyType) {
     parts.push(propertyType);
   }
@@ -111,7 +123,10 @@ export function generateListingSlug(listing: ListingForSlug): string {
     const offerTypeLower = listing.offerType.toLowerCase();
     if (offerTypeLower.includes('rent') || offerTypeLower.includes('wynajem')) {
       parts.push('na-wynajem');
-    } else if (offerTypeLower.includes('sale') || offerTypeLower.includes('sprzedaz')) {
+    } else if (
+      offerTypeLower.includes('sale') ||
+      offerTypeLower.includes('sprzedaz')
+    ) {
       parts.push('na-sprzedaz');
     }
   }

@@ -39,5 +39,3 @@ export default function SortSelect({ current }: { current: SortKey }) {
     </Select>
   );
 }
-
-

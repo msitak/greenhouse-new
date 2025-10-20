@@ -14,7 +14,7 @@ import {
 import { LocationCombobox } from '@/components/search/LocationCombobox';
 import type { LocationValue } from '@/lib/location/types';
 import { PriceRangeField } from '@/components/search/PriceRangeField';
-import { AreaRangeField } from '@/components/search/AreaRangeField';
+// import { AreaRangeField } from '@/components/search/AreaRangeField';
 import { DualRange } from '@/components/search/DualRange';
 import type { RangeValue } from '@/lib/hooks/useRange';
 import { Label } from '@/components/ui/label';
@@ -22,7 +22,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 // Helper: pull a specific address component text (long or short)
 function getAddressComponentText(
-  comps: Array<{ longText?: string; shortText?: string; types?: string[] }> | undefined,
+  comps:
+    | Array<{ longText?: string; shortText?: string; types?: string[] }>
+    | undefined,
   type: string
 ): string | undefined {
   if (!comps?.length) return undefined;
@@ -34,18 +36,30 @@ function getAddressComponentText(
 function buildQueryParams(args: {
   kind: 'sale' | 'rent';
   propertyType: string;
-  location?: { label?: string | null; addressComponents?: Array<{ longText?: string; shortText?: string; types?: string[] }> };
+  location?: {
+    label?: string | null;
+    addressComponents?: Array<{
+      longText?: string;
+      shortText?: string;
+      types?: string[];
+    }>;
+  };
   price: [number | null, number | null];
   area: [number | null, number | null];
 }): URLSearchParams {
   const { kind, propertyType, location, price, area } = args;
   const params = new URLSearchParams();
   params.set('kind', kind);
-  if (propertyType && propertyType !== 'any') params.set('propertyType', propertyType);
+  if (propertyType && propertyType !== 'any')
+    params.set('propertyType', propertyType);
 
   if (location?.label) params.set('city', location.label);
-  const district = getAddressComponentText(location?.addressComponents, 'sublocality')
-    || getAddressComponentText(location?.addressComponents, 'administrative_area_level_3');
+  const district =
+    getAddressComponentText(location?.addressComponents, 'sublocality') ||
+    getAddressComponentText(
+      location?.addressComponents,
+      'administrative_area_level_3'
+    );
   const route = getAddressComponentText(location?.addressComponents, 'route');
   if (district) params.set('district', district);
   if (route) params.set('street', route);
@@ -71,21 +85,22 @@ type SearchTabsProps = {
 export default function SearchTabs({
   className,
   defaultValue = 'sale',
-  saleContent = '1',
-  rentContent = '2',
+  // Deprecated slot props (not used)
+  saleContent: React.ReactNode | undefined = undefined,
+  rentContent: React.ReactNode | undefined = undefined,
   priceMin,
   priceMax,
   areaMin,
   areaMax,
 }: SearchTabsProps) {
   type PropertyType = 'any' | 'mieszkanie' | 'dom' | 'dzialka' | 'lokal';
-  const [filters, setFilters] = React.useState<{ propertyType: PropertyType }>(
-    { propertyType: 'any' }
-  );
+  const [filters, setFilters] = React.useState<{ propertyType: PropertyType }>({
+    propertyType: 'any',
+  });
 
   const handlePropertyTypeChange = (value: string) => {
     const v = (value as PropertyType) || 'any';
-    setFilters((prev) => ({ ...prev, propertyType: v }));
+    setFilters(prev => ({ ...prev, propertyType: v }));
   };
 
   const router = useRouter();
@@ -109,7 +124,9 @@ export default function SearchTabs({
   // Location state synced with URL param `city`
   const initialCity = searchParams?.get('city') || '';
   const [location, setLocation] = React.useState<LocationValue | undefined>(
-    initialCity ? { label: initialCity, placeId: '', lat: 0, lng: 0 } : undefined
+    initialCity
+      ? { label: initialCity, placeId: '', lat: 0, lng: 0 }
+      : undefined
   );
 
   const onLocationChange = (loc: LocationValue) => {
@@ -141,9 +158,8 @@ export default function SearchTabs({
     maxArea: areaMax ?? 1000,
   });
 
-  const updateUrlRange = (keyMin: string, keyMax: string, v: RangeValue) => {
-    // Staging only; URL updates on "Szukaj"
-    // No-op here, we keep the helper for future use
+  const updateUrlRange = (_keyMin: string, _keyMax: string, _v: RangeValue) => {
+    // Staging only; URL updates on "Szukaj"; intentionally no-op
   };
 
   // Live count fetcher (updates with all staged inputs including ranges)
@@ -161,7 +177,9 @@ export default function SearchTabs({
       area,
     });
     setLoadingCount(true);
-    fetch(`/api/listings/count?${params.toString()}`, { signal: controller.signal })
+    fetch(`/api/listings/count?${params.toString()}`, {
+      signal: controller.signal,
+    })
       .then(r => r.json())
       .then(d => setCount(typeof d?.count === 'number' ? d.count : 0))
       .catch(() => setCount(null))
@@ -180,12 +198,19 @@ export default function SearchTabs({
       area: [null, null],
     });
     setLoadingBounds(true);
-    fetch(`/api/listings/bounds?${params.toString()}`, { signal: controller.signal })
+    fetch(`/api/listings/bounds?${params.toString()}`, {
+      signal: controller.signal,
+    })
       .then(r => r.json())
       .then(d => {
         setBounds({
           minPrice: typeof d?.minPrice === 'number' ? d.minPrice : 0,
-          maxPrice: typeof d?.maxPrice === 'number' ? d.maxPrice : (currentKind === 'rent' ? 20000 : 2000000),
+          maxPrice:
+            typeof d?.maxPrice === 'number'
+              ? d.maxPrice
+              : currentKind === 'rent'
+                ? 20000
+                : 2000000,
           minArea: typeof d?.minArea === 'number' ? d.minArea : 0,
           maxArea: typeof d?.maxArea === 'number' ? d.maxArea : 1000,
         });
@@ -195,13 +220,13 @@ export default function SearchTabs({
     return () => controller.abort();
   }, [currentKind, filters.propertyType, location]);
 
-  const clearLocation = () => {
-    setLocation(undefined);
-    const params = new URLSearchParams(searchParams?.toString() || '');
-    params.delete('city');
-    params.set('page', '1');
-    router.push(`${pathname}?${params.toString()}`);
-  };
+  // const clearLocation = () => {
+  //   setLocation(undefined);
+  //   const params = new URLSearchParams(searchParams?.toString() || '');
+  //   params.delete('city');
+  //   params.set('page', '1');
+  //   router.push(`${pathname}?${params.toString()}`);
+  // };
 
   return (
     <section
@@ -221,7 +246,9 @@ export default function SearchTabs({
             <div className='flex flex-col gap-2'>
               <Label>Typ nieruchomości</Label>
               <Select
-                value={filters.propertyType === 'any' ? 'any' : filters.propertyType}
+                value={
+                  filters.propertyType === 'any' ? 'any' : filters.propertyType
+                }
                 onValueChange={handlePropertyTypeChange}
               >
                 <SelectTrigger className='rounded-xl bg-white border-1 border-[#CCCCCC] text-[#6E6E6E] font-medium w-full px-4 py-3 text-sm cursor-pointer'>
@@ -239,7 +266,11 @@ export default function SearchTabs({
             <div className='flex flex-col gap-2'>
               <Label>Lokalizacja</Label>
               <div className='flex items-center gap-2'>
-                <LocationCombobox value={location} onChange={onLocationChange} placeholder='np. Katowice, Gliwice, ulica…' />
+                <LocationCombobox
+                  value={location}
+                  onChange={onLocationChange}
+                  placeholder='np. Katowice, Gliwice, ulica…'
+                />
               </div>
             </div>
             <div className='md:col-span-2'>
@@ -354,13 +385,21 @@ export default function SearchTabs({
             <div className='flex flex-col gap-2 md:w-[520px]'>
               <Label>Lokalizacja</Label>
               <div className='flex items-center gap-2'>
-                <LocationCombobox value={location} onChange={onLocationChange} placeholder='np. Katowice, Gliwice, ulica…' />
+                <LocationCombobox
+                  value={location}
+                  onChange={onLocationChange}
+                  placeholder='np. Katowice, Gliwice, ulica…'
+                />
               </div>
             </div>
             <div className='flex flex-col gap-2'>
               <Label>Typ nieruchomości</Label>
               <Select
-                value={filters.propertyType === 'any' ? undefined : filters.propertyType}
+                value={
+                  filters.propertyType === 'any'
+                    ? undefined
+                    : filters.propertyType
+                }
                 onValueChange={handlePropertyTypeChange}
               >
                 <SelectTrigger className='rounded-xl bg-white border-1 border-[#CCCCCC] text-[#6E6E6E] font-medium w-full px-4 py-3 text-sm cursor-pointer'>
@@ -484,7 +523,14 @@ export default function SearchTabs({
           type='button'
           className={cn(
             'flex items-center gap-2 text-xs font-semibold hover:bg-[#00000006] py-4 px-8 rounded-xl cursor-pointer hidden md:block',
-            !(filters.propertyType !== 'any' || !!location || price[0] != null || price[1] != null || area[0] != null || area[1] != null)
+            !(
+              filters.propertyType !== 'any' ||
+              !!location ||
+              price[0] != null ||
+              price[1] != null ||
+              area[0] != null ||
+              area[1] != null
+            )
               ? 'invisible pointer-events-none'
               : ''
           )}
@@ -496,8 +542,20 @@ export default function SearchTabs({
             setFilters({ propertyType: 'any' });
             // Clear URL filters without navigating/scrolling
             const params = new URLSearchParams(searchParams?.toString() || '');
-            ['city','district','street','priceMin','priceMax','areaMin','areaMax','propertyType','page'].forEach(k => params.delete(k));
-            router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+            [
+              'city',
+              'district',
+              'street',
+              'priceMin',
+              'priceMax',
+              'areaMin',
+              'areaMax',
+              'propertyType',
+              'page',
+            ].forEach(k => params.delete(k));
+            router.replace(`${pathname}?${params.toString()}`, {
+              scroll: false,
+            });
           }}
         >
           Wyczyść kryteria
@@ -508,7 +566,6 @@ export default function SearchTabs({
           type='button'
           className='bg-green-primary text-white rounded-[8px] px-6 py-4 text-sm/[20px] font-semibold flex items-center gap-3 cursor-pointer hover:bg-[#76B837] w-full md:w-auto justify-center'
           onClick={() => {
-            const paramsCurrent = new URLSearchParams(searchParams?.toString() || '');
             const params = buildQueryParams({
               kind: currentKind,
               propertyType: filters.propertyType,
@@ -517,7 +574,9 @@ export default function SearchTabs({
               area,
             });
             params.set('page', '1');
-            router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+            router.replace(`${pathname}?${params.toString()}`, {
+              scroll: false,
+            });
           }}
         >
           Szukaj
@@ -529,5 +588,3 @@ export default function SearchTabs({
     </section>
   );
 }
-
-

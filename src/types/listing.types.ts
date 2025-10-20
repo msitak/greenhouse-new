@@ -11,14 +11,14 @@ export interface PropertyDetails {
   groundOwnershipType?: string | null;
   dividingPossibility?: boolean | null;
   plotDimension?: string | null;
-  
+
   // Media i uzbrojenie
   waterTypeList?: string[] | null;
   electricityStatus?: string | null;
   gasStatus?: string | null;
   sewerageTypeList?: string[] | null;
   urbanCo?: boolean | null;
-  
+
   // Budynki (mieszkania/domy/lokale)
   elevator?: boolean | null;
   condition?: string | null;
@@ -29,11 +29,11 @@ export interface PropertyDetails {
   hotWaterList?: string[] | null;
   kitchenType?: string | null;
   intercom?: boolean | null;
-  
+
   // Pozwolenia i certyfikaty
   activeBuildingPermit?: boolean | null;
   issuedBuildingConditions?: boolean | null;
-  
+
   // Ogólne
   exchange?: boolean | null;
   communicationList?: string[] | null;
@@ -46,4 +46,3 @@ export interface PropertyDetails {
   groundSharedOwnership?: string | null;
   ownListing?: boolean | null;
 }
-
