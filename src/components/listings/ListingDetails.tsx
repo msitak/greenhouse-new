@@ -27,7 +27,9 @@ function getListingId(listing: ListingApiResponse): string {
     listing.additionalDetailsJson &&
     typeof listing.additionalDetailsJson === 'object'
   ) {
-    const additionalDetails = listing.additionalDetailsJson as any;
+    const additionalDetails = listing.additionalDetailsJson as {
+      listingIdString?: string | null;
+    };
     if (additionalDetails.listingIdString) {
       return additionalDetails.listingIdString;
     }
