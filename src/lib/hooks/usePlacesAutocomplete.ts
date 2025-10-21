@@ -90,18 +90,27 @@ export function usePlacesAutocomplete(initial?: LocationValue) {
         }
         const data = await res.json();
         const suggestions: Suggestion[] = (data?.suggestions ?? [])
-          .map(
-            (s: { placePrediction?: Record<string, unknown> }) =>
-              s.placePrediction
-          )
+          .map((s: { placePrediction?: Record<string, unknown> }) => {
+            return s.placePrediction;
+          })
           .filter(Boolean)
           .map((p: Record<string, unknown>) => ({
-            placeId: p.placeId || p.place,
+            placeId: (p as { placeId?: string; place?: string }).placeId ||
+              (p as { placeId?: string; place?: string }).place,
             // Prefer structured label pieces
             text: (p as { text?: { text?: string } }).text?.text || '',
-            mainText: (p as { structuredFormat?: { mainText?: { text?: string } } }).structuredFormat?.mainText?.text || '',
+            mainText:
+              (
+                p as {
+                  structuredFormat?: { mainText?: { text?: string } };
+                }
+              ).structuredFormat?.mainText?.text || '',
             secondaryText:
-              (p as { structuredFormat?: { secondaryText?: { text?: string } } }).structuredFormat?.secondaryText?.text || '',
+              (
+                p as {
+                  structuredFormat?: { secondaryText?: { text?: string } };
+                }
+              ).structuredFormat?.secondaryText?.text || '',
             types: (p as { types?: string[] }).types || [],
           }))
           .filter((x: Suggestion) => x.text && x.placeId);

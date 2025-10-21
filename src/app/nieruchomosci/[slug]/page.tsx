@@ -430,7 +430,12 @@ export default async function OfferPage({ params }: PageProps) {
                   title='Specjalista ds. nieruchomości'
                   imageSrc={agentImagePathFull}
                 />
-                <p className='mt-4 text-xs/5 text-[--color-text-secondary]'>Administratorem danych osobowych jest Green House Nieruchomości sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok. 1, 42-202 Częstochowa (&quot;Administrator&quot;), z którym można się skontaktować przez adres kontakt@ghn.pl.</p>
+                <p className='mt-4 text-xs/5 text-[--color-text-secondary]'>
+                  Administratorem danych osobowych jest Green House
+                  Nieruchomości sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok.
+                  1, 42-202 Częstochowa (&quot;Administrator&quot;), z którym można się
+                  skontaktować przez adres kontakt@ghn.pl.
+                </p>
               </div>
             )}
 
@@ -516,7 +521,12 @@ export default async function OfferPage({ params }: PageProps) {
                 imageSrc={agentImagePathFull}
                 fullWidth={true}
               />
-              <p className='mt-4 text-xs/5 text-[--color-text-secondary]'>Administratorem danych osobowych jest Green House Nieruchomości sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok. 1, 42-202 Częstochowa (&quot;Administrator&quot;), z którym można się skontaktować przez adres kontakt@ghn.pl.</p>
+              <p className='mt-4 text-xs/5 text-[--color-text-secondary]'>
+                Administratorem danych osobowych jest Green House Nieruchomości
+                sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok. 1, 42-202
+                Częstochowa (&quot;Administrator&quot;), z którym można się
+                skontaktować przez adres kontakt@ghn.pl.
+              </p>
             </div>
           )}
         </section>
