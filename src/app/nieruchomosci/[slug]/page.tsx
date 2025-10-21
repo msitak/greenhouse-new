@@ -15,6 +15,8 @@ import { Label } from '@/components/ui/label';
 import { notFound } from 'next/navigation';
 import { formatPrice } from '@/lib/utils';
 import { ListingApiResponse } from '@/types/api.types';
+import { prisma } from '@/services/prisma';
+import { AsariStatus } from '@prisma/client';
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -23,20 +25,85 @@ type PageProps = {
 
 async function fetchListing(slug: string): Promise<ListingApiResponse | null> {
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      (process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : 'http://localhost:3000');
-    const response = await fetch(`${baseUrl}/api/listing/${slug}`, {
-      cache: 'no-store',
+    // 1) Try by slug
+    let listingFromDb = await prisma.listing.findFirst({
+      where: {
+        slug,
+        isVisible: true,
+        asariStatus: { in: [AsariStatus.Active, AsariStatus.Closed] },
+      },
+      include: {
+        images: {
+          select: {
+            id: true,
+            asariId: true,
+            urlNormal: true,
+            urlThumbnail: true,
+            urlOriginal: true,
+            description: true,
+            order: true,
+            isScheme: true,
+            dbCreatedAt: true,
+            dbUpdatedAt: true,
+          },
+          orderBy: { order: 'asc' },
+        },
+      },
     });
 
-    if (!response.ok) {
-      return null;
+    // 2) Fallback by trailing numeric asariId in slug
+    if (!listingFromDb) {
+      const idMatch = slug.match(/(\d+)$/);
+      if (idMatch) {
+        const asariId = parseInt(idMatch[1], 10);
+        if (!Number.isNaN(asariId)) {
+          listingFromDb = await prisma.listing.findFirst({
+            where: {
+              asariId,
+              isVisible: true,
+              asariStatus: { in: [AsariStatus.Active, AsariStatus.Closed] },
+            },
+            include: {
+              images: {
+                select: {
+                  id: true,
+                  asariId: true,
+                  urlNormal: true,
+                  urlThumbnail: true,
+                  urlOriginal: true,
+                  description: true,
+                  order: true,
+                  isScheme: true,
+                  dbCreatedAt: true,
+                  dbUpdatedAt: true,
+                },
+                orderBy: { order: 'asc' },
+              },
+            },
+          });
+        }
+      }
     }
 
-    return await response.json();
+    if (!listingFromDb) return null;
+
+    // 3) Transform dates to string (ListingApiResponse contract)
+    const listingForApi: ListingApiResponse = {
+      ...listingFromDb,
+      lastUpdatedAsari: listingFromDb.lastUpdatedAsari?.toISOString() || null,
+      createdAtSystem: listingFromDb.createdAtSystem?.toISOString() || null,
+      updatedAtSystem: listingFromDb.updatedAtSystem?.toISOString() || null,
+      soldAt: listingFromDb.soldAt?.toISOString() || null,
+      dbCreatedAt: listingFromDb.dbCreatedAt.toISOString(),
+      dbUpdatedAt: listingFromDb.dbUpdatedAt.toISOString(),
+      images: listingFromDb.images.map(image => ({
+        ...image,
+        dbCreatedAt: image.dbCreatedAt.toISOString(),
+        dbUpdatedAt: image.dbUpdatedAt.toISOString(),
+      })),
+    };
+
+    return listingForApi;
   } catch (error) {
     console.error('Failed to fetch listing:', error);
     return null;
