@@ -71,9 +71,9 @@ export interface AsariUserOrAgentInfo {
 }
 
 export interface AsariLocationInfo {
-  address: any;
-  street_no: any;
-  flat_no: any;
+  address: string | null;
+  street_no: string | number | null;
+  flat_no: string | number | null;
   id: number;
   name: string;
   province: string;
@@ -93,7 +93,7 @@ export interface AsariStreetInfo {
 }
 
 export interface AsariImageInfo {
-  order: any;
+  order: number;
   id: number;
   description: string | null;
   isScheme: boolean;

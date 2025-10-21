@@ -29,7 +29,7 @@ export default function ListingTopInfo({
     value,
   }: {
     label: string;
-    value: string | number | null;
+    value: string | number | null | undefined;
   }) => {
     if (!value) return null;
 

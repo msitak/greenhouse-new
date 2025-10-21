@@ -120,7 +120,7 @@ export default function AgentPage() {
         <div className='grid grid-cols-3 gap-x-4 gap-y-8'>
           {Array.from({ length: 6 }).map((_, idx) => (
             <div key={idx} className='w-[358px]'>
-              <OfferTile key={idx} />
+              <OfferTile key={idx} listing={null} />
             </div>
           ))}
         </div>

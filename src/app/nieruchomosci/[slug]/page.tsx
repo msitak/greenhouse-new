@@ -17,8 +17,8 @@ import { formatPrice } from '@/lib/utils';
 import { ListingApiResponse } from '@/types/api.types';
 
 type PageProps = {
-  params: { slug: string };
-  searchParams?: Record<string, string | string[] | undefined>;
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 async function fetchListing(slug: string): Promise<ListingApiResponse | null> {
@@ -433,8 +433,8 @@ export default async function OfferPage({ params }: PageProps) {
                 <p className='mt-4 text-xs/5 text-[--color-text-secondary]'>
                   Administratorem danych osobowych jest Green House
                   Nieruchomości sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok.
-                  1, 42-202 Częstochowa (&quot;Administrator&quot;), z którym można się
-                  skontaktować przez adres kontakt@ghn.pl.
+                  1, 42-202 Częstochowa &quot;Administrator&quot;, z którym
+                  można się skontaktować przez adres kontakt@ghn.pl.
                 </p>
               </div>
             )}

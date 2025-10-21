@@ -44,9 +44,8 @@ export default function ListingRow({
       offerType: listing.offerType ?? undefined,
       locationCity: listing.locationCity ?? undefined,
       locationDistrict:
-        (
-          (listing as unknown as { locationDistrict?: string | null }) || {}
-        ).locationDistrict ?? undefined,
+        ((listing as unknown as { locationDistrict?: string | null }) || {})
+          .locationDistrict ?? undefined,
     })
   }`;
   return (

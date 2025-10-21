@@ -140,21 +140,25 @@ export default async function ListingsSection({
       lte: areaMax,
     } as Prisma.FloatNullableFilter<'Listing'>;
 
-  const orderBy = (() => {
-    switch (sort) {
-      case 'price-asc':
-        return [{ price: 'asc' }] as const;
-      case 'price-desc':
-        return [{ price: 'desc' }] as const;
-      case 'area-asc':
-        return [{ area: 'asc' }] as const;
-      case 'area-desc':
-        return [{ area: 'desc' }] as const;
-      case 'newest':
-      default:
-        return [{ createdAtSystem: 'desc' }, { dbCreatedAt: 'desc' }] as const;
-    }
-  })();
+  let orderBy: Prisma.ListingOrderByWithRelationInput[];
+  switch (sort) {
+    case 'price-asc':
+      orderBy = [{ price: 'asc' }];
+      break;
+    case 'price-desc':
+      orderBy = [{ price: 'desc' }];
+      break;
+    case 'area-asc':
+      orderBy = [{ area: 'asc' }];
+      break;
+    case 'area-desc':
+      orderBy = [{ area: 'desc' }];
+      break;
+    case 'newest':
+    default:
+      orderBy = [{ createdAtSystem: 'desc' }, { dbCreatedAt: 'desc' }];
+      break;
+  }
 
   const listings = (await prisma.listing.findMany({
     where: filters,

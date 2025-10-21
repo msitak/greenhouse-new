@@ -9,7 +9,10 @@ type ListingDetailsProps = {
 
 // Helper to safely parse propertyDetailsJson
 function getPropertyDetails(listing: ListingApiResponse): PropertyDetails {
-  if (!listing.propertyDetailsJson || typeof listing.propertyDetailsJson !== 'object') {
+  if (
+    !listing.propertyDetailsJson ||
+    typeof listing.propertyDetailsJson !== 'object'
+  ) {
     return {};
   }
   return listing.propertyDetailsJson as PropertyDetails;

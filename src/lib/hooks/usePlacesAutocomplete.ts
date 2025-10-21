@@ -95,10 +95,16 @@ export function usePlacesAutocomplete(initial?: LocationValue) {
           })
           .filter(Boolean)
           .map((p: Record<string, unknown>) => ({
-            placeId: (p as { placeId?: string; place?: string }).placeId ||
+            placeId:
+              (p as { placeId?: string; place?: string }).placeId ||
               (p as { placeId?: string; place?: string }).place,
             // Prefer structured label pieces
-            text: (p as { text?: { text?: string } }).text?.text || '',
+            text:
+              (
+                p as {
+                  text?: { text?: string };
+                }
+              ).text?.text || '',
             mainText:
               (
                 p as {

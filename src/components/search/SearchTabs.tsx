@@ -155,7 +155,10 @@ export default function SearchTabs({
     maxArea: areaMax ?? 1000,
   });
 
-  // URL updates only on "Szukaj" button; no-op helpers removed
+  // URL updates only on "Szukaj" button; keep a no-op to satisfy handlers
+  const updateUrlRange = () => {
+    // intentionally no-op to avoid live URL churn
+  };
 
   // Live count fetcher (updates with all staged inputs including ranges)
   const [count, setCount] = React.useState<number | null>(null);
@@ -313,7 +316,7 @@ export default function SearchTabs({
                     value={price}
                     onChange={v => {
                       setPrice(v);
-                      updateUrlRange('priceMin', 'priceMax', v);
+                      updateUrlRange();
                     }}
                   />
                 )}
@@ -365,7 +368,7 @@ export default function SearchTabs({
                     onChange={v => {
                       // Called on commit when updateStrategy='commit'
                       setArea(v);
-                      updateUrlRange('areaMin', 'areaMax', v);
+                      updateUrlRange();
                     }}
                     minDistance={1}
                     updateStrategy='commit'
@@ -451,7 +454,7 @@ export default function SearchTabs({
                     value={price}
                     onChange={v => {
                       setPrice(v);
-                      updateUrlRange('priceMin', 'priceMax', v);
+                      updateUrlRange();
                     }}
                   />
                 )}
@@ -502,7 +505,7 @@ export default function SearchTabs({
                     value={area}
                     onChange={v => {
                       setArea(v);
-                      updateUrlRange('areaMin', 'areaMax', v);
+                      updateUrlRange();
                     }}
                     minDistance={1}
                     updateStrategy='commit'

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Map } from 'lucide-react';
 import { prisma } from '@/services/prisma';
 import { AsariStatus, Prisma } from '@prisma/client';
-import { ListingApiResponse } from '@/types/api.types';
+// import { ListingApiResponse } from '@/types/api.types';
 import SortSelect from './SortSelect';
 import Pagination from '@/components/ui/pagination';
 import SearchTabs from '@/components/search/SearchTabs';
@@ -39,11 +39,17 @@ export default async function Page({ searchParams }: PageProps) {
       : Array.isArray(sp?.transition)
         ? sp.transition?.[0]
         : undefined;
-  const sortKey = (
-    ['newest', 'price-desc', 'price-asc', 'area-asc', 'area-desc'] as const
-  ).includes(sortParamRaw as any)
-    ? (sortParamRaw as any)
-    : 'newest';
+  const sortOptions = [
+    'newest',
+    'price-desc',
+    'price-asc',
+    'area-asc',
+    'area-desc',
+  ] as const;
+  type SortKey = (typeof sortOptions)[number];
+  const isSortKey = (v: unknown): v is SortKey =>
+    typeof v === 'string' && (sortOptions as readonly string[]).includes(v);
+  const sortKey: SortKey = isSortKey(sortParamRaw) ? sortParamRaw : 'newest';
   const kindParamRaw =
     typeof sp?.kind === 'string'
       ? sp.kind
@@ -78,6 +84,13 @@ export default async function Page({ searchParams }: PageProps) {
       : Array.isArray(sp?.propertyType)
         ? sp.propertyType?.[0]
         : undefined;
+  type PropertyType = 'mieszkanie' | 'dom' | 'dzialka' | 'lokal' | 'any';
+  const propertyTypeFromParam = (v: unknown): PropertyType => {
+    if (v === 'mieszkanie' || v === 'dom' || v === 'dzialka' || v === 'lokal')
+      return v;
+    return 'any';
+  };
+  const propertyType: PropertyType = propertyTypeFromParam(propertyTypeParam);
   const priceMin =
     typeof sp?.priceMin === 'string' ? Number(sp.priceMin) : undefined;
   const priceMax =
@@ -111,69 +124,70 @@ export default async function Page({ searchParams }: PageProps) {
   })();
 
   if (offerTypeFilter) {
-    (filters as any).offerType = offerTypeFilter;
+    filters.offerType =
+      offerTypeFilter as Prisma.StringNullableFilter<'Listing'>;
   }
 
   // Optional location filters
   if (cityParam) {
-    (filters as any).locationCity = {
+    filters.locationCity = {
       contains: cityParam,
       mode: 'insensitive',
-    } as Prisma.StringFilter;
+    } as Prisma.StringNullableFilter<'Listing'>;
   }
   if (districtParam) {
-    (filters as any).locationDistrict = {
+    filters.locationDistrict = {
       contains: districtParam,
       mode: 'insensitive',
-    } as Prisma.StringNullableFilter;
+    } as Prisma.StringNullableFilter<'Listing'>;
   }
   if (streetParam) {
-    (filters as any).locationStreet = {
+    filters.locationStreet = {
       contains: streetParam,
       mode: 'insensitive',
-    } as Prisma.StringNullableFilter;
+    } as Prisma.StringNullableFilter<'Listing'>;
   }
 
   // Optional property type mapping – try to infer from listingIdString codes
-  if (propertyTypeParam && propertyTypeParam !== 'any') {
+  if (propertyType && propertyType !== 'any') {
     const codeFilters: Prisma.ListingWhereInput[] = [];
-    if (propertyTypeParam === 'mieszkanie') {
+    if (propertyType === 'mieszkanie') {
       codeFilters.push({
         additionalDetailsJson: {
           path: ['listingIdString'],
           string_contains: 'OM',
-        } as any,
+        } as Prisma.JsonNullableFilter<'Listing'>,
       });
-    } else if (propertyTypeParam === 'dom') {
+    } else if (propertyType === 'dom') {
       codeFilters.push({
         additionalDetailsJson: {
           path: ['listingIdString'],
           string_contains: 'OD',
-        } as any,
+        } as Prisma.JsonNullableFilter<'Listing'>,
       });
-    } else if (propertyTypeParam === 'dzialka') {
+    } else if (propertyType === 'dzialka') {
       codeFilters.push({
         additionalDetailsJson: {
           path: ['listingIdString'],
           string_contains: 'OG',
-        } as any,
+        } as Prisma.JsonNullableFilter<'Listing'>,
       });
-    } else if (propertyTypeParam === 'lokal') {
+    } else if (propertyType === 'lokal') {
       codeFilters.push({
         additionalDetailsJson: {
           path: ['listingIdString'],
           string_contains: 'OL',
-        } as any,
+        } as Prisma.JsonNullableFilter<'Listing'>,
       });
       codeFilters.push({
         additionalDetailsJson: {
           path: ['listingIdString'],
           string_contains: 'BL',
-        } as any,
+        } as Prisma.JsonNullableFilter<'Listing'>,
       });
     }
     if (codeFilters.length) {
-      (filters as any).OR = [...((filters as any).OR ?? []), ...codeFilters];
+      filters.OR = [...(filters.OR ?? []), ...codeFilters];
     }
   }
 
@@ -185,35 +199,30 @@ export default async function Page({ searchParams }: PageProps) {
   });
 
   // Apply numeric range filters (for actual listing query)
-  if (!Number.isNaN(priceMin!) && priceMin != null) {
-    (filters as any).price = {
-      ...(filters as any).price,
+  if (!Number.isNaN(priceMin!) && priceMin != null)
+    filters.price = {
+      ...(filters.price as Prisma.FloatNullableFilter<'Listing'>),
       gte: priceMin,
-    } as Prisma.FloatNullableFilter;
-  }
-  if (!Number.isNaN(priceMax!) && priceMax != null) {
-    (filters as any).price = {
-      ...(filters as any).price,
+    } as Prisma.FloatNullableFilter<'Listing'>;
+  if (!Number.isNaN(priceMax!) && priceMax != null)
+    filters.price = {
+      ...(filters.price as Prisma.FloatNullableFilter<'Listing'>),
       lte: priceMax,
-    } as Prisma.FloatNullableFilter;
-  }
-  if (!Number.isNaN(areaMin!) && areaMin != null) {
-    (filters as any).area = {
-      ...(filters as any).area,
+    } as Prisma.FloatNullableFilter<'Listing'>;
+  if (!Number.isNaN(areaMin!) && areaMin != null)
+    filters.area = {
+      ...(filters.area as Prisma.FloatNullableFilter<'Listing'>),
       gte: areaMin,
-    } as Prisma.FloatNullableFilter;
-  }
-  if (!Number.isNaN(areaMax!) && areaMax != null) {
-    (filters as any).area = {
-      ...(filters as any).area,
+    } as Prisma.FloatNullableFilter<'Listing'>;
+  if (!Number.isNaN(areaMax!) && areaMax != null)
+    filters.area = {
+      ...(filters.area as Prisma.FloatNullableFilter<'Listing'>),
       lte: areaMax,
-    } as Prisma.FloatNullableFilter;
-  }
+    } as Prisma.FloatNullableFilter<'Listing'>;
 
   const totalCount = await prisma.listing.count({ where: filters });
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const listings: ListingApiResponse[] = [];
 
   return (
     <div>
@@ -349,7 +358,7 @@ export default async function Page({ searchParams }: PageProps) {
               city={cityParam}
               district={districtParam}
               street={streetParam}
-              propertyType={propertyTypeParam as any}
+              propertyType={propertyType}
               priceMin={priceMin}
               priceMax={priceMax}
               areaMin={areaMin}
@@ -365,7 +374,7 @@ export default async function Page({ searchParams }: PageProps) {
             city={cityParam}
             district={districtParam}
             street={streetParam}
-            propertyType={propertyTypeParam as any}
+            propertyType={propertyType}
             priceMin={priceMin}
             priceMax={priceMax}
             areaMin={areaMin}

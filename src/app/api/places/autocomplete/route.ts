@@ -141,8 +141,11 @@ export async function POST(req: NextRequest) {
         return { s, score };
       }
     )
-    .sort((a, b) => b.score - a.score)
-    .map(x => x.s);
+    .sort(
+      (a: { s: unknown; score: number }, b: { s: unknown; score: number }) =>
+        b.score - a.score
+    )
+    .map((x: { s: unknown; score: number }) => x.s);
 
   data.suggestions = suggestions;
 
