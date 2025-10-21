@@ -9,10 +9,7 @@ type ListingDetailsProps = {
 
 // Helper to safely parse propertyDetailsJson
 function getPropertyDetails(listing: ListingApiResponse): PropertyDetails {
-  if (
-    !listing.propertyDetailsJson ||
-    typeof listing.propertyDetailsJson !== 'object'
-  ) {
+  if (!listing.propertyDetailsJson || typeof listing.propertyDetailsJson !== 'object') {
     return {};
   }
   return listing.propertyDetailsJson as PropertyDetails;
@@ -84,7 +81,7 @@ export default function ListingDetails({
     value,
   }: {
     label: string;
-    value: string[] | number[] | null | undefined;
+    value: Array<string | number> | null | undefined;
   }) => {
     if (!value || !Array.isArray(value) || value.length === 0) return null;
     return <DetailRow label={label} value={value.join(', ')} />;

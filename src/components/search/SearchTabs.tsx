@@ -85,9 +85,6 @@ type SearchTabsProps = {
 export default function SearchTabs({
   className,
   defaultValue = 'sale',
-  // Deprecated slot props (not used)
-  saleContent: React.ReactNode | undefined = undefined,
-  rentContent: React.ReactNode | undefined = undefined,
   priceMin,
   priceMax,
   areaMin,
@@ -158,9 +155,7 @@ export default function SearchTabs({
     maxArea: areaMax ?? 1000,
   });
 
-  const updateUrlRange = (_keyMin: string, _keyMax: string, _v: RangeValue) => {
-    // Staging only; URL updates on "Szukaj"; intentionally no-op
-  };
+  // URL updates only on "Szukaj" button; no-op helpers removed
 
   // Live count fetcher (updates with all staged inputs including ranges)
   const [count, setCount] = React.useState<number | null>(null);

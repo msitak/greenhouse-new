@@ -56,24 +56,19 @@ function getOfferTypeLabel(offerType: string | null): string {
   return 'Oferta';
 }
 
-function formatDate(dateString: string | null): string {
-  if (!dateString) return 'Brak danych';
-
-  const date = new Date(dateString);
-  return date.toLocaleDateString('pl-PL', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
+// Local date formatter (not used on this page currently) removed to satisfy linter
 
 // Helper to extract property type from listingIdString
-function getPropertyTypeFromListing(additionalDetailsJson: any): string | null {
+function getPropertyTypeFromListing(
+  additionalDetailsJson: unknown
+): string | null {
   if (!additionalDetailsJson || typeof additionalDetailsJson !== 'object') {
     return null;
   }
 
-  const listingIdString = additionalDetailsJson.listingIdString;
+  const listingIdString = (
+    additionalDetailsJson as { listingIdString?: unknown }
+  ).listingIdString;
   if (!listingIdString || typeof listingIdString !== 'string') {
     return null;
   }
@@ -145,11 +140,10 @@ export default async function OfferPage({ params }: PageProps) {
     }
 
     // Otherwise try to get listingIdString from additionalDetailsJson
-    if (
-      listing.additionalDetailsJson &&
-      typeof listing.additionalDetailsJson === 'object'
-    ) {
-      const additionalDetails = listing.additionalDetailsJson as any;
+    if (listing.additionalDetailsJson && typeof listing.additionalDetailsJson === 'object') {
+      const additionalDetails = listing.additionalDetailsJson as {
+        listingIdString?: string | null;
+      };
       if (additionalDetails.listingIdString) {
         return additionalDetails.listingIdString;
       }
@@ -436,7 +430,7 @@ export default async function OfferPage({ params }: PageProps) {
                 <p className='mt-4 text-xs/5 text-[--color-text-secondary]'>
                   Administratorem danych osobowych jest Green House
                   Nieruchomości sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok.
-                  1, 42-202 Częstochowa ("Administrator"), z którym można się
+                  1, 42-202 Częstochowa (&quot;Administrator&quot;), z którym można się
                   skontaktować przez adres kontakt@ghn.pl.
                 </p>
               </div>
@@ -527,7 +521,7 @@ export default async function OfferPage({ params }: PageProps) {
               <p className='mt-4 text-xs/5 text-[--color-text-secondary]'>
                 Administratorem danych osobowych jest Green House Nieruchomości
                 sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok. 1, 42-202
-                Częstochowa ("Administrator"), z którym można się skontaktować
+                Częstochowa (&quot;Administrator&quot;), z którym można się skontaktować
                 przez adres kontakt@ghn.pl.
               </p>
             </div>

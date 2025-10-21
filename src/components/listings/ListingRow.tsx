@@ -35,17 +35,15 @@ export default function ListingRow({
     generateListingSlug({
       asariId: Number(listing.asariId),
       listingIdString:
-        (
-          (listing as unknown as {
-            additionalDetailsJson?: { listingIdString?: string | null };
-          }) || {}
-        ).additionalDetailsJson?.listingIdString ?? null,
+        ((listing as unknown as {
+          additionalDetailsJson?: { listingIdString?: string | null };
+        }) || {}).additionalDetailsJson?.listingIdString ?? null,
       roomsCount: listing.roomsCount ?? undefined,
       offerType: listing.offerType ?? undefined,
       locationCity: listing.locationCity ?? undefined,
-      locationDistrict: (
-        (listing as unknown as { locationDistrict?: string | null }) || {}
-      ).locationDistrict ?? undefined,
+      locationDistrict:
+        ((listing as unknown as { locationDistrict?: string | null }) || {})
+          .locationDistrict ?? undefined,
     })
   }`;
   return (
