@@ -15,8 +15,7 @@ export function LocationCombobox({
   onChange: (v: LocationValue) => void;
   placeholder?: string;
 }) {
-  const { text, setText, items, pickById, clear } =
-    usePlacesAutocomplete(value);
+  const { text, setText, items, pickById } = usePlacesAutocomplete(value);
 
   return (
     <Autocomplete
@@ -25,17 +24,13 @@ export function LocationCombobox({
       items={items}
       inputClassName='rounded-xl bg-white border border-[#CCCCCC] text-[#6E6E6E] font-medium w-full px-4 py-3 text-sm'
       clearOnCloseIfNoSelection
-      menuWidth="400px"
+      menuWidth='400px'
       onSelect={async item => {
         // Fetch details to get precise lat/lng and components
-        await pickById(
-          item.id,
-          item.label,
-          next => {
-            onChange(next);
-            setText(next.label);
-          }
-        );
+        await pickById(item.id, item.label, next => {
+          onChange(next);
+          setText(next.label);
+        });
       }}
       placeholder={placeholder}
       renderItem={it => (

@@ -3,10 +3,7 @@
 
 import { DualRange, type DualRangeProps } from './DualRange';
 
-type Props = Omit<
-  DualRangeProps,
-  'label' | 'unit' | 'min' | 'max' | 'step'
-> & {
+type Props = Omit<DualRangeProps, 'label' | 'unit' | 'min' | 'max' | 'step'> & {
   dealType?: 'sale' | 'rent';
   min?: number;
   max?: number;

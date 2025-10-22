@@ -28,13 +28,13 @@ export default function Footer() {
             </Button>
           </div>
 
-          <hr className='text-white border-[#383838] mb-10'/>
-          
+          <hr className='text-white border-[#383838] mb-10' />
+
           <p className='text-sm text-white/80 mb-6'>
             Znajdź swoje miejsce z nami. Domy, mieszkania, działki, lokale –
             mamy to, czego szukasz.
           </p>
-          
+
           <div className='flex items-center gap-4'>
             <a
               href='https://facebook.com/greenhousenieruchomosci'
@@ -74,7 +74,7 @@ export default function Footer() {
               <ArrowUp className='size-5' />
             </Button>
           </div>
-          
+
           {/* Separator */}
           <Separator className='my-8 bg-[var(--gray-400)]' />
 

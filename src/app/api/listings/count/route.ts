@@ -6,7 +6,8 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
   const kindParam = searchParams.get('kind');
-  const kind: 'sale' | 'rent' | null = kindParam === 'sale' || kindParam === 'rent' ? kindParam : null;
+  const kind: 'sale' | 'rent' | null =
+    kindParam === 'sale' || kindParam === 'rent' ? kindParam : null;
 
   const city = searchParams.get('city') || undefined;
   const district = searchParams.get('district') || undefined;
@@ -24,42 +25,92 @@ export async function GET(request: Request) {
   };
 
   if (kind) {
-    (filters as any).offerType = {
+    filters.offerType = {
       endsWith: kind === 'rent' ? 'Rental' : 'Sale',
       mode: 'insensitive',
-    } as Prisma.StringNullableFilter;
+    } as Prisma.StringNullableFilter<'Listing'>;
   }
 
-  if (city) (filters as any).locationCity = { contains: city, mode: 'insensitive' } as Prisma.StringFilter;
-  if (district) (filters as any).locationDistrict = { contains: district, mode: 'insensitive' } as Prisma.StringNullableFilter;
-  if (street) (filters as any).locationStreet = { contains: street, mode: 'insensitive' } as Prisma.StringNullableFilter;
+  if (city)
+    filters.locationCity = {
+      contains: city,
+      mode: 'insensitive',
+    } as Prisma.StringNullableFilter<'Listing'>;
+  if (district)
+    filters.locationDistrict = {
+      contains: district,
+      mode: 'insensitive',
+    } as Prisma.StringNullableFilter<'Listing'>;
+  if (street)
+    filters.locationStreet = {
+      contains: street,
+      mode: 'insensitive',
+    } as Prisma.StringNullableFilter<'Listing'>;
 
   if (propertyType && propertyType !== 'any') {
     const codeFilters: Prisma.ListingWhereInput[] = [];
     if (propertyType === 'mieszkanie') {
-      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OM' } as any });
+      codeFilters.push({
+        additionalDetailsJson: {
+          path: ['listingIdString'],
+          string_contains: 'OM',
+        } as Prisma.JsonNullableFilter<'Listing'>,
+      });
     } else if (propertyType === 'dom') {
-      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OD' } as any });
+      codeFilters.push({
+        additionalDetailsJson: {
+          path: ['listingIdString'],
+          string_contains: 'OD',
+        } as Prisma.JsonNullableFilter<'Listing'>,
+      });
     } else if (propertyType === 'dzialka') {
-      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OG' } as any });
+      codeFilters.push({
+        additionalDetailsJson: {
+          path: ['listingIdString'],
+          string_contains: 'OG',
+        } as Prisma.JsonNullableFilter<'Listing'>,
+      });
     } else if (propertyType === 'lokal') {
-      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'OL' } as any });
-      codeFilters.push({ additionalDetailsJson: { path: ['listingIdString'], string_contains: 'BL' } as any });
+      codeFilters.push({
+        additionalDetailsJson: {
+          path: ['listingIdString'],
+          string_contains: 'OL',
+        } as Prisma.JsonNullableFilter<'Listing'>,
+      });
+      codeFilters.push({
+        additionalDetailsJson: {
+          path: ['listingIdString'],
+          string_contains: 'BL',
+        } as Prisma.JsonNullableFilter<'Listing'>,
+      });
     }
-    if (codeFilters.length) (filters as any).OR = [...((filters as any).OR ?? []), ...codeFilters];
+    if (codeFilters.length)
+      filters.OR = [...(filters.OR ?? []), ...codeFilters];
   }
 
   if (priceMin !== null && priceMin !== undefined && priceMin !== '') {
-    (filters as any).price = { ...(filters as any).price, gte: Number(priceMin) } as Prisma.FloatNullableFilter;
+    filters.price = {
+      ...(filters.price as Prisma.FloatNullableFilter<'Listing'>),
+      gte: Number(priceMin),
+    } as Prisma.FloatNullableFilter<'Listing'>;
   }
   if (priceMax !== null && priceMax !== undefined && priceMax !== '') {
-    (filters as any).price = { ...(filters as any).price, lte: Number(priceMax) } as Prisma.FloatNullableFilter;
+    filters.price = {
+      ...(filters.price as Prisma.FloatNullableFilter<'Listing'>),
+      lte: Number(priceMax),
+    } as Prisma.FloatNullableFilter<'Listing'>;
   }
   if (areaMin !== null && areaMin !== undefined && areaMin !== '') {
-    (filters as any).area = { ...(filters as any).area, gte: Number(areaMin) } as Prisma.FloatNullableFilter;
+    filters.area = {
+      ...(filters.area as Prisma.FloatNullableFilter<'Listing'>),
+      gte: Number(areaMin),
+    } as Prisma.FloatNullableFilter<'Listing'>;
   }
   if (areaMax !== null && areaMax !== undefined && areaMax !== '') {
-    (filters as any).area = { ...(filters as any).area, lte: Number(areaMax) } as Prisma.FloatNullableFilter;
+    filters.area = {
+      ...(filters.area as Prisma.FloatNullableFilter<'Listing'>),
+      lte: Number(areaMax),
+    } as Prisma.FloatNullableFilter<'Listing'>;
   }
 
   try {
@@ -70,5 +121,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ count: 0 }, { status: 200 });
   }
 }
-
-

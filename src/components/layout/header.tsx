@@ -51,13 +51,16 @@ const Header = () => {
             {navLinks.map(link => {
               const isActive =
                 mounted &&
-                (pathname === link.href || pathname.startsWith(link.href + '/'));
+                (pathname === link.href ||
+                  pathname.startsWith(link.href + '/'));
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={`${
-                    isActive ? 'bg-[#343434] text-white' : 'hover:bg-[#0000000F]'
+                    isActive
+                      ? 'bg-[#343434] text-white'
+                      : 'hover:bg-[#0000000F]'
                   } text-sm font-medium rounded-xl hover:underline px-4 py-2`}
                 >
                   {link.label}

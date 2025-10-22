@@ -57,11 +57,12 @@ export async function GET() {
       `App Router: Error fetching details for ID ${listingIdToTest}`,
       error
     );
+    const err = error as { message?: string; stack?: string };
     return NextResponse.json(
       {
         message: `Error fetching details for ID ${listingIdToTest}`,
-        error: error.message,
-        stack: error.stack,
+        error: err.message,
+        stack: err.stack,
       }, // Dodaj stack dla lepszego debugowania
       { status: 500 }
     );

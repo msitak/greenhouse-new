@@ -3,7 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { LocationValue } from '@/lib/location/types';
 
-type Suggestion = { placeId: string; text: string; mainText?: string; secondaryText?: string; types?: string[] };
+type Suggestion = {
+  placeId: string;
+  text: string;
+  mainText?: string;
+  secondaryText?: string;
+  types?: string[];
+};
 const DEBOUNCE_MS = 500; // reduce API calls cost
 
 function useDebounced<T>(value: T, delay = 250) {
@@ -84,15 +90,34 @@ export function usePlacesAutocomplete(initial?: LocationValue) {
         }
         const data = await res.json();
         const suggestions: Suggestion[] = (data?.suggestions ?? [])
-          .map((s: any) => s.placePrediction)
+          .map((s: { placePrediction?: Record<string, unknown> }) => {
+            return s.placePrediction;
+          })
           .filter(Boolean)
-          .map((p: any) => ({
-            placeId: p.placeId || p.place,
+          .map((p: Record<string, unknown>) => ({
+            placeId:
+              (p as { placeId?: string; place?: string }).placeId ||
+              (p as { placeId?: string; place?: string }).place,
             // Prefer structured label pieces
-            text: p.text?.text || '',
-            mainText: p.structuredFormat?.mainText?.text || '',
-            secondaryText: p.structuredFormat?.secondaryText?.text || '',
-            types: p.types || [],
+            text:
+              (
+                p as {
+                  text?: { text?: string };
+                }
+              ).text?.text || '',
+            mainText:
+              (
+                p as {
+                  structuredFormat?: { mainText?: { text?: string } };
+                }
+              ).structuredFormat?.mainText?.text || '',
+            secondaryText:
+              (
+                p as {
+                  structuredFormat?: { secondaryText?: { text?: string } };
+                }
+              ).structuredFormat?.secondaryText?.text || '',
+            types: (p as { types?: string[] }).types || [],
           }))
           .filter((x: Suggestion) => x.text && x.placeId);
 
@@ -111,12 +136,16 @@ export function usePlacesAutocomplete(initial?: LocationValue) {
           const isSublocality = (s.types || []).includes('sublocality');
           const isLocality = (s.types || []).includes('locality');
           if (isLocality) return stripCountry(main);
-          if (isSublocality) return stripCountry(`${main}${sec ? `, ${sec}` : ''}`);
+          if (isSublocality)
+            return stripCountry(`${main}${sec ? `, ${sec}` : ''}`);
           if (isRoute) return stripCountry(`${main}${sec ? `, ${sec}` : ''}`);
           return stripCountry(`${main}${sec ? `, ${sec}` : ''}`);
         };
 
-        const mappedRaw = suggestions.map(s => ({ id: s.placeId, label: buildLabel(s) }));
+        const mappedRaw = suggestions.map(s => ({
+          id: s.placeId,
+          label: buildLabel(s),
+        }));
 
         // Filter so that main label (before comma) matches input (diacritics-insensitive)
         const normalize = (str: string) =>
@@ -142,7 +171,9 @@ export function usePlacesAutocomplete(initial?: LocationValue) {
         const scored = itemsBase
           .map(it => {
             const n = normalize(it.label);
-            const score = (n.includes(preferCity) ? 10 : 0) + tokens.reduce((acc, t) => acc + (n.includes(t) ? 1 : 0), 0);
+            const score =
+              (n.includes(preferCity) ? 10 : 0) +
+              tokens.reduce((acc, t) => acc + (n.includes(t) ? 1 : 0), 0);
             return { it, score };
           })
           .sort((a, b) => b.score - a.score)
@@ -151,8 +182,8 @@ export function usePlacesAutocomplete(initial?: LocationValue) {
         const finalItems = scored;
         cacheRef.current.set(q, finalItems);
         setItems(finalItems);
-      } catch (e: any) {
-        if (e?.name !== 'AbortError') {
+      } catch (e) {
+        if ((e as { name?: string })?.name !== 'AbortError') {
           setError('Autocomplete error');
           setItems([]);
         }

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/services/prisma';
-import { Prisma } from '@prisma/client';
+import { Prisma, AsariStatus } from '@prisma/client';
 
 export async function GET(
   request: Request,
@@ -18,10 +18,11 @@ export async function GET(
 
   try {
     // Krok 1: Pobierz surowe dane z bazy danych używając slug
-    const listingFromDb = await prisma.listing.findFirst({
+    let listingFromDb = await prisma.listing.findFirst({
       where: {
         slug: slug,
-        asariStatus: 'Active', // Zabezpieczenie: serwuj tylko aktywne oferty
+        isVisible: true,
+        asariStatus: { in: [AsariStatus.Active, AsariStatus.Closed] },
       },
       include: {
         images: {
@@ -44,6 +45,40 @@ export async function GET(
         },
       },
     });
+
+    // Fallback: if not found by slug, try trailing numeric asariId
+    if (!listingFromDb) {
+      const idMatch = slug.match(/(\d+)$/);
+      if (idMatch) {
+        const asariId = parseInt(idMatch[1], 10);
+        if (!Number.isNaN(asariId)) {
+          listingFromDb = await prisma.listing.findFirst({
+            where: {
+              asariId,
+              isVisible: true,
+              asariStatus: { in: [AsariStatus.Active, AsariStatus.Closed] },
+            },
+            include: {
+              images: {
+                select: {
+                  id: true,
+                  asariId: true,
+                  urlNormal: true,
+                  urlThumbnail: true,
+                  urlOriginal: true,
+                  description: true,
+                  order: true,
+                  isScheme: true,
+                  dbCreatedAt: true,
+                  dbUpdatedAt: true,
+                },
+                orderBy: { order: 'asc' },
+              },
+            },
+          });
+        }
+      }
+    }
 
     if (!listingFromDb) {
       return NextResponse.json(
@@ -71,7 +106,7 @@ export async function GET(
 
     // Krok 3: Zwróć przetransformowane dane w odpowiedzi JSON
     return NextResponse.json(listingForApi);
-  } catch (error: any) {
+  } catch (error) {
     console.error(`Błąd podczas pobierania oferty ${slug}:`, error);
 
     // Lepsza obsługa błędów Prisma

@@ -47,7 +47,11 @@ export default function AgentCard({
   return (
     <div className={className}>
       <div
-        className={cn('rounded-2xl relative', containerWidth, imageWrapperClassName)}
+        className={cn(
+          'rounded-2xl relative',
+          containerWidth,
+          imageWrapperClassName
+        )}
       >
         {!imageError && imageSrc ? (
           <Image
@@ -55,11 +59,23 @@ export default function AgentCard({
             alt={imageAlt}
             width={imageWidth}
             height={imageHeight}
-            className={cn('rounded-2xl', objectFitClass, objectPositionClass, imageWidthClass, imageHeightClass)}
+            className={cn(
+              'rounded-2xl',
+              objectFitClass,
+              objectPositionClass,
+              imageWidthClass,
+              imageHeightClass
+            )}
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className={cn('rounded-2xl bg-green-primary flex items-center justify-center', imageWidthClass, fallbackHeightClass)}>
+          <div
+            className={cn(
+              'rounded-2xl bg-green-primary flex items-center justify-center',
+              imageWidthClass,
+              fallbackHeightClass
+            )}
+          >
             <span className={cn('text-white font-bold', textSizeClass)}>
               {agentFirstName.charAt(0).toUpperCase()}
             </span>

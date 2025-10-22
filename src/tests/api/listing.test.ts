@@ -3,6 +3,17 @@ import request from 'supertest';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
+type ListItem = {
+  id?: string;
+  asariId?: number;
+  images?: { urlThumbnail?: string }[];
+  locationCity?: string | null;
+  offerType?: string | null;
+  price?: number | null;
+  roomsCount?: number | null;
+  [key: string]: unknown;
+};
+
 describe('GET /api/listing (rozbudowane testy listy ofert)', () => {
   // --- Testy Podstawowe ---
   it('POW-001: powinien zwrócić domyślną listę ofert z poprawną paginacją i strukturą', async () => {
@@ -23,7 +34,7 @@ describe('GET /api/listing (rozbudowane testy listy ofert)', () => {
       );
     }
 
-    response.body.data.forEach((item: any) => {
+    (response.body.data as ListItem[]).forEach(item => {
       expect(item).toHaveProperty('id');
       expect(item).toHaveProperty('asariId');
       // Możesz dodać więcej asercji na temat struktury każdego elementu oferty
@@ -188,7 +199,7 @@ describe('GET /api/listing (rozbudowane testy listy ofert)', () => {
       expect(response.status).toBe(200);
       expect(response.body.data.length).toBeGreaterThanOrEqual(0); // Upewniamy się, że data jest tablicą
 
-      response.body.data.forEach((item: any) => {
+      (response.body.data as ListItem[]).forEach(item => {
         expect(item.locationCity?.toLowerCase()).toContain(
           cityForTest.toLowerCase()
         );
@@ -215,7 +226,7 @@ describe('GET /api/listing (rozbudowane testy listy ofert)', () => {
         `/listing?offerType=${offerTypeForTest}`
       );
       expect(response.status).toBe(200);
-      response.body.data.forEach((item: any) => {
+      (response.body.data as ListItem[]).forEach(item => {
         expect(item.offerType).toEqual(offerTypeForTest);
       });
     });
@@ -225,7 +236,7 @@ describe('GET /api/listing (rozbudowane testy listy ofert)', () => {
         `/listing?priceMin=${minPriceForTest}&priceMax=${maxPriceForTest}`
       );
       expect(response.status).toBe(200);
-      response.body.data.forEach((item: any) => {
+      (response.body.data as ListItem[]).forEach(item => {
         expect(item.price).toBeGreaterThanOrEqual(minPriceForTest);
         expect(item.price).toBeLessThanOrEqual(maxPriceForTest);
       });
@@ -236,7 +247,7 @@ describe('GET /api/listing (rozbudowane testy listy ofert)', () => {
         `/listing?roomsMin=${minRoomsForTest}&roomsMax=${maxRoomsForTest}`
       );
       expect(response.status).toBe(200);
-      response.body.data.forEach((item: any) => {
+      (response.body.data as ListItem[]).forEach(item => {
         if (item.roomsCount !== null) {
           // roomsCount może być null
           expect(item.roomsCount).toBeGreaterThanOrEqual(minRoomsForTest);
@@ -250,7 +261,7 @@ describe('GET /api/listing (rozbudowane testy listy ofert)', () => {
         `/listing?city=${cityForTest}&offerType=${offerTypeForTest}&priceMin=${minPriceForTest}&roomsMin=${minRoomsForTest}`
       );
       expect(response.status).toBe(200);
-      response.body.data.forEach((item: any) => {
+      (response.body.data as ListItem[]).forEach(item => {
         expect(item.locationCity?.toLowerCase()).toContain(
           cityForTest.toLowerCase()
         );

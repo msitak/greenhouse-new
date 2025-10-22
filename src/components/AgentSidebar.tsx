@@ -70,10 +70,13 @@ export default function AgentSidebar({
           className='w-full rounded-xl'
           onClick={handlePhoneClick}
         >
-          {copied ? 'Skopiowano!' : showPhone && agentPhone ? agentPhone : 'Pokaż numer'}
+          {copied
+            ? 'Skopiowano!'
+            : showPhone && agentPhone
+              ? agentPhone
+              : 'Pokaż numer'}
         </Button>
       </div>
     </aside>
   );
 }
-

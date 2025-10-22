@@ -3,15 +3,17 @@ import {
   ListingDetailsApiResponse,
 } from './asariApi.types';
 
-const ASARI_API_BASE_URL = process.env.ASARI_API_BASE_URL;
-const ASARI_USER_ID = process.env.ASARI_USER_ID;
-const ASARI_TOKEN = process.env.ASARI_TOKEN;
-
-if (!ASARI_API_BASE_URL || !ASARI_USER_ID || !ASARI_TOKEN) {
-  throw new Error('ASARI API environment variables are not set!');
+function getAsariEnv(): {
+  baseUrl: string | undefined;
+  userId: string | undefined;
+  token: string | undefined;
+} {
+  return {
+    baseUrl: process.env.ASARI_API_BASE_URL,
+    userId: process.env.ASARI_USER_ID,
+    token: process.env.ASARI_TOKEN,
+  };
 }
-
-const SITE_AUTH_HEADER = `${ASARI_USER_ID}:${ASARI_TOKEN}`;
 
 // Ogólna funkcja pomocnicza do wysyłania żądań POST do Asari
 // Możemy ją później rozbudować o lepszą obsługę błędów i typowanie
@@ -19,7 +21,12 @@ async function postToAsari<TResponse>(
   endpoint: string,
   bodyData?: Record<string, string | number | undefined>
 ): Promise<TResponse> {
-  const url = `${ASARI_API_BASE_URL}${endpoint}`;
+  const { baseUrl, userId, token } = getAsariEnv();
+  if (!baseUrl || !userId || !token) {
+    throw new Error('ASARI API environment variables are not set!');
+  }
+
+  const url = `${baseUrl}${endpoint}`;
 
   const formData = new FormData();
   if (bodyData) {
@@ -35,7 +42,7 @@ async function postToAsari<TResponse>(
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      SiteAuth: SITE_AUTH_HEADER,
+      SiteAuth: `${userId}:${token}`,
       // Content-Type jest automatycznie ustawiany przez fetch, gdy używasz FormData
     },
     body: formData, // Nawet jeśli formData jest puste, dla endpointów tego wymagających

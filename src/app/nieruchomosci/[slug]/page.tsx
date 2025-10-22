@@ -6,9 +6,8 @@ import Loadable from '@/components/ui/loadable';
 import PhotoCarousel from '@/components/ui/photoCarousel';
 import Image from 'next/image';
 import AgentCard from '@/components/AgentCard';
-import AgentAvatar from '@/components/AgentAvatar';
 import AgentSidebar from '@/components/AgentSidebar';
-import { Play, ArrowUpRight } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import HtmlContent from '@/components/HtmlContent';
 import { Input } from '@/components/ui/input';
@@ -16,24 +15,95 @@ import { Label } from '@/components/ui/label';
 import { notFound } from 'next/navigation';
 import { formatPrice } from '@/lib/utils';
 import { ListingApiResponse } from '@/types/api.types';
+import { prisma } from '@/services/prisma';
+import { AsariStatus } from '@prisma/client';
 
 type PageProps = {
-  params: { slug: string };
-  searchParams?: Record<string, string | string[] | undefined>;
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 async function fetchListing(slug: string): Promise<ListingApiResponse | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/listing/${slug}`, {
-      cache: 'no-store',
+    // 1) Try by slug
+    let listingFromDb = await prisma.listing.findFirst({
+      where: {
+        slug,
+        isVisible: true,
+        asariStatus: { in: [AsariStatus.Active, AsariStatus.Closed] },
+      },
+      include: {
+        images: {
+          select: {
+            id: true,
+            asariId: true,
+            urlNormal: true,
+            urlThumbnail: true,
+            urlOriginal: true,
+            description: true,
+            order: true,
+            isScheme: true,
+            dbCreatedAt: true,
+            dbUpdatedAt: true,
+          },
+          orderBy: { order: 'asc' },
+        },
+      },
     });
 
-    if (!response.ok) {
-      return null;
+    // 2) Fallback by trailing numeric asariId in slug
+    if (!listingFromDb) {
+      const idMatch = slug.match(/(\d+)$/);
+      if (idMatch) {
+        const asariId = parseInt(idMatch[1], 10);
+        if (!Number.isNaN(asariId)) {
+          listingFromDb = await prisma.listing.findFirst({
+            where: {
+              asariId,
+              isVisible: true,
+              asariStatus: { in: [AsariStatus.Active, AsariStatus.Closed] },
+            },
+            include: {
+              images: {
+                select: {
+                  id: true,
+                  asariId: true,
+                  urlNormal: true,
+                  urlThumbnail: true,
+                  urlOriginal: true,
+                  description: true,
+                  order: true,
+                  isScheme: true,
+                  dbCreatedAt: true,
+                  dbUpdatedAt: true,
+                },
+                orderBy: { order: 'asc' },
+              },
+            },
+          });
+        }
+      }
     }
 
-    return await response.json();
+    if (!listingFromDb) return null;
+
+    // 3) Transform dates to string (ListingApiResponse contract)
+    const listingForApi: ListingApiResponse = {
+      ...listingFromDb,
+      lastUpdatedAsari: listingFromDb.lastUpdatedAsari?.toISOString() || null,
+      createdAtSystem: listingFromDb.createdAtSystem?.toISOString() || null,
+      updatedAtSystem: listingFromDb.updatedAtSystem?.toISOString() || null,
+      soldAt: listingFromDb.soldAt?.toISOString() || null,
+      dbCreatedAt: listingFromDb.dbCreatedAt.toISOString(),
+      dbUpdatedAt: listingFromDb.dbUpdatedAt.toISOString(),
+      images: listingFromDb.images.map(image => ({
+        ...image,
+        dbCreatedAt: image.dbCreatedAt.toISOString(),
+        dbUpdatedAt: image.dbUpdatedAt.toISOString(),
+      })),
+    };
+
+    return listingForApi;
   } catch (error) {
     console.error('Failed to fetch listing:', error);
     return null;
@@ -42,36 +112,34 @@ async function fetchListing(slug: string): Promise<ListingApiResponse | null> {
 
 function getOfferTypeLabel(offerType: string | null): string {
   if (!offerType) return 'Oferta';
-  
+
   if (offerType.toLowerCase().includes('sale')) {
     return 'Oferta sprzedaży';
   }
-  
-  if (offerType.toLowerCase().includes('rental') || offerType.toLowerCase().includes('rent')) {
+
+  if (
+    offerType.toLowerCase().includes('rental') ||
+    offerType.toLowerCase().includes('rent')
+  ) {
     return 'Oferta wynajmu';
   }
-  
+
   return 'Oferta';
 }
 
-function formatDate(dateString: string | null): string {
-  if (!dateString) return 'Brak danych';
-  
-  const date = new Date(dateString);
-  return date.toLocaleDateString('pl-PL', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
+// Local date formatter (not used on this page currently) removed to satisfy linter
 
 // Helper to extract property type from listingIdString
-function getPropertyTypeFromListing(additionalDetailsJson: any): string | null {
+function getPropertyTypeFromListing(
+  additionalDetailsJson: unknown
+): string | null {
   if (!additionalDetailsJson || typeof additionalDetailsJson !== 'object') {
     return null;
   }
 
-  const listingIdString = additionalDetailsJson.listingIdString;
+  const listingIdString = (
+    additionalDetailsJson as { listingIdString?: unknown }
+  ).listingIdString;
   if (!listingIdString || typeof listingIdString !== 'string') {
     return null;
   }
@@ -87,7 +155,7 @@ function getPropertyTypeFromListing(additionalDetailsJson: any): string | null {
   return null;
 }
 
-export default async function OfferPage({ params, searchParams }: PageProps) {
+export default async function OfferPage({ params }: PageProps) {
   const { slug } = await params;
   const listing = await fetchListing(slug);
 
@@ -95,36 +163,45 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
     notFound();
   }
 
-  const fullAddress = [
-    listing.locationStreet,
-    listing.locationCity,
-  ].filter(Boolean).join(', ');
+  const fullAddress = [listing.locationStreet, listing.locationCity]
+    .filter(Boolean)
+    .join(', ');
 
   // Agent data handling - agentName contains full name like "Małgorzata Walas"
   const agentFullName = listing.agentName || 'Agent nieruchomości';
-  const agentFirstName = listing.agentName ? listing.agentName.split(' ')[0] : null;
-  
+  // Derive first name (unused for now but may be useful later)
+
   // Generate agent image paths
   // Small image for sidebar: "Małgorzata Walas" → "/agents/Małgorzata_Walas.png"
-  const agentImagePath = listing.agentName ? `/agents/${listing.agentName.replace(/ /g, '_')}.png` : null;
-  
-  // Full-size image for contact form: "Małgorzata Walas" → "/agents/full/Małgorzata_Walas.jpg"
-  const agentImagePathFull = listing.agentName ? `/agents/full/${listing.agentName.replace(/ /g, '_')}.jpg` : null;
+  const agentImagePath = listing.agentName
+    ? `/agents/${listing.agentName.replace(/ /g, '_')}.png`
+    : null;
 
-  const calculatedPricePerM2 = listing.price && listing.area
-    ? Math.round(listing.price / listing.area)
-    : listing.pricePerM2 ? Math.round(listing.pricePerM2) : null;
+  // Full-size image for contact form: "Małgorzata Walas" → "/agents/full/Małgorzata_Walas.jpg"
+  const agentImagePathFull = listing.agentName
+    ? `/agents/full/${listing.agentName.replace(/ /g, '_')}.jpg`
+    : null;
+
+  const calculatedPricePerM2 =
+    listing.price && listing.area
+      ? Math.round(listing.price / listing.area)
+      : listing.pricePerM2
+        ? Math.round(listing.pricePerM2)
+        : null;
 
   // Check if it's a sale offer (not rental)
-  const isSaleOffer = listing.offerType 
-    ? listing.offerType.toLowerCase().includes('sale') || listing.offerType.toLowerCase().includes('sprzedaz')
+  const isSaleOffer = listing.offerType
+    ? listing.offerType.toLowerCase().includes('sale') ||
+      listing.offerType.toLowerCase().includes('sprzedaz')
     : false;
 
   // Find floor plan image (image with isScheme: true)
   const floorPlanImage = listing.images.find(img => img.isScheme);
 
   // Determine property type
-  const propertyType = getPropertyTypeFromListing(listing.additionalDetailsJson);
+  const propertyType = getPropertyTypeFromListing(
+    listing.additionalDetailsJson
+  );
 
   // Get formatted listing ID
   const getListingId = () => {
@@ -132,15 +209,20 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
     if (listing.exportId) {
       return listing.exportId;
     }
-    
+
     // Otherwise try to get listingIdString from additionalDetailsJson
-    if (listing.additionalDetailsJson && typeof listing.additionalDetailsJson === 'object') {
-      const additionalDetails = listing.additionalDetailsJson as any;
+    if (
+      listing.additionalDetailsJson &&
+      typeof listing.additionalDetailsJson === 'object'
+    ) {
+      const additionalDetails = listing.additionalDetailsJson as {
+        listingIdString?: string | null;
+      };
       if (additionalDetails.listingIdString) {
         return additionalDetails.listingIdString;
       }
     }
-    
+
     // Fall back to asariId
     return listing.asariId.toString();
   };
@@ -154,7 +236,7 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
       <div className='hidden lg:block'>
         <ListingBreadcrumbs listing={listing} />
       </div>
-      
+
       {/* Desktop: Top media gallery */}
       <div className='hidden lg:grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px] max-w-[1200px] mx-auto'>
         <div className='rounded-2xl bg-white shadow-[0_8px_40px_0_rgba(164,167,174,0.12)] overflow-hidden'>
@@ -396,7 +478,7 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
         </Tabs>
       </div>
 
-      { agentFullName && 
+      {agentFullName && (
         <div className='mt-8 lg:hidden'>
           <AgentSidebar
             agentName={agentFullName}
@@ -405,7 +487,7 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
             isLoading={isLoading}
           />
         </div>
-      }
+      )}
 
       {/* Contact form */}
       <div className='lg:block hidden max-w-[1200px] mx-auto mt-6'>
@@ -420,10 +502,10 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
                   imageSrc={agentImagePathFull}
                 />
                 <p className='mt-4 text-xs/5 text-[--color-text-secondary]'>
-                  Administratorem danych osobowych jest Green House Nieruchomości
-                  sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok. 1, 42-202
-                  Częstochowa ("Administrator"), z którym można się skontaktować
-                  przez adres kontakt@ghn.pl.
+                  Administratorem danych osobowych jest Green House
+                  Nieruchomości sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok.
+                  1, 42-202 Częstochowa &quot;Administrator&quot;, z którym
+                  można się skontaktować przez adres kontakt@ghn.pl.
                 </p>
               </div>
             )}
@@ -513,8 +595,8 @@ export default async function OfferPage({ params, searchParams }: PageProps) {
               <p className='mt-4 text-xs/5 text-[--color-text-secondary]'>
                 Administratorem danych osobowych jest Green House Nieruchomości
                 sp. z o. o. z siedzibą przy Dąbrowskiego 7 lok. 1, 42-202
-                Częstochowa ("Administrator"), z którym można się skontaktować
-                przez adres kontakt@ghn.pl.
+                Częstochowa (&quot;Administrator&quot;), z którym można się
+                skontaktować przez adres kontakt@ghn.pl.
               </p>
             </div>
           )}

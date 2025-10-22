@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import OfferTile, { OfferTileListing, OfferTileSkeleton } from '@/components/layout/offerTile';
+import OfferTile, {
+  OfferTileListing,
+  OfferTileSkeleton,
+} from '@/components/layout/offerTile';
 import Hero from '@/components/layout/hero';
 import { Button } from '@/components/ui/button';
 import Section from '@/components/layout/section';
@@ -11,15 +14,14 @@ import PopularCitiesSection from '@/components/sections/popularCitiesSection';
 import TestimonialsSection from '@/components/sections/testimonialsSection';
 import AboutUsSection from '@/components/sections/aboutUsSection';
 import ArticlesSection from '@/components/sections/articlesSection';
-import { LocationCombobox } from '../../components/search/LocationCombobox';
-import { AreaRangeField } from '../../components/search/AreaRangeField';
-import { PriceRangeField } from '../../components/search/PriceRangeField';
-import { LocationValue } from '../../lib/location/types';
+// Search fields kept for future use on homepage
 
 const SKELETONS = Array.from({ length: 6 }, (_, index) => index);
 
 export default function Home() {
-  const [transactionType, setTransactionType] = useState<'sale' | 'rent'>('sale');
+  const [transactionType, setTransactionType] = useState<'sale' | 'rent'>(
+    'sale'
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [offers, setOffers] = useState<OfferTileListing[]>([]);
 
@@ -29,7 +31,9 @@ export default function Home() {
     async function fetchLatestOffers() {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/listings/latest?kind=${transactionType}`);
+        const response = await fetch(
+          `/api/listings/latest?kind=${transactionType}`
+        );
 
         if (!response.ok) {
           console.error('Failed to load listings:', response.statusText);
@@ -99,7 +103,10 @@ export default function Home() {
         dealType={'sale'}
       /> */}
 
-      <Section id='latest-offers' className='mt-12 mb-12 max-w-[1320px] mx-auto'>
+      <Section
+        id='latest-offers'
+        className='mt-12 mb-12 max-w-[1320px] mx-auto'
+      >
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-4xl font-bold mb-4'>
             Najnowsze oferty nieruchomości
@@ -115,10 +122,18 @@ export default function Home() {
               }}
               className='flex items-center'
             >
-              <ToggleGroupItem value='sale' variant='pill' className='px-8 py-2'>
+              <ToggleGroupItem
+                value='sale'
+                variant='pill'
+                className='px-8 py-2'
+              >
                 Sprzedaż
               </ToggleGroupItem>
-              <ToggleGroupItem value='rent' variant='pill' className='px-8 py-2'>
+              <ToggleGroupItem
+                value='rent'
+                variant='pill'
+                className='px-8 py-2'
+              >
                 Wynajem
               </ToggleGroupItem>
             </ToggleGroup>

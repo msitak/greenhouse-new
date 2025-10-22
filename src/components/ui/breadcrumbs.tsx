@@ -34,7 +34,10 @@ export default function Breadcrumbs({ className }: BreadcrumbsProps) {
   });
 
   return (
-    <nav aria-label='Breadcrumb' className={cn('leading-none hidden md:block', className)}>
+    <nav
+      aria-label='Breadcrumb'
+      className={cn('leading-none hidden md:block', className)}
+    >
       <ol className='flex flex-wrap items-center gap-1.5 leading-none text-sm'>
         <li className='flex items-center gap-1 text-secondary font-medium leading-none'>
           <Home className='h-[1em] w-[1em]' aria-hidden='true' />

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Bounding box for Poland – used as a locationRestriction (harder constraint)
-const POLAND_RECT = {
-  low: { latitude: 49.0, longitude: 14.07 },
-  high: { latitude: 54.84, longitude: 24.15 },
-};
+// const POLAND_RECT = {
+//   low: { latitude: 49.0, longitude: 14.07 },
+//   high: { latitude: 54.84, longitude: 24.15 },
+// };
 
 // Bounding box for Śląskie – used as a locationBias (soft preference)
 const SILESIAN_RECT = {
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     // and apply a soft bias to Śląskie.
     locationBias: { rectangle: SILESIAN_RECT },
     // Improve ranking around Częstochowa as the most common use-case
-    origin: { latitude: 50.811, longitude: 19.120 },
+    origin: { latitude: 50.811, longitude: 19.12 },
   };
 
   const res = await fetch(
@@ -79,36 +79,73 @@ export async function POST(req: NextRequest) {
 
   let suggestions = (data?.suggestions ?? [])
     // keep only locality-type predictions (cities, towns, villages)
-    .filter((s: any) => {
-      const types: string[] = s?.placePrediction?.types ?? [];
-      return types.some(t => allowed.has(t));
-    })
+    .filter(
+      (s: {
+        placePrediction?: {
+          types?: string[];
+        };
+      }) => {
+        const types: string[] = s?.placePrediction?.types ?? [];
+        return types.some(t => allowed.has(t));
+      }
+    )
     // ensure mainText matches the typed query, to avoid county-name matches
-    .filter((s: any) => {
-      const main: string =
-        s?.placePrediction?.structuredFormat?.mainText?.text ||
-        s?.placePrediction?.text?.text ||
-        '';
-      return normalize(main).includes(nq);
-    });
+    .filter(
+      (s: {
+        placePrediction?: {
+          structuredFormat?: { mainText?: { text?: string } };
+          text?: { text?: string };
+        };
+      }) => {
+        const main: string =
+          s?.placePrediction?.structuredFormat?.mainText?.text ||
+          s?.placePrediction?.text?.text ||
+          '';
+        return normalize(main).includes(nq);
+      }
+    );
 
   // Re-rank: prefer Częstochowa (business requirement) and sublocality/route
   const tokens = nq.split(/\s+/).filter(Boolean);
   const preferCity = 'czestochowa';
   suggestions = suggestions
-    .map((s: any) => {
-      const main: string = s?.placePrediction?.structuredFormat?.mainText?.text || '';
-      const secondary: string = s?.placePrediction?.structuredFormat?.secondaryText?.text || '';
-      const all = `${main}, ${secondary}`;
-      const types: string[] = s?.placePrediction?.types || [];
-      const typeScore = types.includes('sublocality') ? 8 : types.includes('route') ? 6 : types.includes('locality') ? 3 : 0;
-      const cityBoost = normalize(all).includes(preferCity) ? 20 : 0;
-      const tokenScore = tokens.reduce((acc, t) => acc + (normalize(all).includes(t) ? 1 : 0), 0);
-      const score = typeScore + cityBoost + tokenScore;
-      return { s, score };
-    })
-    .sort((a: any, b: any) => b.score - a.score)
-    .map((x: any) => x.s);
+    .map(
+      (s: {
+        placePrediction?: {
+          structuredFormat?: {
+            mainText?: { text?: string };
+            secondaryText?: { text?: string };
+          };
+          types?: string[];
+        };
+      }) => {
+        const main: string =
+          s?.placePrediction?.structuredFormat?.mainText?.text || '';
+        const secondary: string =
+          s?.placePrediction?.structuredFormat?.secondaryText?.text || '';
+        const all = `${main}, ${secondary}`;
+        const types: string[] = s?.placePrediction?.types || [];
+        const typeScore = types.includes('sublocality')
+          ? 8
+          : types.includes('route')
+            ? 6
+            : types.includes('locality')
+              ? 3
+              : 0;
+        const cityBoost = normalize(all).includes(preferCity) ? 20 : 0;
+        const tokenScore = tokens.reduce(
+          (acc, t) => acc + (normalize(all).includes(t) ? 1 : 0),
+          0
+        );
+        const score = typeScore + cityBoost + tokenScore;
+        return { s, score };
+      }
+    )
+    .sort(
+      (a: { s: unknown; score: number }, b: { s: unknown; score: number }) =>
+        b.score - a.score
+    )
+    .map((x: { s: unknown; score: number }) => x.s);
 
   data.suggestions = suggestions;
 

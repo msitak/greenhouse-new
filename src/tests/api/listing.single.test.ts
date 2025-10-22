@@ -4,6 +4,11 @@ import { Listing, ListingImage, AsariStatus } from '@prisma/client'; // Upewnij 
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
+type ApiImage = {
+  asariId?: number;
+  description?: string | null;
+};
+
 describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
   let testListing1: Listing & { images: ListingImage[] };
   let testListing2_noImages: Listing;
@@ -101,9 +106,7 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
             testListing1?.id,
             testListing2_noImages?.id,
             testListingInactive?.id,
-          ].filter(
-            Boolean
-          ) as string[],
+          ].filter(Boolean) as string[],
         },
       },
     });
@@ -125,7 +128,9 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
     expect(data.price).toBe(750000);
     expect(data.images.length).toBe(3);
 
-    const firstImage = data.images.find((img: any) => img.asariId === 201);
+    const firstImage = (data.images as ApiImage[]).find(
+      img => img.asariId === 201
+    );
     expect(firstImage).toBeDefined();
     expect(firstImage?.description).toBe('Główne zdjęcie domu');
   });

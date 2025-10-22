@@ -52,10 +52,7 @@ export async function GET(request: Request) {
   try {
     const listings = await prisma.listing.findMany({
       where: filters,
-      orderBy: [
-        { createdAtSystem: 'desc' },
-        { dbCreatedAt: 'desc' },
-      ],
+      orderBy: [{ createdAtSystem: 'desc' }, { dbCreatedAt: 'desc' }],
       take: LATEST_LIMIT,
       select: {
         id: true,
