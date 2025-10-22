@@ -21,45 +21,42 @@ type Props = {
   areaMax?: number;
 };
 
-export default async function ListingsSection({
-  page,
-  sort,
-  kind,
-  city,
-  district,
-  street,
-  propertyType,
-  priceMin,
-  priceMax,
-  areaMin,
-  areaMax,
-}: Props) {
-  const filters: Prisma.ListingWhereInput = {
+// Base filters applied to all listing queries
+function buildBaseFilters(): Prisma.ListingWhereInput {
+  return {
     isVisible: true,
     asariStatus: { in: [AsariStatus.Active, AsariStatus.Closed] },
   };
+}
 
-  // Filter by offer type based on selected tab (sale/rent)
+// Apply transaction kind filter mapping to Asari offer types
+function applyKindFilter(
+  filters: Prisma.ListingWhereInput,
+  kind: 'sale' | 'rent'
+) {
   const offerTypeFilter = (() => {
     if (kind === 'rent')
       return {
         endsWith: 'Rental',
         mode: 'insensitive',
-      } as Prisma.StringNullableFilter;
+      } as Prisma.StringNullableFilter<'Listing'>;
     if (kind === 'sale')
       return {
         endsWith: 'Sale',
         mode: 'insensitive',
-      } as Prisma.StringNullableFilter;
+      } as Prisma.StringNullableFilter<'Listing'>;
     return undefined;
   })();
+  if (offerTypeFilter) filters.offerType = offerTypeFilter;
+}
 
-  if (offerTypeFilter) {
-    filters.offerType =
-      offerTypeFilter as Prisma.StringNullableFilter<'Listing'>;
-  }
-
-  // Location filters
+// Apply optional fuzzy location filters
+function applyLocationFilters(
+  filters: Prisma.ListingWhereInput,
+  city?: string,
+  district?: string,
+  street?: string
+) {
   if (city)
     filters.locationCity = {
       contains: city,
@@ -75,50 +72,50 @@ export default async function ListingsSection({
       contains: street,
       mode: 'insensitive',
     } as Prisma.StringNullableFilter<'Listing'>;
+}
 
-  // Property type mapping via listingIdString codes (same as page and count)
-  if (propertyType && propertyType !== 'any') {
-    const codeFilters: Prisma.ListingWhereInput[] = [];
-    if (propertyType === 'mieszkanie') {
-      codeFilters.push({
-        additionalDetailsJson: {
-          path: ['listingIdString'],
-          string_contains: 'OM',
-        } as Prisma.JsonNullableFilter<'Listing'>,
-      });
-    } else if (propertyType === 'dom') {
-      codeFilters.push({
-        additionalDetailsJson: {
-          path: ['listingIdString'],
-          string_contains: 'OD',
-        } as Prisma.JsonNullableFilter<'Listing'>,
-      });
-    } else if (propertyType === 'dzialka') {
-      codeFilters.push({
-        additionalDetailsJson: {
-          path: ['listingIdString'],
-          string_contains: 'OG',
-        } as Prisma.JsonNullableFilter<'Listing'>,
-      });
-    } else if (propertyType === 'lokal') {
-      codeFilters.push({
-        additionalDetailsJson: {
-          path: ['listingIdString'],
-          string_contains: 'OL',
-        } as Prisma.JsonNullableFilter<'Listing'>,
-      });
-      codeFilters.push({
-        additionalDetailsJson: {
-          path: ['listingIdString'],
-          string_contains: 'BL',
-        } as Prisma.JsonNullableFilter<'Listing'>,
-      });
-    }
-    if (codeFilters.length)
-      filters.OR = [...(filters.OR ?? []), ...codeFilters];
+// Translate property type to internal code filters in listingIdString
+// OM = mieszkanie, OD = dom, OG = działka, OL/BL = lokal
+function getPropertyTypeCodeFilters(
+  propertyType?: 'mieszkanie' | 'dom' | 'dzialka' | 'lokal' | 'any'
+): Prisma.ListingWhereInput[] {
+  const codeFilters: Prisma.ListingWhereInput[] = [];
+  if (!propertyType || propertyType === 'any') return codeFilters;
+
+  const jsonFilter = (code: string): Prisma.ListingWhereInput => ({
+    additionalDetailsJson: {
+      path: ['listingIdString'],
+      string_contains: code,
+    } as Prisma.JsonNullableFilter<'Listing'>,
+  });
+
+  if (propertyType === 'mieszkanie') codeFilters.push(jsonFilter('OM'));
+  else if (propertyType === 'dom') codeFilters.push(jsonFilter('OD'));
+  else if (propertyType === 'dzialka') codeFilters.push(jsonFilter('OG'));
+  else if (propertyType === 'lokal') {
+    codeFilters.push(jsonFilter('OL'));
+    codeFilters.push(jsonFilter('BL'));
   }
+  return codeFilters;
+}
 
-  // Numeric ranges
+function applyPropertyTypeFilters(
+  filters: Prisma.ListingWhereInput,
+  propertyType?: 'mieszkanie' | 'dom' | 'dzialka' | 'lokal' | 'any'
+) {
+  const codeFilters = getPropertyTypeCodeFilters(propertyType);
+  if (codeFilters.length)
+    filters.OR = [...(filters.OR ?? []), ...codeFilters];
+}
+
+// Apply numeric ranges if provided (ignore NaN/undefined)
+function applyNumericRangeFilters(
+  filters: Prisma.ListingWhereInput,
+  priceMin?: number,
+  priceMax?: number,
+  areaMin?: number,
+  areaMax?: number
+) {
   if (priceMin != null && !Number.isNaN(priceMin))
     filters.price = {
       ...(filters.price as Prisma.FloatNullableFilter<'Listing'>),
@@ -139,26 +136,48 @@ export default async function ListingsSection({
       ...(filters.area as Prisma.FloatNullableFilter<'Listing'>),
       lte: areaMax,
     } as Prisma.FloatNullableFilter<'Listing'>;
+}
 
-  let orderBy: Prisma.ListingOrderByWithRelationInput[];
+// Map UI sort key to Prisma orderBy clause
+function buildOrderBy(
+  sort: SortKey
+): Prisma.ListingOrderByWithRelationInput[] {
   switch (sort) {
     case 'price-asc':
-      orderBy = [{ price: 'asc' }];
-      break;
+      return [{ price: 'asc' }];
     case 'price-desc':
-      orderBy = [{ price: 'desc' }];
-      break;
+      return [{ price: 'desc' }];
     case 'area-asc':
-      orderBy = [{ area: 'asc' }];
-      break;
+      return [{ area: 'asc' }];
     case 'area-desc':
-      orderBy = [{ area: 'desc' }];
-      break;
+      return [{ area: 'desc' }];
     case 'newest':
     default:
-      orderBy = [{ createdAtSystem: 'desc' }, { dbCreatedAt: 'desc' }];
-      break;
+      // Prefer newest by system, then DB-created for stability
+      return [{ createdAtSystem: 'desc' }, { dbCreatedAt: 'desc' }];
   }
+}
+
+export default async function ListingsSection({
+  page,
+  sort,
+  kind,
+  city,
+  district,
+  street,
+  propertyType,
+  priceMin,
+  priceMax,
+  areaMin,
+  areaMax,
+}: Props) {
+  const filters: Prisma.ListingWhereInput = buildBaseFilters();
+  applyKindFilter(filters, kind);
+  applyLocationFilters(filters, city, district, street);
+  applyPropertyTypeFilters(filters, propertyType);
+  applyNumericRangeFilters(filters, priceMin, priceMax, areaMin, areaMax);
+
+  const orderBy = buildOrderBy(sort);
 
   const listings = (await prisma.listing.findMany({
     where: filters,
