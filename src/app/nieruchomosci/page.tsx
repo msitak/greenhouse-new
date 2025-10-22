@@ -38,7 +38,9 @@ type SortKey = (typeof sortOptions)[number];
 const isSortKey = (v: unknown): v is SortKey =>
   typeof v === 'string' && (sortOptions as readonly string[]).includes(v);
 
-function parseSortKey(sp: Record<string, string | string[] | undefined>): SortKey {
+function parseSortKey(
+  sp: Record<string, string | string[] | undefined>
+): SortKey {
   const raw = getFirst(sp, 'sort');
   return isSortKey(raw) ? raw : 'newest';
 }
@@ -164,8 +166,7 @@ function applyPropertyTypeFilters(
       } as Prisma.JsonNullableFilter<'Listing'>,
     });
   }
-  if (codeFilters.length)
-    filters.OR = [...(filters.OR ?? []), ...codeFilters];
+  if (codeFilters.length) filters.OR = [...(filters.OR ?? []), ...codeFilters];
 }
 
 export default async function Page({ searchParams }: PageProps) {

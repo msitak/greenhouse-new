@@ -81,8 +81,7 @@ function applyPropertyTypeFilters(
   propertyType?: string | undefined
 ) {
   const codeFilters = getPropertyTypeCodeFilters(propertyType);
-  if (codeFilters.length)
-    filters.OR = [...(filters.OR ?? []), ...codeFilters];
+  if (codeFilters.length) filters.OR = [...(filters.OR ?? []), ...codeFilters];
 }
 
 // Apply numeric range filters for price and area.

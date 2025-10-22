@@ -104,8 +104,7 @@ function applyPropertyTypeFilters(
   propertyType?: 'mieszkanie' | 'dom' | 'dzialka' | 'lokal' | 'any'
 ) {
   const codeFilters = getPropertyTypeCodeFilters(propertyType);
-  if (codeFilters.length)
-    filters.OR = [...(filters.OR ?? []), ...codeFilters];
+  if (codeFilters.length) filters.OR = [...(filters.OR ?? []), ...codeFilters];
 }
 
 // Apply numeric ranges if provided (ignore NaN/undefined)
@@ -139,9 +138,7 @@ function applyNumericRangeFilters(
 }
 
 // Map UI sort key to Prisma orderBy clause
-function buildOrderBy(
-  sort: SortKey
-): Prisma.ListingOrderByWithRelationInput[] {
+function buildOrderBy(sort: SortKey): Prisma.ListingOrderByWithRelationInput[] {
   switch (sort) {
     case 'price-asc':
       return [{ price: 'asc' }];

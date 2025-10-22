@@ -81,8 +81,7 @@ function applyPropertyTypeFilters(
   propertyType?: string | undefined
 ) {
   const codeFilters = getPropertyTypeCodeFilters(propertyType);
-  if (codeFilters.length)
-    filters.OR = [...(filters.OR ?? []), ...codeFilters];
+  if (codeFilters.length) filters.OR = [...(filters.OR ?? []), ...codeFilters];
 }
 
 export async function GET(request: Request) {
