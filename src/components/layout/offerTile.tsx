@@ -51,9 +51,6 @@ type OfferTileProps = {
 };
 
 const FALLBACK_IMAGE = '/test-image.jpg';
-// const FALLBACK_ROOMS_LABEL = '—';
-// const FALLBACK_AREA_LABEL = '—';
-// const FALLBACK_FLOOR_LABEL = '—';
 const MAX_INDICATORS = 20;
 const TILE_WIDTH = 424;
 const TILE_HEIGHT = 239;

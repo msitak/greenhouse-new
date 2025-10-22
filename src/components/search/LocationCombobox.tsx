@@ -12,10 +12,18 @@ export function LocationCombobox({
   placeholder = 'np. Katowice, Częstochowa…',
 }: {
   value?: LocationValue;
-  onChange: (v: LocationValue) => void;
+  onChange: (v: LocationValue | undefined) => void;
   placeholder?: string;
 }) {
   const { text, setText, items, pickById } = usePlacesAutocomplete(value);
+
+  // If there is a selected value and the input text becomes empty (e.g., user clicked X),
+  // propagate clearing to the parent so dependent counters refresh.
+  React.useEffect(() => {
+    if (value && text.trim() === '') {
+      onChange(undefined);
+    }
+  }, [text, value, onChange]);
 
   return (
     <Autocomplete

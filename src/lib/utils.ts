@@ -158,3 +158,7 @@ export function generateListingSlug(listing: ListingForSlug): string {
 
   return slug;
 }
+
+export function parseKind(value: string | null): 'sale' | 'rent' | null {
+  return value === 'sale' || value === 'rent' ? value : null;
+}

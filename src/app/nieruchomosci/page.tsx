@@ -18,178 +18,179 @@ type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function Page({ searchParams }: PageProps) {
-  const sp = await searchParams;
-  const pageParam =
-    typeof sp?.page === 'string'
-      ? sp.page
-      : Array.isArray(sp?.page)
-        ? sp.page?.[0]
-        : undefined;
-  const currentPage = Math.max(1, Number(pageParam) || 1);
-  const sortParamRaw =
-    typeof sp?.sort === 'string'
-      ? sp.sort
-      : Array.isArray(sp?.sort)
-        ? sp.sort?.[0]
-        : undefined;
-  const transitionParam =
-    typeof sp?.transition === 'string'
-      ? sp.transition
-      : Array.isArray(sp?.transition)
-        ? sp.transition?.[0]
-        : undefined;
-  const sortOptions = [
-    'newest',
-    'price-desc',
-    'price-asc',
-    'area-asc',
-    'area-desc',
-  ] as const;
-  type SortKey = (typeof sortOptions)[number];
-  const isSortKey = (v: unknown): v is SortKey =>
-    typeof v === 'string' && (sortOptions as readonly string[]).includes(v);
-  const sortKey: SortKey = isSortKey(sortParamRaw) ? sortParamRaw : 'newest';
-  const kindParamRaw =
-    typeof sp?.kind === 'string'
-      ? sp.kind
-      : Array.isArray(sp?.kind)
-        ? sp.kind?.[0]
-        : undefined;
-  const kind: 'sale' | 'rent' =
-    kindParamRaw === 'rent' || kindParamRaw === 'sale'
-      ? (kindParamRaw as 'sale' | 'rent')
-      : 'sale';
-  const cityParam =
-    typeof sp?.city === 'string'
-      ? sp.city
-      : Array.isArray(sp?.city)
-        ? sp.city?.[0]
-        : undefined;
-  const districtParam =
-    typeof sp?.district === 'string'
-      ? sp.district
-      : Array.isArray(sp?.district)
-        ? sp.district?.[0]
-        : undefined;
-  const streetParam =
-    typeof sp?.street === 'string'
-      ? sp.street
-      : Array.isArray(sp?.street)
-        ? sp.street?.[0]
-        : undefined;
-  const propertyTypeParam =
-    typeof sp?.propertyType === 'string'
-      ? sp.propertyType
-      : Array.isArray(sp?.propertyType)
-        ? sp.propertyType?.[0]
-        : undefined;
-  type PropertyType = 'mieszkanie' | 'dom' | 'dzialka' | 'lokal' | 'any';
-  const propertyTypeFromParam = (v: unknown): PropertyType => {
-    if (v === 'mieszkanie' || v === 'dom' || v === 'dzialka' || v === 'lokal')
-      return v;
-    return 'any';
-  };
-  const propertyType: PropertyType = propertyTypeFromParam(propertyTypeParam);
-  const priceMin =
-    typeof sp?.priceMin === 'string' ? Number(sp.priceMin) : undefined;
-  const priceMax =
-    typeof sp?.priceMax === 'string' ? Number(sp.priceMax) : undefined;
-  const areaMin =
-    typeof sp?.areaMin === 'string' ? Number(sp.areaMin) : undefined;
-  const areaMax =
-    typeof sp?.areaMax === 'string' ? Number(sp.areaMax) : undefined;
+// --- Helpers: parse query params ---
+function getFirst(
+  sp: Record<string, string | string[] | undefined>,
+  key: string
+): string | undefined {
+  const v = sp?.[key];
+  return typeof v === 'string' ? v : Array.isArray(v) ? v[0] : undefined;
+}
 
-  // Build base filters (only visible and active/closed)
-  const filters: Prisma.ListingWhereInput = {
+const sortOptions = [
+  'newest',
+  'price-desc',
+  'price-asc',
+  'area-asc',
+  'area-desc',
+] as const;
+type SortKey = (typeof sortOptions)[number];
+const isSortKey = (v: unknown): v is SortKey =>
+  typeof v === 'string' && (sortOptions as readonly string[]).includes(v);
+
+function parseSortKey(
+  sp: Record<string, string | string[] | undefined>
+): SortKey {
+  const raw = getFirst(sp, 'sort');
+  return isSortKey(raw) ? raw : 'newest';
+}
+
+function parseKind(
+  sp: Record<string, string | string[] | undefined>
+): 'sale' | 'rent' {
+  const raw = getFirst(sp, 'kind');
+  return raw === 'rent' || raw === 'sale' ? raw : 'sale';
+}
+
+type PropertyType = 'mieszkanie' | 'dom' | 'dzialka' | 'lokal' | 'any';
+function parsePropertyType(
+  sp: Record<string, string | string[] | undefined>
+): PropertyType {
+  const v = getFirst(sp, 'propertyType');
+  return v === 'mieszkanie' || v === 'dom' || v === 'dzialka' || v === 'lokal'
+    ? v
+    : 'any';
+}
+
+function parseOptionalNumber(
+  sp: Record<string, string | string[] | undefined>,
+  key: string
+): number | undefined {
+  const raw = getFirst(sp, key);
+  if (typeof raw !== 'string') return undefined;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+// --- Helpers: build Prisma filters for bounds and listing queries ---
+function buildBaseFilters(): Prisma.ListingWhereInput {
+  return {
     isVisible: true,
     asariStatus: {
       in: [AsariStatus.Active, AsariStatus.Closed],
     },
   };
+}
 
-  // Filter by offer type based on selected tab (sale/rent)
+function applyOfferTypeFilter(
+  filters: Prisma.ListingWhereInput,
+  kind: 'sale' | 'rent'
+) {
   const offerTypeFilter = (() => {
     if (kind === 'rent')
       return {
         endsWith: 'Rental',
         mode: 'insensitive',
-      } as Prisma.StringNullableFilter;
+      } as Prisma.StringNullableFilter<'Listing'>;
     if (kind === 'sale')
       return {
         endsWith: 'Sale',
         mode: 'insensitive',
-      } as Prisma.StringNullableFilter;
+      } as Prisma.StringNullableFilter<'Listing'>;
     return undefined;
   })();
+  if (offerTypeFilter) filters.offerType = offerTypeFilter;
+}
 
-  if (offerTypeFilter) {
-    filters.offerType =
-      offerTypeFilter as Prisma.StringNullableFilter<'Listing'>;
-  }
-
-  // Optional location filters
-  if (cityParam) {
+function applyLocationFilters(
+  filters: Prisma.ListingWhereInput,
+  city?: string,
+  district?: string,
+  street?: string
+) {
+  if (city)
     filters.locationCity = {
-      contains: cityParam,
+      contains: city,
       mode: 'insensitive',
     } as Prisma.StringNullableFilter<'Listing'>;
-  }
-  if (districtParam) {
+  if (district)
     filters.locationDistrict = {
-      contains: districtParam,
+      contains: district,
       mode: 'insensitive',
     } as Prisma.StringNullableFilter<'Listing'>;
-  }
-  if (streetParam) {
+  if (street)
     filters.locationStreet = {
-      contains: streetParam,
+      contains: street,
       mode: 'insensitive',
     } as Prisma.StringNullableFilter<'Listing'>;
-  }
+}
 
-  // Optional property type mapping – try to infer from listingIdString codes
-  if (propertyType && propertyType !== 'any') {
-    const codeFilters: Prisma.ListingWhereInput[] = [];
-    if (propertyType === 'mieszkanie') {
-      codeFilters.push({
-        additionalDetailsJson: {
-          path: ['listingIdString'],
-          string_contains: 'OM',
-        } as Prisma.JsonNullableFilter<'Listing'>,
-      });
-    } else if (propertyType === 'dom') {
-      codeFilters.push({
-        additionalDetailsJson: {
-          path: ['listingIdString'],
-          string_contains: 'OD',
-        } as Prisma.JsonNullableFilter<'Listing'>,
-      });
-    } else if (propertyType === 'dzialka') {
-      codeFilters.push({
-        additionalDetailsJson: {
-          path: ['listingIdString'],
-          string_contains: 'OG',
-        } as Prisma.JsonNullableFilter<'Listing'>,
-      });
-    } else if (propertyType === 'lokal') {
-      codeFilters.push({
-        additionalDetailsJson: {
-          path: ['listingIdString'],
-          string_contains: 'OL',
-        } as Prisma.JsonNullableFilter<'Listing'>,
-      });
-      codeFilters.push({
-        additionalDetailsJson: {
-          path: ['listingIdString'],
-          string_contains: 'BL',
-        } as Prisma.JsonNullableFilter<'Listing'>,
-      });
-    }
-    if (codeFilters.length) {
-      filters.OR = [...(filters.OR ?? []), ...codeFilters];
-    }
+function applyPropertyTypeFilters(
+  filters: Prisma.ListingWhereInput,
+  propertyType?: PropertyType
+) {
+  if (!propertyType || propertyType === 'any') return;
+  const codeFilters: Prisma.ListingWhereInput[] = [];
+  if (propertyType === 'mieszkanie') {
+    codeFilters.push({
+      additionalDetailsJson: {
+        path: ['listingIdString'],
+        string_contains: 'OM',
+      } as Prisma.JsonNullableFilter<'Listing'>,
+    });
+  } else if (propertyType === 'dom') {
+    codeFilters.push({
+      additionalDetailsJson: {
+        path: ['listingIdString'],
+        string_contains: 'OD',
+      } as Prisma.JsonNullableFilter<'Listing'>,
+    });
+  } else if (propertyType === 'dzialka') {
+    codeFilters.push({
+      additionalDetailsJson: {
+        path: ['listingIdString'],
+        string_contains: 'OG',
+      } as Prisma.JsonNullableFilter<'Listing'>,
+    });
+  } else if (propertyType === 'lokal') {
+    codeFilters.push({
+      additionalDetailsJson: {
+        path: ['listingIdString'],
+        string_contains: 'OL',
+      } as Prisma.JsonNullableFilter<'Listing'>,
+    });
+    codeFilters.push({
+      additionalDetailsJson: {
+        path: ['listingIdString'],
+        string_contains: 'BL',
+      } as Prisma.JsonNullableFilter<'Listing'>,
+    });
   }
+  if (codeFilters.length) filters.OR = [...(filters.OR ?? []), ...codeFilters];
+}
+
+export default async function Page({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const pageParam = getFirst(sp, 'page');
+  const currentPage = Math.max(1, Number(pageParam) || 1);
+  const transitionParam = getFirst(sp, 'transition');
+  const sortKey = parseSortKey(sp);
+  const kind = parseKind(sp);
+  const cityParam = getFirst(sp, 'city');
+  const districtParam = getFirst(sp, 'district');
+  const streetParam = getFirst(sp, 'street');
+  const propertyTypeParam = getFirst(sp, 'propertyType');
+  const propertyType: PropertyType = parsePropertyType(sp);
+  const priceMin = parseOptionalNumber(sp, 'priceMin');
+  const priceMax = parseOptionalNumber(sp, 'priceMax');
+  const areaMin = parseOptionalNumber(sp, 'areaMin');
+  const areaMax = parseOptionalNumber(sp, 'areaMax');
+
+  // Build base filters (only visible and active/closed)
+  const filters: Prisma.ListingWhereInput = buildBaseFilters();
+  applyOfferTypeFilter(filters, kind);
+  applyLocationFilters(filters, cityParam, districtParam, streetParam);
+  applyPropertyTypeFilters(filters, propertyType);
 
   // Compute bounds for price/area based on current non-price filters (includes propertyType)
   const bounds = await prisma.listing.aggregate({

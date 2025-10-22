@@ -126,7 +126,7 @@ export default function SearchTabs({
       : undefined
   );
 
-  const onLocationChange = (loc: LocationValue) => {
+  const onLocationChange = (loc: LocationValue | undefined) => {
     // Stage only; do not update URL until user clicks "Szukaj"
     setLocation(loc);
   };
