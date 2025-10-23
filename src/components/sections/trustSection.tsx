@@ -11,6 +11,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Handshake } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { MessagesSquare } from 'lucide-react';
 
 type Slide = {
   title: string;
@@ -18,6 +21,7 @@ type Slide = {
   copy: string;
   imageSrc: string;
   imageAlt: string;
+  icon: React.ReactNode;
 };
 
 const slides: Slide[] = [
@@ -25,7 +29,8 @@ const slides: Slide[] = [
     title: 'Twoje Bezpieczeństwo to Nasz Priorytet',
     subtitle: 'Pełne Bezpieczeństwo Transakcji',
     copy: 'Jesteśmy Twoim strażnikiem w świecie skomplikowanych formalności. Bierzemy na siebie pełną odpowiedzialność za każdy etap transakcji – od weryfikacji stanu prawnego nieruchomości, po przygotowanie bezpiecznej umowy. Z nami masz pewność, że Twój interes jest chroniony.',
-    imageSrc: '/usp-1.png',
+    imageSrc: '/usp-2.png',
+    icon: <ShieldCheck color='#4FA200' size={40} fill='#4FA2001E' />,
     imageAlt: 'Handshake in meeting',
   },
   {
@@ -33,6 +38,7 @@ const slides: Slide[] = [
     subtitle: 'Ekspertyza i Skuteczność Oparta na Danych',
     copy: 'Nie zgadujemy. Każdą decyzję – od wyceny, przez strategię marketingową, aż po negocjacje – opieramy na twardych danych rynkowych i najnowszych technologiach. Dzięki temu maksymalizujemy Twój zysk i oszczędzamy Twój cenny czas.',
     imageSrc: '/usp-3.png',
+    icon: <Search color='#4FA200' size={40} fill='#4FA2001E' />,
     imageAlt: 'Consultation with clients',
   },
   {
@@ -40,13 +46,15 @@ const slides: Slide[] = [
     subtitle: 'Partnerskie Doradztwo, Nie Sprzedaż',
     copy: 'Naszym celem jest Twój sukces, a nie nasza prowizja. Działamy jak osobiści doradcy – słuchamy, analizujemy Twoją sytuację i szukamy najlepszych rozwiązań, nawet jeśli oznacza to odradzenie transakcji. Jesteśmy po Twojej stronie, grając z Tobą do jednej bramki.',
     imageSrc: '/usp-4.png',
+    icon: <MessagesSquare color='#4FA200' size={40} fill='#4FA2001E' />,
     imageAlt: 'Documents review on desk',
   },
   {
-    title: 'Wszystko, Czego Potrzebujesz w Jednym Miejscu',
+    title: 'To Czego Potrzebujesz w Jednym Miejscu',
     subtitle: 'Kompleksowe Wsparcie od A do Z',
     copy: 'Transakcja to nie tylko oferta. Dzięki naszej sieci zaufanych partnerów, zapewniamy pełne wsparcie – od uzyskania najlepszego kredytu hipotecznego, przez współpracę ze sprawdzonymi ekipami remontowymi, aż po pomoc prawną i notarialną. Z nami cały proces jest prostszy.',
-    imageSrc: '/usp-2.png',
+    imageSrc: '/usp-1.png',
+    icon: <Handshake color='#4FA200' size={40} fill='#4FA2001E' />,
     imageAlt: 'Team celebrating success',
   },
 ];
@@ -72,7 +80,7 @@ export default function TrustSection() {
   return (
     <section id='why-trust-us' className='full-bleed'>
       <div className='flex flex-col items-center text-center mb-8'>
-        <h2 className='text-4xl font-bold'>Dlaczego Warto Nam Zaufać?</h2>
+        <h2 className='text-5xl font-bold'>Dlaczego Warto Nam Zaufać?</h2>
         <p className='mt-3 max-w-[760px] text-gray-500'>
           Od pierwszej rozmowy po podpisanie umowy - jesteśmy z Tobą na każdym
           etapie. Łączymy doświadczenie, znajomość rynku i indywidualne
@@ -85,10 +93,10 @@ export default function TrustSection() {
           {slides.map((slide, index) => (
             <CarouselItem
               key={index}
-              className='basis-[88%] md:basis-[82%] lg:basis-[78%]'
+              className='basis-[88%] md:basis-[82%] lg:basis-[78%] max-w-[1096px]'
             >
-              <div className='rounded-[24px] shadow-[0_8px_40px_rgba(164,167,174,0.12)] bg-white overflow-hidden max-h-[500px]'>
-                <div className='grid grid-cols-1 lg:grid-cols-2'>
+              <div className='rounded-[12px] mx-auto shadow-[0_8px_40px_rgba(164,167,174,0.12)] bg-white overflow-hidden max-h-[500px]'>
+                <div className='grid grid-cols-1 lg:grid-cols-[60%_40%]'>
                   <div className='relative h-[320px] md:h-[420px] lg:h-[500px]'>
                     <Image
                       src={slide.imageSrc}
@@ -99,14 +107,14 @@ export default function TrustSection() {
                     />
                   </div>
                   <div className='p-8 md:p-10 lg:p-12 flex flex-col justify-center'>
-                    <div className='flex items-center gap-3 text-primary mb-4'>
-                      <ShieldCheck className='text-primary' />
-                      <span className='text-sm text-gray-500'>
-                        {slide.subtitle}
-                      </span>
-                    </div>
-                    <h3 className='text-3xl font-bold mb-4'>{slide.title}</h3>
-                    <p className='text-gray-600 leading-relaxed'>
+                    {slide.icon}
+                    <span className='text-xs text-gray-500 mt-5 mb-1'>
+                      {slide.subtitle}
+                    </span>
+                    <h3 className='text-[28px]/[32px] font-bold mb-6 tracking-tighter'>
+                      {slide.title}
+                    </h3>
+                    <p className='text-gray-600 leading-relaxed text-sm'>
                       {slide.copy}
                     </p>
                   </div>
@@ -117,18 +125,18 @@ export default function TrustSection() {
         </CarouselContent>
       </Carousel>
 
-      <div className='mt-4 flex items-center justify-center gap-4'>
+      <div className='mt-8 flex items-center justify-center gap-6'>
         <Button
           variant='outline'
           size='icon'
-          className='size-8 rounded border border-[#00000026] text-[--color-text-primary] hover:bg-white hover:text-[--color-text-primary] hover:border-[#00000026]'
+          className='size-10 rounded-full text-[--color-text-primary] bg-[#F6F6F6] border-none hover:bg-[#E6E6E6]'
           onClick={() => api?.scrollPrev()}
           aria-label='Previous slide'
         >
           <ChevronLeft className='size-6 text-[--color-text-primary]' />
         </Button>
 
-        <div className='flex items-center gap-1.5'>
+        <div className='flex items-center gap-2'>
           {Array.from({ length: slideCount }).map((_, index) => (
             <button
               type='button'
@@ -136,10 +144,8 @@ export default function TrustSection() {
               aria-label={`Przejdź do slajdu ${index + 1}`}
               aria-current={index === selectedIndex}
               onClick={() => api?.scrollTo(index)}
-              className={`rounded-full cursor-pointer outline-none focus-visible:ring-[2px] focus-visible:ring-[#00000026] ${
-                index === selectedIndex
-                  ? 'h-1.5 w-1.5 bg-green-primary'
-                  : 'h-1 w-1 bg-[#00000026]'
+              className={`rounded-full cursor-pointer outline-none focus-visible:ring-[2px] focus-visible:ring-[#00000026] w-3 h-3 ${
+                index === selectedIndex ? 'bg-[#4FA200]' : 'bg-[#0000000A]'
               }`}
             />
           ))}
@@ -148,7 +154,7 @@ export default function TrustSection() {
         <Button
           variant='outline'
           size='icon'
-          className='size-8 rounded border border-[#00000026] text-[--color-text-primary] hover:bg-white hover:text-[--color-text-primary] hover:border-[#00000026]'
+          className='size-10 rounded-full text-[--color-text-primary] bg-[#F6F6F6] border-none hover:bg-[#E6E6E6]'
           onClick={() => api?.scrollNext()}
           aria-label='Next slide'
         >

@@ -9,7 +9,7 @@ import { Separator } from '../ui/separator';
 export default function Footer() {
   return (
     <footer className='w-screen bg-[#272727] text-white full-bleed'>
-      <div className='py-10 px-6 lg:px-[60px]'>
+      <div className='py-10 px-6 lg:px-[60px] max-w-[1320px] mx-auto'>
         {/* Mobile layout */}
         <div className='lg:hidden'>
           <div className='flex items-center justify-between mb-6'>

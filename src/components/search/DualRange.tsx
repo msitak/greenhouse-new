@@ -150,16 +150,7 @@ export function DualRange({
           onValueChange={onSliderChange}
           onValueCommit={onSliderCommit}
         />
-        <div className='mt-1 hidden md:flex justify-between text-xs text-muted-foreground'>
-          <span>
-            {R.format(min)}
-            {unit ? ` ${unit}` : ''}
-          </span>
-          <span>
-            {R.format(max)}
-            {unit ? ` ${unit}` : ''}
-          </span>
-        </div>
+        {/* Always hide min/max labels below slider */}
       </div>
 
       {/* INPUTS — mobile/tablet-only, below slider */}

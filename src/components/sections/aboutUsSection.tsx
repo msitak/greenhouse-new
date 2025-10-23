@@ -1,13 +1,14 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function AboutUsSection() {
   return (
-    <section className='rounded-[24px]'>
+    <section className='rounded-[24px] max-w-[1320px] mx-auto'>
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 items-center'>
         <div className='relative rounded-[24px] overflow-hidden'>
           <Image
-            src='/test-image.jpg'
+            src='/team.jpg'
             alt='Nasz zespół'
             width={800}
             height={520}
@@ -31,7 +32,9 @@ export default function AboutUsSection() {
             klientami – oparte na szczerości, szacunku i realnym wsparciu na
             każdym etapie współpracy.
           </p>
-          <Button>Poznaj nasz zespół</Button>
+          <Link href='/o-nas'>
+            <Button>Poznaj nasz zespół</Button>
+          </Link>
         </div>
       </div>
     </section>

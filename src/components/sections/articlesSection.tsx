@@ -129,7 +129,7 @@ export default function ArticlesSection() {
         <div>
           <h2
             id='articles-heading'
-            className='text-4xl font-bold tracking-tight'
+            className='text-5xl font-bold tracking-tight'
           >
             Nasze artykuły
           </h2>

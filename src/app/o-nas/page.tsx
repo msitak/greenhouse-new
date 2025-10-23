@@ -24,7 +24,7 @@ export default function Page() {
     imageSrc: '/agents/full/jakub.jpg',
   }));
   return (
-    <div className='mt-22 mb-14'>
+    <div className='mt-22 mb-14 max-w-[1320px] mx-auto'>
       <Breadcrumbs className='pt-5 pb-5' />
 
       <h1 className='font-bold text-4xl/10 text-center'>O Nas</h1>

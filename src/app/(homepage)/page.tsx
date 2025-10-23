@@ -13,8 +13,9 @@ import TrustSection from '@/components/sections/trustSection';
 import PopularCitiesSection from '@/components/sections/popularCitiesSection';
 import TestimonialsSection from '@/components/sections/testimonialsSection';
 import AboutUsSection from '@/components/sections/aboutUsSection';
-import ArticlesSection from '@/components/sections/articlesSection';
 // Search fields kept for future use on homepage
+import SearchTabs from '@/components/search/SearchTabs';
+import Link from 'next/link';
 
 const SKELETONS = Array.from({ length: 6 }, (_, index) => index);
 
@@ -63,20 +64,27 @@ export default function Home() {
   return (
     <div>
       <Section id='hero'>
-        <Hero src='/hero.png' alt='Green House' overlay>
-          <div className='absolute top-[200px] inset-0 z-10 flex items-center justify-center px-[60px]'>
+        <Hero
+          src='/hero.png'
+          alt='Green House'
+          overlay
+          quality={95}
+          fit='cover'
+          objectPosition='50% 40%'
+          sizes='(min-width: 1280px) 1280px, 100vw'
+        >
+          <div className='absolute top-[100px] inset-0 z-10 flex items-center justify-center px-[60px]'>
             <div className='text-center font-[family-name:var(--font-montserrat)]'>
               <h1 className='text-white text-4xl md:text-6xl font-semibold'>
-                Znajdź swoje miejsce z nami.
+                Twoje marzenie, nasz wspólny cel
               </h1>
               <p className='text-white text-lg md:text-xl mt-3'>
-                Domy, mieszkania, działki, lokale - mamy to, czego szukasz.
+                Od mieszkań i domów, po działki i lokale usługowe - pomożemy Ci
+                znaleźć Twoją przestrzeń
               </p>
-              <div
-                className='mt-6 mx-auto h-[250px] w-[800px] rounded-2xl bg-white shadow-[0_5px_39.3px_0_rgba(0,0,0,0.08)]'
-                aria-hidden='true'
-                style={{ minHeight: 292 }}
-              />
+              <div className='mt-24 mx-auto max-w-[872px]'>
+                <SearchTabs redirectPath='/nieruchomosci' />
+              </div>
             </div>
           </div>
         </Hero>
@@ -108,7 +116,7 @@ export default function Home() {
         className='mt-12 mb-12 max-w-[1320px] mx-auto'
       >
         <div className='flex justify-between items-center mb-4'>
-          <h2 className='text-4xl font-bold mb-4'>
+          <h2 className='text-[40px] font-bold mb-4'>
             Najnowsze oferty nieruchomości
           </h2>
           <div className='inline-flex gap-0 items-center rounded-xl justify-center bg-gray-100 p-0'>
@@ -147,7 +155,9 @@ export default function Home() {
         </div>
 
         <div className='flex justify-center mt-10'>
-          <Button>Wszystkie oferty</Button>
+          <Link href='/nieruchomosci'>
+            <Button>Zobacz oferty</Button>
+          </Link>
         </div>
       </Section>
 
@@ -167,9 +177,9 @@ export default function Home() {
         <AboutUsSection />
       </Section>
 
-      <Section id='articles' className='my-12'>
+      {/* <Section id='articles' className='my-12'>
         <ArticlesSection />
-      </Section>
+      </Section> */}
     </div>
   );
 }

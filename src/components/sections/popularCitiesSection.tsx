@@ -78,17 +78,20 @@ export default function PopularCitiesSection() {
     fetchCityCounts();
   }, []);
   return (
-    <section aria-labelledby='popular-cities-heading'>
+    <section
+      aria-labelledby='popular-cities-heading'
+      className='max-w-[1320px] mx-auto'
+    >
       <div className='text-center mb-8'>
         <h2
           id='popular-cities-heading'
-          className='text-4xl font-bold tracking-tight'
+          className='text-5xl font-bold tracking-tight'
         >
           Najpopularniejsze miasta
         </h2>
         <p className='mt-3 text-gray-500'>
           Szukasz mieszkania, domu lub działki w sprawdzonym miejscu? Sprawdź
-          najpopularniejsze lokalizacje w Polsce.
+          nasze najpopularniejsze lokalizacje.
         </p>
       </div>
 

@@ -80,6 +80,8 @@ type SearchTabsProps = {
   priceMax?: number;
   areaMin?: number;
   areaMax?: number;
+  /** Optional path to navigate to on search, e.g. '/nieruchomosci' */
+  redirectPath?: string;
 };
 
 export default function SearchTabs({
@@ -89,6 +91,7 @@ export default function SearchTabs({
   priceMax,
   areaMin,
   areaMax,
+  redirectPath,
 }: SearchTabsProps) {
   type PropertyType = 'any' | 'mieszkanie' | 'dom' | 'dzialka' | 'lokal';
   const [filters, setFilters] = React.useState<{ propertyType: PropertyType }>({
@@ -572,9 +575,16 @@ export default function SearchTabs({
               area,
             });
             params.set('page', '1');
-            router.replace(`${pathname}?${params.toString()}`, {
-              scroll: false,
-            });
+            const targetPath = redirectPath || pathname;
+            if (redirectPath && redirectPath !== pathname) {
+              router.push(`${targetPath}?${params.toString()}`, {
+                scroll: true,
+              });
+            } else {
+              router.replace(`${targetPath}?${params.toString()}`, {
+                scroll: false,
+              });
+            }
           }}
         >
           Szukaj
