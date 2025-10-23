@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import OfferTile, {
   OfferTileListing,
@@ -83,7 +83,9 @@ export default function Home() {
                 znaleźć Twoją przestrzeń
               </p>
               <div className='mt-24 mx-auto max-w-[872px]'>
-                <SearchTabs redirectPath='/nieruchomosci' />
+                <Suspense fallback={null}>
+                  <SearchTabs redirectPath='/nieruchomosci' />
+                </Suspense>
               </div>
             </div>
           </div>
