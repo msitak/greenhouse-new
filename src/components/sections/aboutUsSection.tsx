@@ -23,7 +23,7 @@ export default function AboutUsSection() {
             alt='Nasz zespół'
             width={800}
             height={520}
-            className='w-full h-auto object-cover mb-4'
+            className='w-full h-auto object-cover mb-4 md:hidden'
           />
           <p className='text-gray-700 mb-4'>
             W GreenHouse Nieruchomości wierzymy, że prawdziwą siłą naszej firmy
