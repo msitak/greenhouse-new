@@ -97,9 +97,12 @@ function Card({ item }: { item: Testimonial }) {
 
 export default function TestimonialsSection() {
   return (
-    <section aria-labelledby='testimonials-heading' className='full-bleed'>
+    <section aria-labelledby='testimonials-heading' className='md:full-bleed'>
       <div className='text-center mb-8'>
-        <h2 id='testimonials-heading' className='text-[48px] font-bold'>
+        <h2
+          id='testimonials-heading'
+          className='text-[40px]/[48px] md:text-[48px] font-bold'
+        >
           Oni nam zaufali, bądź następny.
         </h2>
         <p className='mt-3 text-gray-500 max-w-[760px] mx-auto'>
@@ -109,7 +112,7 @@ export default function TestimonialsSection() {
         </p>
       </div>
 
-      <div className='marquee-viewport [--row-gap:24px] space-y-6 pb-12'>
+      <div className='marquee-viewport [--row-gap:24px] space-y-6 pb-12 full-bleed'>
         <div
           className='group relative'
           onMouseEnter={e =>

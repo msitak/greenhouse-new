@@ -12,12 +12,19 @@ export default function AboutUsSection() {
             alt='Nasz zespół'
             width={800}
             height={520}
-            className='w-full h-auto object-cover'
+            className='w-full h-auto object-cover hidden md:block'
           />
         </div>
 
         <div>
           <h2 className='text-5xl font-extrabold mb-4'>Poznaj nas!</h2>
+          <Image
+            src='/team.jpg'
+            alt='Nasz zespół'
+            width={800}
+            height={520}
+            className='w-full h-auto object-cover mb-4'
+          />
           <p className='text-gray-700 mb-4'>
             W GreenHouse Nieruchomości wierzymy, że prawdziwą siłą naszej firmy
             są ludzie. To właśnie oni tworzą atmosferę, która wyróżnia nas na

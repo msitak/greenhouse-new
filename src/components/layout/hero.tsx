@@ -31,8 +31,8 @@ export default function Hero({
   overlayColor = '#00000080',
 }: HeroProps) {
   return (
-    <div className={cn('px-2 pt-2 pb-4', className)}>
-      <div className='relative w-full h-[calc(100svh-24px)] overflow-hidden rounded-[24px]'>
+    <div className={cn('md:px-2 md:pt-2 md:pb-4', className)}>
+      <div className='relative w-full h-[calc(100svh-24px)] md:overflow-hidden md:rounded-[24px]'>
         <Image
           src={src}
           alt={alt}

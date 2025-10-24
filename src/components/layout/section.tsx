@@ -5,15 +5,24 @@ type SectionProps = {
   id?: string;
   className?: string;
   children: React.ReactNode;
+  style?: React.CSSProperties;
 };
 
-export default function Section({ id, className, children }: SectionProps) {
-  return (
-    <section
-      id={id}
-      className={cn(id === 'hero' ? 'full-bleed' : undefined, className)}
-    >
-      {children}
-    </section>
-  );
-}
+const Section = React.forwardRef<HTMLElement, SectionProps>(
+  ({ id, className, children, style }, ref) => {
+    return (
+      <section
+        ref={ref}
+        id={id}
+        className={cn(id === 'hero' ? 'full-bleed' : undefined, className)}
+        style={style}
+      >
+        {children}
+      </section>
+    );
+  }
+);
+
+Section.displayName = 'Section';
+
+export default Section;

@@ -78,10 +78,12 @@ export default function TrustSection() {
   }, [api]);
 
   return (
-    <section id='why-trust-us' className='full-bleed'>
+    <section id='why-trust-us' className='md:full-bleed'>
       <div className='flex flex-col items-center text-center mb-8'>
-        <h2 className='text-5xl font-bold'>Dlaczego Warto Nam Zaufać?</h2>
-        <p className='mt-3 max-w-[760px] text-gray-500'>
+        <h2 className='text-[40px]/[48px] text-left md:text-center md:text-5xl font-bold'>
+          Dlaczego Warto Nam Zaufać?
+        </h2>
+        <p className='mt-3 max-w-[760px] text-gray-500 text-left md:text-center'>
           Od pierwszej rozmowy po podpisanie umowy - jesteśmy z Tobą na każdym
           etapie. Łączymy doświadczenie, znajomość rynku i indywidualne
           podejście, by każda transakcja była pewna i bezproblemowa.
@@ -95,14 +97,14 @@ export default function TrustSection() {
               key={index}
               className='basis-[88%] md:basis-[82%] lg:basis-[78%] max-w-[1096px]'
             >
-              <div className='rounded-[12px] mx-auto shadow-[0_8px_40px_rgba(164,167,174,0.12)] bg-white overflow-hidden max-h-[500px]'>
+              <div className='rounded-[12px] mx-auto shadow-[0_8px_40px_rgba(164,167,174,0.12)] bg-white md:overflow-hidden md:max-h-[500px]'>
                 <div className='grid grid-cols-1 lg:grid-cols-[60%_40%]'>
                   <div className='relative h-[320px] md:h-[420px] lg:h-[500px]'>
                     <Image
                       src={slide.imageSrc}
                       alt={slide.imageAlt}
                       fill
-                      className='object-cover'
+                      className='object-cover rounded-t-[12px] md:rounded-none'
                       sizes='(min-width: 1024px) 50vw, 100vw'
                     />
                   </div>

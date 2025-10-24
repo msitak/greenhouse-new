@@ -85,7 +85,7 @@ export default function PopularCitiesSection() {
       <div className='text-center mb-8'>
         <h2
           id='popular-cities-heading'
-          className='text-5xl font-bold tracking-tight'
+          className='text-[40px]/[48px] md:text-5xl font-bold tracking-tight'
         >
           Najpopularniejsze miasta
         </h2>
