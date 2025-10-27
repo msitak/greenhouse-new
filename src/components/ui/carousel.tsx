@@ -67,7 +67,7 @@ function Carousel({
     if (!api) return;
     setCanScrollPrev(api.canScrollPrev());
     setCanScrollNext(api.canScrollNext());
-  }, []);
+  }, []); // Empty dependency array since this callback doesn't depend on any external values
 
   const scrollPrev = React.useCallback(() => {
     api?.scrollPrev();
@@ -102,7 +102,8 @@ function Carousel({
     api.on('select', onSelect);
 
     return () => {
-      api?.off('select', onSelect);
+      api.off('select', onSelect);
+      api.off('reInit', onSelect);
     };
   }, [api, onSelect]);
 
