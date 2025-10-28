@@ -151,7 +151,8 @@ function ProcessSection({
           Poznaj nasz proces
         </h3>
         <p className='text-center text-[#818181] mt-2'>
-          Przejrzysty proces od analizy po finalizację – krok po kroku do bezpiecznej transakcji
+          Przejrzysty proces od analizy po finalizację – krok po kroku do
+          bezpiecznej transakcji
         </p>
         <div className='mt-8 grid grid-cols-1 md:grid-cols-5 gap-4 w-full md:w-[1096px] mx-auto px-4 md:px-0'>
           {steps.map(step => (
@@ -198,7 +199,10 @@ function BenefitsSection({
       </p>
       <div className='mt-10 grid grid-cols-1 md:grid-cols-3 gap-10 place-items-center'>
         {items.map((it, idx) => (
-          <div key={`${it.label}-${idx}`} className='flex flex-col items-center text-center'>
+          <div
+            key={`${it.label}-${idx}`}
+            className='flex flex-col items-center text-center'
+          >
             <div className='w-[80px] h-[80px] rounded-full bg-[#F1F1F1] flex items-center justify-center'>
               {it.icon}
             </div>
@@ -229,7 +233,8 @@ function DarkCta({
             Podejmij działanie już dziś
           </h3>
           <p className='mt-1 text-[#A8A8A8] text-[16px]/[24px]'>
-            Przejrzysty proces od analizy po finalizację - krok po kroku do bezpiecznej transakcji
+            Przejrzysty proces od analizy po finalizację - krok po kroku do
+            bezpiecznej transakcji
           </p>
           <div className='mt-10 flex flex-col items-center gap-3'>
             <Button className='mb-4'>{primary}</Button>
@@ -315,7 +320,8 @@ export default function Page() {
                 Poznaj nasze usługi
               </h1>
               <p className='text-white text-[16px]/[24px] max-w-[860px] mx-auto md:text-xl mt-3'>
-                Sprzedaż, kupno, inwestycje i zarządzanie najmem na terenie Częstochowy i woj. śląskiego.
+                Sprzedaż, kupno, inwestycje i zarządzanie najmem na terenie
+                Częstochowy i woj. śląskiego.
               </p>
             </div>
           </div>
@@ -327,28 +333,66 @@ export default function Page() {
         <Tabs defaultValue='brokerage' className='w-full bg-none'>
           <div className='relative w-full overflow-x-auto md:overflow-visible bg-none'>
             <TabsList className='bg-none mx-auto inline-flex md:block'>
-              <TabsTrigger className='relative z-10 bg-transparent rounded-none border-b border-transparent data-[state=active]:border-[#4FA200] data-[state=active]:bg-white font-normal data-[state=active]:font-medium' value='brokerage'>
+              <TabsTrigger
+                className='relative z-10 bg-transparent rounded-none border-b border-transparent data-[state=active]:border-[#4FA200] data-[state=active]:bg-white font-normal data-[state=active]:font-medium'
+                value='brokerage'
+              >
                 <span className='grid'>
-                  <span className='col-start-1 row-start-1'>Sprzedaż nieruchomości</span>
-                  <span aria-hidden className='col-start-1 row-start-1 invisible font-medium'>Sprzedaż nieruchomości</span>
+                  <span className='col-start-1 row-start-1'>
+                    Sprzedaż nieruchomości
+                  </span>
+                  <span
+                    aria-hidden
+                    className='col-start-1 row-start-1 invisible font-medium'
+                  >
+                    Sprzedaż nieruchomości
+                  </span>
                 </span>
               </TabsTrigger>
-              <TabsTrigger className='relative z-10 bg-transparent rounded-none border-b border-transparent data-[state=active]:border-[#4FA200] data-[state=active]:bg-white font-normal data-[state=active]:font-medium' value='purchase'>
+              <TabsTrigger
+                className='relative z-10 bg-transparent rounded-none border-b border-transparent data-[state=active]:border-[#4FA200] data-[state=active]:bg-white font-normal data-[state=active]:font-medium'
+                value='purchase'
+              >
                 <span className='grid'>
-                  <span className='col-start-1 row-start-1'>Kupno nieruchomości</span>
-                  <span aria-hidden className='col-start-1 row-start-1 invisible font-medium'>Kupno nieruchomości</span>
+                  <span className='col-start-1 row-start-1'>
+                    Kupno nieruchomości
+                  </span>
+                  <span
+                    aria-hidden
+                    className='col-start-1 row-start-1 invisible font-medium'
+                  >
+                    Kupno nieruchomości
+                  </span>
                 </span>
               </TabsTrigger>
-              <TabsTrigger className='relative z-10 bg-transparent rounded-none border-b border-transparent data-[state=active]:border-[#4FA200] data-[state=active]:bg-white font-normal data-[state=active]:font-medium' value='invest'>
+              <TabsTrigger
+                className='relative z-10 bg-transparent rounded-none border-b border-transparent data-[state=active]:border-[#4FA200] data-[state=active]:bg-white font-normal data-[state=active]:font-medium'
+                value='invest'
+              >
                 <span className='grid'>
                   <span className='col-start-1 row-start-1'>Inwestycje</span>
-                  <span aria-hidden className='col-start-1 row-start-1 invisible font-medium'>Inwestycje</span>
+                  <span
+                    aria-hidden
+                    className='col-start-1 row-start-1 invisible font-medium'
+                  >
+                    Inwestycje
+                  </span>
                 </span>
               </TabsTrigger>
-              <TabsTrigger className='relative z-10 bg-transparent rounded-none border-b border-transparent data-[state=active]:border-[#4FA200] data-[state=active]:bg-white font-normal data-[state=active]:font-medium' value='renting'>
+              <TabsTrigger
+                className='relative z-10 bg-transparent rounded-none border-b border-transparent data-[state=active]:border-[#4FA200] data-[state=active]:bg-white font-normal data-[state=active]:font-medium'
+                value='renting'
+              >
                 <span className='grid'>
-                  <span className='col-start-1 row-start-1'>Zarządzanie najmem</span>
-                  <span aria-hidden className='col-start-1 row-start-1 invisible font-medium'>Zarządzanie najmem</span>
+                  <span className='col-start-1 row-start-1'>
+                    Zarządzanie najmem
+                  </span>
+                  <span
+                    aria-hidden
+                    className='col-start-1 row-start-1 invisible font-medium'
+                  >
+                    Zarządzanie najmem
+                  </span>
                 </span>
               </TabsTrigger>
             </TabsList>
@@ -374,10 +418,22 @@ export default function Page() {
               offers={[
                 { src: '/brokerage-1.png', title: 'Wycena &\nstrategia w 24h' },
                 { src: '/brokerage-2.png', title: 'Przygotowanie\nmaterialów' },
-                { src: '/brokerage-3.png', title: 'Przygotowanie opisu\n oraz karty atutów' },
-                { src: '/brokerage-4.png', title: 'Publikacja i\nobsługa leadów' },
-                { src: '/brokerage-5.png', title: 'Negocjacje oraz\ndue diligence' },
-                { src: '/brokerage-6.png', title: 'Koordynacja aktu\noraz przekazania' },
+                {
+                  src: '/brokerage-3.png',
+                  title: 'Przygotowanie opisu\n oraz karty atutów',
+                },
+                {
+                  src: '/brokerage-4.png',
+                  title: 'Publikacja i\nobsługa leadów',
+                },
+                {
+                  src: '/brokerage-5.png',
+                  title: 'Negocjacje oraz\ndue diligence',
+                },
+                {
+                  src: '/brokerage-6.png',
+                  title: 'Koordynacja aktu\noraz przekazania',
+                },
               ]}
             />
 
@@ -385,16 +441,35 @@ export default function Page() {
             <ProcessSection
               id='process'
               steps={[
-                { no: '1', title: 'Audyt', desc: 'analiza cen za metr kwadratowy i popytu' },
-                { no: '2', title: 'Tworzenie', desc: 'dodanie materiałów i szczegółów oferty' },
-                { no: '3', title: 'Publikacja', desc: 'publikacja oferty na portalach' },
+                {
+                  no: '1',
+                  title: 'Audyt',
+                  desc: 'analiza cen za metr kwadratowy i popytu',
+                },
+                {
+                  no: '2',
+                  title: 'Tworzenie',
+                  desc: 'dodanie materiałów i szczegółów oferty',
+                },
+                {
+                  no: '3',
+                  title: 'Publikacja',
+                  desc: 'publikacja oferty na portalach',
+                },
                 { no: '4', title: 'Negocjacje', desc: 'negocjacje warunków' },
-                { no: '5', title: 'Finalizacja', desc: 'finalizacja u notariusza i przekazanie kluczy' },
+                {
+                  no: '5',
+                  title: 'Finalizacja',
+                  desc: 'finalizacja u notariusza i przekazanie kluczy',
+                },
               ]}
             />
 
             {/* Co od nas otrzymasz? */}
-            <Section id='benefits' className='my-16 mb-24 md:max-w-[850px] md:mx-auto'>
+            <Section
+              id='benefits'
+              className='my-16 mb-24 md:max-w-[850px] md:mx-auto'
+            >
               <h3 className='text-center text-[28px]/[36px] md:text-[40px]/[48px] font-bold text-[#212121]'>
                 Co od nas otrzymasz?
               </h3>
@@ -403,11 +478,23 @@ export default function Page() {
               </p>
               <div className='mt-14 grid grid-cols-1 md:grid-cols-3 gap-10 place-items-center'>
                 {[
-                  { icon: <ClipboardList className='size-8 text-black' />, label: 'Raport działań (KPI)' },
-                  { icon: <FilesIcon className='size-8 text-black' />, label: 'Komplet dokumentów' },
-                  { icon: <Gem className='size-8 text-black' />, label: 'Protokół przekazania' },
+                  {
+                    icon: <ClipboardList className='size-8 text-black' />,
+                    label: 'Raport działań (KPI)',
+                  },
+                  {
+                    icon: <FilesIcon className='size-8 text-black' />,
+                    label: 'Komplet dokumentów',
+                  },
+                  {
+                    icon: <Gem className='size-8 text-black' />,
+                    label: 'Protokół przekazania',
+                  },
                 ].map((it, idx) => (
-                  <div key={idx} className='flex flex-col items-center text-center'>
+                  <div
+                    key={idx}
+                    className='flex flex-col items-center text-center'
+                  >
                     <div className='w-[80px] h-[80px] rounded-full bg-[#F1F1F1] flex items-center justify-center'>
                       {it.icon}
                     </div>
@@ -420,7 +507,11 @@ export default function Page() {
             </Section>
 
             {/* CTA section */}
-            <DarkCta id='cta' primary='Skontaktuj się z nami' secondary='Wycena AI' />
+            <DarkCta
+              id='cta'
+              primary='Skontaktuj się z nami'
+              secondary='Wycena AI'
+            />
           </TabsContent>
 
           {/* Inwestycje */}
@@ -453,11 +544,31 @@ export default function Page() {
             <ProcessSection
               id='process-invest'
               steps={[
-                { no: '1', title: 'Sourcing', desc: 'Określimy rodzaj inwestycji' },
-                { no: '2', title: 'ROI/DD', desc: 'Liczby, ryzyka lub scenariusze? Zostaw to nam!' },
-                { no: '3', title: 'Zakup', desc: 'Wynegocjujemy najlepszą cenę i zadbamy o dokumenty' },
-                { no: '4', title: 'Nadzór', desc: 'Dopilnujemy remontu oraz przygotowania inwestycji' },
-                { no: '5', title: 'Exit/Najem', desc: 'Wyposażymy Cię w wynajmie lub sprzedaży' },
+                {
+                  no: '1',
+                  title: 'Sourcing',
+                  desc: 'Określimy rodzaj inwestycji',
+                },
+                {
+                  no: '2',
+                  title: 'ROI/DD',
+                  desc: 'Liczby, ryzyka lub scenariusze? Zostaw to nam!',
+                },
+                {
+                  no: '3',
+                  title: 'Zakup',
+                  desc: 'Wynegocjujemy najlepszą cenę i zadbamy o dokumenty',
+                },
+                {
+                  no: '4',
+                  title: 'Nadzór',
+                  desc: 'Dopilnujemy remontu oraz przygotowania inwestycji',
+                },
+                {
+                  no: '5',
+                  title: 'Exit/Najem',
+                  desc: 'Wyposażymy Cię w wynajmie lub sprzedaży',
+                },
               ]}
             />
 
@@ -465,14 +576,27 @@ export default function Page() {
             <BenefitsSection
               id='benefits-invest'
               items={[
-                { icon: <Gauge className='size-8 text-black' />, label: 'Model ROI (AI‑valuation)' },
-                { icon: <Receipt className='size-8 text-black' />, label: 'Raport due diligence & ustalenie budżetu' },
-                { icon: <Share2 className='size-8 text-black' />, label: 'Plan wyjścia lub najmu' },
+                {
+                  icon: <Gauge className='size-8 text-black' />,
+                  label: 'Model ROI (AI‑valuation)',
+                },
+                {
+                  icon: <Receipt className='size-8 text-black' />,
+                  label: 'Raport due diligence & ustalenie budżetu',
+                },
+                {
+                  icon: <Share2 className='size-8 text-black' />,
+                  label: 'Plan wyjścia lub najmu',
+                },
               ]}
             />
 
             {/* CTA – inwestycje */}
-            <DarkCta id='cta-invest' primary='Skontaktuj się z nami' secondary='Wycena AI' />
+            <DarkCta
+              id='cta-invest'
+              primary='Skontaktuj się z nami'
+              secondary='Wycena AI'
+            />
           </TabsContent>
           {/* Kupno nieruchomości */}
           <TabsContent value='purchase'>
@@ -491,8 +615,14 @@ export default function Page() {
                 { src: '/purchase-1.png', title: 'Brief i kryteria' },
                 { src: '/purchase-2.png', title: 'Sourcing:\nportale & sieć' },
                 { src: '/purchase-3.png', title: 'Shortlista:\n5–10 pozycji' },
-                { src: '/purchase-4.png', title: 'Oględziny oraz\nweryfikacje' },
-                { src: '/purchase-5.png', title: 'Negocjacje oraz\nrezerwacja' },
+                {
+                  src: '/purchase-4.png',
+                  title: 'Oględziny oraz\nweryfikacje',
+                },
+                {
+                  src: '/purchase-5.png',
+                  title: 'Negocjacje oraz\nrezerwacja',
+                },
                 { src: '/purchase-6.png', title: 'Koordynacja aktu' },
               ]}
             />
@@ -501,11 +631,31 @@ export default function Page() {
             <ProcessSection
               id='process-buy'
               steps={[
-                { no: '1', title: 'Brief', desc: 'Zbieramy wszystkie potrzebne informacje' },
-                { no: '2', title: 'Sourcing', desc: 'Przeglądamy przez wszystkie oferty' },
-                { no: '3', title: 'Shortlista', desc: 'Wybieramy 5–10 najlepszych opcji zgodnych z kryteriami' },
-                { no: '4', title: 'Oględziny', desc: 'Sprawdzimy KW, sytuację finansową oraz sąsiedztwo' },
-                { no: '5', title: 'Zakup', desc: 'Negocjacje, zadatki, akt? Zostaw to nam!' },
+                {
+                  no: '1',
+                  title: 'Brief',
+                  desc: 'Zbieramy wszystkie potrzebne informacje',
+                },
+                {
+                  no: '2',
+                  title: 'Sourcing',
+                  desc: 'Przeglądamy przez wszystkie oferty',
+                },
+                {
+                  no: '3',
+                  title: 'Shortlista',
+                  desc: 'Wybieramy 5–10 najlepszych opcji zgodnych z kryteriami',
+                },
+                {
+                  no: '4',
+                  title: 'Oględziny',
+                  desc: 'Sprawdzimy KW, sytuację finansową oraz sąsiedztwo',
+                },
+                {
+                  no: '5',
+                  title: 'Zakup',
+                  desc: 'Negocjacje, zadatki, akt? Zostaw to nam!',
+                },
               ]}
             />
 
@@ -513,14 +663,27 @@ export default function Page() {
             <BenefitsSection
               id='benefits-buy'
               items={[
-                { icon: <Star className='size-8 text-black' />, label: 'Shortlista + scoring' },
-                { icon: <FileWarning className='size-8 text-black' />, label: 'Raport ryzyka' },
-                { icon: <CalendarClock className='size-8 text-black' />, label: 'Harmonogram zakupu' },
+                {
+                  icon: <Star className='size-8 text-black' />,
+                  label: 'Shortlista + scoring',
+                },
+                {
+                  icon: <FileWarning className='size-8 text-black' />,
+                  label: 'Raport ryzyka',
+                },
+                {
+                  icon: <CalendarClock className='size-8 text-black' />,
+                  label: 'Harmonogram zakupu',
+                },
               ]}
             />
 
             {/* CTA section – purchase */}
-            <DarkCta id='cta-buy' primary='Skontaktuj się z nami' secondary='Wycena AI' />
+            <DarkCta
+              id='cta-buy'
+              primary='Skontaktuj się z nami'
+              secondary='Wycena AI'
+            />
           </TabsContent>
 
           {/* Zarządzanie najmem */}
@@ -553,11 +716,31 @@ export default function Page() {
             <ProcessSection
               id='process-rent'
               steps={[
-                { no: '1', title: 'Przyjęcie', desc: 'Czyli inwentaryzacja i rozeznanie' },
-                { no: '2', title: 'Najemca', desc: 'Przeprowadzimy selekcję i ogarniemy kwestię umowy' },
-                { no: '3', title: 'Obsługa', desc: 'Zgłoszenia i serwis? Bierzemy to na nas!' },
-                { no: '4', title: 'Rozliczenia', desc: 'Rozliczymy czynsz, opłaty oraz ogarniemy kwestię kaucji' },
-                { no: '5', title: 'Raporty', desc: 'Przygotujemy Ci specjalny raport z KPI' },
+                {
+                  no: '1',
+                  title: 'Przyjęcie',
+                  desc: 'Czyli inwentaryzacja i rozeznanie',
+                },
+                {
+                  no: '2',
+                  title: 'Najemca',
+                  desc: 'Przeprowadzimy selekcję i ogarniemy kwestię umowy',
+                },
+                {
+                  no: '3',
+                  title: 'Obsługa',
+                  desc: 'Zgłoszenia i serwis? Bierzemy to na nas!',
+                },
+                {
+                  no: '4',
+                  title: 'Rozliczenia',
+                  desc: 'Rozliczymy czynsz, opłaty oraz ogarniemy kwestię kaucji',
+                },
+                {
+                  no: '5',
+                  title: 'Raporty',
+                  desc: 'Przygotujemy Ci specjalny raport z KPI',
+                },
               ]}
             />
 
@@ -565,9 +748,18 @@ export default function Page() {
             <BenefitsSection
               id='benefits-rent'
               items={[
-                { icon: <FilesIcon className='size-8 text-black' />, label: 'Umowa i protokół' },
-                { icon: <ClipboardList className='size-8 text-black' />, label: 'Miesięczne rozliczenie' },
-                { icon: <Receipt className='size-8 text-black' />, label: 'Raport serwisowy' },
+                {
+                  icon: <FilesIcon className='size-8 text-black' />,
+                  label: 'Umowa i protokół',
+                },
+                {
+                  icon: <ClipboardList className='size-8 text-black' />,
+                  label: 'Miesięczne rozliczenie',
+                },
+                {
+                  icon: <Receipt className='size-8 text-black' />,
+                  label: 'Raport serwisowy',
+                },
               ]}
             />
 
