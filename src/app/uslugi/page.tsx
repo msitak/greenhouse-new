@@ -11,7 +11,17 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { Separator } from '@radix-ui/react-separator';
-import { ClipboardList, Files as FilesIcon, Gem, Star, FileWarning, CalendarClock, Gauge, Receipt, Share2 } from 'lucide-react';
+import {
+  ClipboardList,
+  Files as FilesIcon,
+  Gem,
+  Star,
+  FileWarning,
+  CalendarClock,
+  Gauge,
+  Receipt,
+  Share2,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 import MobileCarouselControls from '@/components/ui/MobileCarouselControls';
 
@@ -24,7 +34,10 @@ function PillsRow({ items }: { items: string[] }) {
   return (
     <div className='flex items-center justify-center gap-2 md:gap-3 flex-wrap mb-4'>
       {items.map(text => (
-        <span key={text} className='px-3 py-1 rounded-full bg-[#00000004] border border-[#0000000C] text-[#212121] text-[14px]/[20px] md:text-[16px]/[22px]'>
+        <span
+          key={text}
+          className='px-3 py-1 rounded-full bg-[#00000004] border border-[#0000000C] text-[#212121] text-[14px]/[20px] md:text-[16px]/[22px]'
+        >
           {text}
         </span>
       ))}
@@ -46,8 +59,12 @@ function IntroBlock({
   return (
     <div className='md:max-w-[980px] mx-auto py-10 md:py-14 text-center px-4 md:px-0'>
       <PillsRow items={pills} />
-      <h2 className='text-[#161616] text-[36px]/[36px] md:text-[40px]/[48px] font-extrabold'>{title}</h2>
-      <p className='text-[#6F6F6F] max-w-[695px] mx-auto mt-4 text-[18px]/[28px]'>{subtitle}</p>
+      <h2 className='text-[#161616] text-[36px]/[36px] md:text-[40px]/[48px] font-extrabold'>
+        {title}
+      </h2>
+      <p className='text-[#6F6F6F] max-w-[695px] mx-auto mt-4 text-[18px]/[28px]'>
+        {subtitle}
+      </p>
       <div className='mt-8 flex flex-col md:flex-row items-center justify-center gap-4'>
         {buttons.map((b, i) => (
           <Button
@@ -77,8 +94,12 @@ function OffersCarousel({
       <Carousel className='w-full' opts={{ align: 'start', loop: false }}>
         <div className='grid grid-cols-1 md:grid-cols-12 gap-6 items-center'>
           <div className='md:col-span-4 w-[420px]'>
-            <h3 className='text-[28px]/[36px] md:text-[40px]/[48px] font-bold text-[#161616] text-center md:text-left pr-4 md:mr-0'>{heading}</h3>
-            <p className='text-[#6F6F6F] mt-6 max-w-[423px] text-center md:text-left pr-4 md:mr-0'>{description}</p>
+            <h3 className='text-[28px]/[36px] md:text-[40px]/[48px] font-bold text-[#161616] text-center md:text-left pr-4 md:mr-0'>
+              {heading}
+            </h3>
+            <p className='text-[#6F6F6F] mt-6 max-w-[423px] text-center md:text-left pr-4 md:mr-0'>
+              {description}
+            </p>
             <div className='mt-12 hidden md:flex gap-3'>
               <CarouselPrevious className='static size-10 rounded-full text-[--color-text-primary] bg-[#F6F6F6] border-none hover:bg-[#E6E6E6]' />
               <CarouselNext className='static size-10 rounded-full text-[--color-text-primary] bg-[#F6F6F6] border-none hover:bg-[#E6E6E6]' />
@@ -87,9 +108,18 @@ function OffersCarousel({
           <div className='md:col-span-8'>
             <CarouselContent>
               {offers.map((item, idx) => (
-                <CarouselItem key={`${item.src}-${idx}`} className='basis-[35%%] last:pr-3'>
+                <CarouselItem
+                  key={`${item.src}-${idx}`}
+                  className='basis-[35%%] last:pr-3'
+                >
                   <div className='relative h-[325px] w-[264px] rounded-2xl'>
-                    <Image src={item.src} alt='' fill sizes='(min-width:1280px) 380px, 50vw' className='object-cover' />
+                    <Image
+                      src={item.src}
+                      alt=''
+                      fill
+                      sizes='(min-width:1280px) 380px, 50vw'
+                      className='object-cover'
+                    />
                     <div className='absolute inset-0 bg-gradient-to-t rounded-2xl from-black/70 via-black/20 to-transparent' />
                     <div className='absolute left-4 right-4 bottom-3 text-white text-[16px]/[22px] font-semibold whitespace-pre-line'>
                       {item.title}
@@ -117,13 +147,18 @@ function ProcessSection({
   return (
     <Section id={id} className='md:mx-auto my-10'>
       <div className='bg-[#00000004] py-21 px-4 md:px-16'>
-        <h3 className='text-center text-[28px]/[36px] md:text-[40px]/[48px] font-bold text-[#212121]'>Poznaj nasz proces</h3>
+        <h3 className='text-center text-[28px]/[36px] md:text-[40px]/[48px] font-bold text-[#212121]'>
+          Poznaj nasz proces
+        </h3>
         <p className='text-center text-[#818181] mt-2'>
           Przejrzysty proces od analizy po finalizację – krok po kroku do bezpiecznej transakcji
         </p>
         <div className='mt-8 grid grid-cols-1 md:grid-cols-5 gap-4 w-full md:w-[1096px] mx-auto px-4 md:px-0'>
           {steps.map(step => (
-            <div key={step.no} className='bg-[#00000004] rounded-2xl w-full md:w-[200px] h-[200px] md:h-[420px] px-6 md:px-0 py-8 md:py-10 grid md:block grid-cols-[96px_1px_1fr] items-center gap-6'>
+            <div
+              key={step.no}
+              className='bg-[#00000004] rounded-2xl w-full md:w-[200px] h-[200px] md:h-[420px] px-6 md:px-0 py-8 md:py-10 grid md:block grid-cols-[96px_1px_1fr] items-center gap-6'
+            >
               <div className='text-[72px]/[72px] md:text-[100px]/[112px] font-extrabold text-[#0000000F] justify-self-center self-center'>
                 {step.no}
               </div>
@@ -155,13 +190,21 @@ function BenefitsSection({
 }) {
   return (
     <Section id={id} className='my-16 md:max-w-[900px] md:mx-auto'>
-      <h3 className='text-center text-[28px]/[36px] md:text-[36px]/[44px] font-extrabold text-[#161616]'>Co od nas otrzymasz?</h3>
-      <p className='text-center text-[#9D9D9D] mt-2'>Pełne wsparcie na każdym etapie ale nie tylko...</p>
+      <h3 className='text-center text-[28px]/[36px] md:text-[36px]/[44px] font-extrabold text-[#161616]'>
+        Co od nas otrzymasz?
+      </h3>
+      <p className='text-center text-[#9D9D9D] mt-2'>
+        Pełne wsparcie na każdym etapie ale nie tylko...
+      </p>
       <div className='mt-10 grid grid-cols-1 md:grid-cols-3 gap-10 place-items-center'>
         {items.map((it, idx) => (
           <div key={`${it.label}-${idx}`} className='flex flex-col items-center text-center'>
-            <div className='w-[80px] h-[80px] rounded-full bg-[#F1F1F1] flex items-center justify-center'>{it.icon}</div>
-            <div className='mt-3 text-[16px] font-medium text-[#1A1A1A]'>{it.label}</div>
+            <div className='w-[80px] h-[80px] rounded-full bg-[#F1F1F1] flex items-center justify-center'>
+              {it.icon}
+            </div>
+            <div className='mt-3 text-[16px] font-medium text-[#1A1A1A]'>
+              {it.label}
+            </div>
           </div>
         ))}
       </div>
@@ -182,13 +225,18 @@ function DarkCta({
     <Section id={id} className='mt-12'>
       <div className='bg-[#1E1E1E] text-white py-16 px-4'>
         <div className='text-center md:max-w-[980px] mx-auto'>
-          <h3 className='text-[32px]/[40px] md:text-[40px]/[48px] font-bold'>Podejmij działanie już dziś</h3>
+          <h3 className='text-[32px]/[40px] md:text-[40px]/[48px] font-bold'>
+            Podejmij działanie już dziś
+          </h3>
           <p className='mt-1 text-[#A8A8A8] text-[16px]/[24px]'>
             Przejrzysty proces od analizy po finalizację - krok po kroku do bezpiecznej transakcji
           </p>
           <div className='mt-10 flex flex-col items-center gap-3'>
             <Button className='mb-4'>{primary}</Button>
-            <Button variant='link' className='text-white font-medium text-[14px]/[20px]'>
+            <Button
+              variant='link'
+              className='text-white font-medium text-[14px]/[20px]'
+            >
               {secondary}
             </Button>
           </div>
@@ -214,13 +262,26 @@ function ImageCta({
   return (
     <Section id={id} className='mt-12'>
       <div className='relative overflow-hidden rounded-none'>
-        <Image src={imageSrc} alt='' width={1920} height={600} className='w-full h-[320px] md:h-[380px]' />
+        <Image
+          src={imageSrc}
+          alt=''
+          width={1920}
+          height={600}
+          className='w-full h-[320px] md:h-[380px]'
+        />
         <div className='absolute inset-0 flex items-center justify-center'>
           <div className='text-center text-white'>
-            <h3 className='text-[24px]/[32px] md:text-[32px]/[40px] font-extrabold'>{headline}</h3>
+            <h3 className='text-[24px]/[32px] md:text-[32px]/[40px] font-extrabold'>
+              {headline}
+            </h3>
             <p className='mt-1 text-white/80'>
               Odwiedź{' '}
-              <a className='underline text-[#fb8500] !underline' href={linkHref} target='_blank' rel='noreferrer'>
+              <a
+                className='underline text-[#fb8500] !underline'
+                href={linkHref}
+                target='_blank'
+                rel='noreferrer'
+              >
                 {linkText}
               </a>{' '}
               i zapoznaj się z pełną ofertą
@@ -334,8 +395,12 @@ export default function Page() {
 
             {/* Co od nas otrzymasz? */}
             <Section id='benefits' className='my-16 mb-24 md:max-w-[850px] md:mx-auto'>
-              <h3 className='text-center text-[28px]/[36px] md:text-[40px]/[48px] font-bold text-[#212121]'>Co od nas otrzymasz?</h3>
-              <p className='text-center text-[#818181]'>Pełne wsparcie na każdym etapie ale nie tylko...</p>
+              <h3 className='text-center text-[28px]/[36px] md:text-[40px]/[48px] font-bold text-[#212121]'>
+                Co od nas otrzymasz?
+              </h3>
+              <p className='text-center text-[#818181]'>
+                Pełne wsparcie na każdym etapie ale nie tylko...
+              </p>
               <div className='mt-14 grid grid-cols-1 md:grid-cols-3 gap-10 place-items-center'>
                 {[
                   { icon: <ClipboardList className='size-8 text-black' />, label: 'Raport działań (KPI)' },
@@ -343,8 +408,12 @@ export default function Page() {
                   { icon: <Gem className='size-8 text-black' />, label: 'Protokół przekazania' },
                 ].map((it, idx) => (
                   <div key={idx} className='flex flex-col items-center text-center'>
-                    <div className='w-[80px] h-[80px] rounded-full bg-[#F1F1F1] flex items-center justify-center'>{it.icon}</div>
-                    <div className='mt-4 text-[20px] font-semibold text-[#212121]'>{it.label}</div>
+                    <div className='w-[80px] h-[80px] rounded-full bg-[#F1F1F1] flex items-center justify-center'>
+                      {it.icon}
+                    </div>
+                    <div className='mt-4 text-[20px] font-semibold text-[#212121]'>
+                      {it.label}
+                    </div>
                   </div>
                 ))}
               </div>
