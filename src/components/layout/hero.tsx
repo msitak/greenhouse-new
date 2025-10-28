@@ -12,6 +12,8 @@ type HeroProps = {
   objectPosition?: string;
   sizes?: string;
   className?: string;
+  // Allows consumers to override styles of inner container (height, rounding, overflow)
+  innerClassName?: string;
   children?: React.ReactNode;
   overlay?: boolean;
   overlayColor?: string;
@@ -26,13 +28,19 @@ export default function Hero({
   objectPosition,
   sizes = '100vw',
   className,
+  innerClassName,
   children,
   overlay = false,
   overlayColor = '#00000080',
 }: HeroProps) {
   return (
     <div className={cn('md:px-2 md:pt-2 md:pb-4', className)}>
-      <div className='relative w-full h-[calc(100svh-24px)] md:overflow-hidden md:rounded-[24px]'>
+      <div
+        className={cn(
+          'relative w-full h-[calc(100svh-24px)] md:overflow-hidden md:rounded-[24px]',
+          innerClassName
+        )}
+      >
         <Image
           src={src}
           alt={alt}

@@ -244,4 +244,6 @@ export {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  // Expose hook for controls living inside Carousel subtree
+  useCarousel,
 };

@@ -304,10 +304,6 @@ export default function SearchTabs({
                         </div>
                       </div>
                       <Skeleton className='h-[6px] w-full rounded' />
-                      <div className='mt-1 flex justify-between'>
-                        <Skeleton className='h-3 w-16 rounded' />
-                        <Skeleton className='h-3 w-16 rounded' />
-                      </div>
                     </div>
                   </div>
                 ) : (
@@ -353,10 +349,6 @@ export default function SearchTabs({
                         </div>
                       </div>
                       <Skeleton className='h-[6px] w-full rounded' />
-                      <div className='mt-1 flex justify-between'>
-                        <Skeleton className='h-3 w-16 rounded' />
-                        <Skeleton className='h-3 w-16 rounded' />
-                      </div>
                     </div>
                   </div>
                 ) : (
@@ -442,10 +434,6 @@ export default function SearchTabs({
                         </div>
                       </div>
                       <Skeleton className='h-[6px] w-full rounded' />
-                      <div className='mt-1 flex justify-between'>
-                        <Skeleton className='h-3 w-16 rounded' />
-                        <Skeleton className='h-3 w-16 rounded' />
-                      </div>
                     </div>
                   </div>
                 ) : (
@@ -491,10 +479,6 @@ export default function SearchTabs({
                         </div>
                       </div>
                       <Skeleton className='h-[6px] w-full rounded' />
-                      <div className='mt-1 flex justify-between'>
-                        <Skeleton className='h-3 w-16 rounded' />
-                        <Skeleton className='h-3 w-16 rounded' />
-                      </div>
                     </div>
                   </div>
                 ) : (
