@@ -4,12 +4,38 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { Menu } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 const Header = () => {
   const pathname = usePathname();
   const [mounted, setMounted] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
+  // Lock scroll when mobile menu is open (iOS-safe)
+  React.useEffect(() => {
+    if (!mobileOpen) return;
+    const scrollY = window.scrollY || 0;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevWidth = document.body.style.width;
+
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+
+    return () => {
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.width = prevWidth;
+      window.scrollTo(0, scrollY);
+    };
+  }, [mobileOpen]);
 
   const navLinks = [
     { href: '/', label: 'Strona Główna' },
@@ -31,10 +57,35 @@ const Header = () => {
             width={120}
             height={40}
           />
-          <button className='p-2'>
-            <Menu className='size-6 text-black' />
+          <button
+            aria-label={mobileOpen ? 'Zamknij menu' : 'Otwórz menu'}
+            className='p-2'
+            onClick={() => setMobileOpen(o => !o)}
+          >
+            {mobileOpen ? (
+              <X className='size-6 text-black' />
+            ) : (
+              <Menu className='size-6 text-black' />
+            )}
           </button>
         </div>
+        {mobileOpen && (
+          <div className='fixed inset-x-0 top-[72px] bottom-0 z-[60] bg-white lg:hidden animate-in fade-in duration-200'>
+            <nav className='h-full flex flex-col items-center justify-center gap-6 animate-in slide-in-from-top-4 duration-300'>
+              {navLinks.map((link, idx) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className='text-[#212121] text-[32px]/[40px] font-regular animate-in fade-in-0 slide-in-from-bottom-2 duration-300'
+                  style={{ animationDelay: `${idx * 60}ms` }}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* Desktop header */}
