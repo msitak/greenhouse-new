@@ -41,7 +41,7 @@ export default function Breadcrumbs({ className }: BreadcrumbsProps) {
       <ol className='flex flex-wrap items-center gap-1.5 leading-none text-sm'>
         <li className='flex items-center gap-1 text-secondary font-medium leading-none'>
           <Home className='h-[1em] w-[1em]' aria-hidden='true' />
-          <Link href='/' className='hover:underline'>
+          <Link href='/' className='text-[#757575] hover:underline'>
             Strona główna
           </Link>
         </li>
