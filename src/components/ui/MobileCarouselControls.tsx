@@ -26,9 +26,9 @@ export default function MobileCarouselControls() {
   }, [api]);
 
   return (
-    <div className='mt-4 flex items-center justify-center gap-6 md:hidden'>
+    <div className='pt-10 flex items-center justify-center gap-6 md:hidden'>
       <CarouselPrevious className='static size-10 rounded-full text-[--color-text-primary] bg-[#F6F6F6] border-none hover:bg-[#E6E6E6]' />
-      <div className='flex items-center gap-2'>
+      <div className='mb-10 flex items-center gap-2'>
         {Array.from({ length: count }).map((_, i) => (
           <span
             key={i}

@@ -12,7 +12,11 @@
     "test:watch": "jest --watch",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint:fix": "next lint --fix"
+    "lint:fix": "next lint --fix",
+    "prepare": "husky",
+    "lint-staged": {
+      "*.{js,jsx,ts,tsx,css,md,json}": "prettier --write ."
+    }
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",
@@ -58,7 +62,9 @@
     "eslint-config-next": "15.3.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
     "jest": "^30.0.2",
+    "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
     "prisma": "^6.15.0",
     "sass": "^1.89.2",
