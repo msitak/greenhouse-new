@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowRight, ChevronRight, Facebook, Instagram } from 'lucide-react';
+import { ChevronRight, Facebook, Instagram } from 'lucide-react';
 
 export default function Page() {
   const faq = [
