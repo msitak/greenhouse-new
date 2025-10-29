@@ -4,6 +4,7 @@ import localFont from 'next/font/local';
 import { Montserrat } from 'next/font/google';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const satoshi = localFont({
   src: [
@@ -57,7 +58,10 @@ export default function RootLayout({
     <html lang='pl' className={`${satoshi.variable}`}>
       <body className={`${satoshi.className} ${montserrat.variable}`}>
         <Header />
-        <main>{children}</main>
+        <main>
+          {children}
+          <SpeedInsights />
+        </main>
         <Footer />
       </body>
     </html>
