@@ -20,19 +20,19 @@ type CityCount = {
 const citiesConfig: Omit<City, 'offersCount'>[] = [
   {
     name: 'Częstochowa',
-    href: '/nieruchomosci?miasto=czestochowa',
+    href: '/nieruchomosci?city=czestochowa',
     imageSrc: '/czestochowa.png',
     imageAlt: 'Częstochowa',
   },
   {
     name: 'Katowice',
-    href: '/nieruchomosci?miasto=katowice',
+    href: '/nieruchomosci?city=katowice',
     imageSrc: '/katowice.png',
     imageAlt: 'Katowice',
   },
   {
     name: 'Gliwice',
-    href: '/nieruchomosci?miasto=gliwice',
+    href: '/nieruchomosci?city=gliwice',
     imageSrc: '/gliwice.png',
     imageAlt: 'Gliwice',
   },

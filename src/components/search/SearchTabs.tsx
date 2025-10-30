@@ -32,6 +32,27 @@ function getAddressComponentText(
   return hit?.longText || hit?.shortText || undefined;
 }
 
+// Helpers: URL param utilities with backwards-compatible aliases
+function getParam(
+  searchParams: ReturnType<typeof useSearchParams>,
+  keys: string[]
+) {
+  for (const k of keys) {
+    const v = searchParams?.get(k);
+    if (v != null) return v;
+  }
+  return null;
+}
+
+function normalizeKind(value: string | null): 'sale' | 'rent' | null {
+  if (!value) return null;
+  const v = value.toLowerCase();
+  if (v === 'sale' || v === 'rent') return v;
+  if (v === 'sprzedaz') return 'sale';
+  if (v === 'wynajem') return 'rent';
+  return null;
+}
+
 // Helper: build query params from staged filters (KISS – one place to change)
 function buildQueryParams(args: {
   kind: 'sale' | 'rent';
@@ -107,10 +128,11 @@ export default function SearchTabs({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Determine current tab from URL `kind` param; fallback to defaultValue
+  // Determine current tab from URL (supports legacy `transakcja` values)
   const currentKind = ((): 'sale' | 'rent' => {
-    const k = searchParams?.get('kind');
-    return k === 'rent' || k === 'sale' ? k : defaultValue;
+    const raw = getParam(searchParams, ['kind', 'transakcja']);
+    const normalized = normalizeKind(raw);
+    return normalized ?? defaultValue;
   })();
 
   const onTabChange = (value: string) => {
@@ -121,8 +143,8 @@ export default function SearchTabs({
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Location state synced with URL param `city`
-  const initialCity = searchParams?.get('city') || '';
+  // Location state synced with URL param (`city` or legacy `miasto`)
+  const initialCity = getParam(searchParams, ['city', 'miasto']) || '';
   const [location, setLocation] = React.useState<LocationValue | undefined>(
     initialCity
       ? { label: initialCity, placeId: '', lat: 0, lng: 0 }
@@ -142,12 +164,12 @@ export default function SearchTabs({
   };
 
   const [price, setPrice] = React.useState<RangeValue>([
-    parseNum(searchParams?.get('priceMin')),
-    parseNum(searchParams?.get('priceMax')),
+    parseNum(getParam(searchParams, ['priceMin', 'cenaMin'])),
+    parseNum(getParam(searchParams, ['priceMax', 'cenaMax'])),
   ]);
   const [area, setArea] = React.useState<RangeValue>([
-    parseNum(searchParams?.get('areaMin')),
-    parseNum(searchParams?.get('areaMax')),
+    parseNum(getParam(searchParams, ['areaMin', 'powierzchniaMin'])),
+    parseNum(getParam(searchParams, ['areaMax', 'powierzchniaMax'])),
   ]);
 
   // dynamic bounds state; start with server-provided defaults
@@ -220,6 +242,48 @@ export default function SearchTabs({
       .finally(() => setLoadingBounds(false));
     return () => controller.abort();
   }, [currentKind, filters.propertyType, location]);
+
+  // Keep inputs in sync with URL params (best practice: single source of truth)
+  React.useEffect(() => {
+    // Property type
+    const pt = getParam(searchParams, ['propertyType', 'typ']);
+    const nextPropertyType: PropertyType =
+      pt === 'mieszkanie' || pt === 'dom' || pt === 'dzialka' || pt === 'lokal'
+        ? pt
+        : 'any';
+    if (filters.propertyType !== nextPropertyType) {
+      setFilters({ propertyType: nextPropertyType });
+    }
+
+    // Location (city label only; district/street are applied on search)
+    const city = getParam(searchParams, ['city', 'miasto']) || '';
+    const nextLocation = city
+      ? { label: city, placeId: '', lat: 0, lng: 0 }
+      : undefined;
+    const currentLabel = location?.label || '';
+    if ((nextLocation?.label || '') !== currentLabel) {
+      setLocation(nextLocation);
+    }
+
+    // Price range
+    const pMin = parseNum(getParam(searchParams, ['priceMin', 'cenaMin']));
+    const pMax = parseNum(getParam(searchParams, ['priceMax', 'cenaMax']));
+    if (price[0] !== pMin || price[1] !== pMax) {
+      setPrice([pMin, pMax]);
+    }
+
+    // Area range
+    const aMin = parseNum(
+      getParam(searchParams, ['areaMin', 'powierzchniaMin'])
+    );
+    const aMax = parseNum(
+      getParam(searchParams, ['areaMax', 'powierzchniaMax'])
+    );
+    if (area[0] !== aMin || area[1] !== aMax) {
+      setArea([aMin, aMax]);
+    }
+    // We intentionally do not modify bounds here; they are fetched separately
+  }, [searchParams]);
 
   // const clearLocation = () => {
   //   setLocation(undefined);
@@ -374,8 +438,28 @@ export default function SearchTabs({
           </div>
         </TabsContent>
         <TabsContent value='rent'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4 p-4'>
-            <div className='flex flex-col gap-2 md:w-[520px]'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6 p-6'>
+            <div className='flex flex-col gap-2'>
+              <Label>Typ nieruchomości</Label>
+              <Select
+                value={
+                  filters.propertyType === 'any' ? 'any' : filters.propertyType
+                }
+                onValueChange={handlePropertyTypeChange}
+              >
+                <SelectTrigger className='rounded-xl bg-white border-1 border-[#CCCCCC] text-[#6E6E6E] font-medium w-full px-4 py-3 text-sm cursor-pointer'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='any'>Dowolny</SelectItem>
+                  <SelectItem value='mieszkanie'>Mieszkanie</SelectItem>
+                  <SelectItem value='dom'>Dom</SelectItem>
+                  <SelectItem value='dzialka'>Działka</SelectItem>
+                  <SelectItem value='lokal'>Lokal</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className='flex flex-col gap-2'>
               <Label>Lokalizacja</Label>
               <div className='flex items-center gap-2'>
                 <LocationCombobox
@@ -384,27 +468,6 @@ export default function SearchTabs({
                   placeholder='np. Katowice, Gliwice, ulica…'
                 />
               </div>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <Label>Typ nieruchomości</Label>
-              <Select
-                value={
-                  filters.propertyType === 'any'
-                    ? undefined
-                    : filters.propertyType
-                }
-                onValueChange={handlePropertyTypeChange}
-              >
-                <SelectTrigger className='rounded-xl bg-white border-1 border-[#CCCCCC] text-[#6E6E6E] font-medium w-full px-4 py-3 text-sm cursor-pointer'>
-                  <SelectValue placeholder='Dowolny' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='mieszkanie'>Mieszkanie</SelectItem>
-                  <SelectItem value='dom'>Dom</SelectItem>
-                  <SelectItem value='dzialka'>Działka</SelectItem>
-                  <SelectItem value='lokal'>Lokal</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             <div className='md:col-span-2'>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
