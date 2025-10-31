@@ -50,6 +50,19 @@ function mapAsariDetailToPrismaListing(
   asariDetail: AsariListingDetail,
   effectiveLastUpdated: Date
 ): Prisma.ListingUpdateInput {
+  // Best-effort derivation of offer type when ASARI doesn't provide it directly
+  const deriveOfferType = (detail: AsariListingDetail): string | null => {
+    // ASARI docs: `section` contains canonical values like ApartmentSale, HouseRental, ...
+    const section =
+      typeof detail.section === 'string' ? detail.section.trim() : '';
+    if (!section) return null;
+    // If it ends with Sale/Rental keep it verbatim, our filters use endsWith('Sale'|'Rental')
+    if (/([A-Za-z]+)?(Sale|Rental)$/i.test(section)) return section;
+    const lc = section.toLowerCase();
+    if (lc.includes('rent')) return 'Rental';
+    if (lc.includes('sale')) return 'Sale';
+    return null;
+  };
   const mapStatus = (status?: string | null): AsariStatus => {
     if (!status) {
       return AsariStatus.Unknown;
@@ -97,7 +110,7 @@ function mapAsariDetailToPrismaListing(
     slug,
     lastUpdatedAsari,
     asariStatus,
-    offerType: asariDetail.offerType ?? null,
+    offerType: deriveOfferType(asariDetail),
     virtualTourUrl: asariDetail.virtualTourUrl ?? null,
     isVisible,
     soldAt,
@@ -242,17 +255,20 @@ export async function POST() {
       try {
         const existingListing = await prisma.listing.findUnique({
           where: { asariId: asariListingInfo.id },
-          select: { lastUpdatedAsari: true },
+          select: { lastUpdatedAsari: true, offerType: true },
         });
 
         const asariLastUpdatedDate = safeParseDate(
           asariListingInfo.lastUpdated
         );
 
+        const needsOfferTypeBackfill =
+          existingListing && !existingListing.offerType;
         if (
           asariLastUpdatedDate &&
           existingListing?.lastUpdatedAsari &&
-          asariLastUpdatedDate <= existingListing.lastUpdatedAsari
+          asariLastUpdatedDate <= existingListing.lastUpdatedAsari &&
+          !needsOfferTypeBackfill
         ) {
           skippedCount++;
           continue;
