@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   }
 
   const skip = (page - 1) * limit;
-  const safeLimit = limit;
+  const safeLimit = Math.max(1, limit); // Ensure safeLimit is always >= 1
 
   // 2. Sortowanie
   const sortByParam = searchParams.get(
@@ -61,10 +61,10 @@ export async function GET(request: Request) {
   const priceMin = parseFloat(searchParams.get('priceMin') || '');
   const priceMax = parseFloat(searchParams.get('priceMax') || '');
   const priceConditions: Prisma.FloatNullableFilter = {};
-  if (!isNaN(priceMin)) {
+  if (!isNaN(priceMin) && priceMin >= 0 && priceMin <= 1000000000) {
     priceConditions.gte = priceMin;
   }
-  if (!isNaN(priceMax)) {
+  if (!isNaN(priceMax) && priceMax >= 0 && priceMax <= 1000000000) {
     priceConditions.lte = priceMax;
   }
   if (Object.keys(priceConditions).length > 0) {
@@ -89,10 +89,10 @@ export async function GET(request: Request) {
   const areaMin = parseFloat(searchParams.get('areaMin') || '');
   const areaMax = parseFloat(searchParams.get('areaMax') || '');
   const areaConditions: Prisma.FloatNullableFilter = {};
-  if (!isNaN(areaMin)) {
+  if (!isNaN(areaMin) && areaMin >= 0 && areaMin <= 10000) {
     areaConditions.gte = areaMin;
   }
-  if (!isNaN(areaMax)) {
+  if (!isNaN(areaMax) && areaMax >= 0 && areaMax <= 10000) {
     areaConditions.lte = areaMax;
   }
   if (Object.keys(areaConditions).length > 0) {
