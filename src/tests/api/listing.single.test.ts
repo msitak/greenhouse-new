@@ -25,6 +25,7 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
       data: {
         asariId: uniqueAsariId1,
         asariStatus: AsariStatus.Active, // <-- KLUCZOWA POPRAWKA
+        slug: `test-listing-1-${uniqueAsariId1}`,
         title: 'Szczegółowa Oferta Testowa 1',
         price: 750000,
         area: 120.5,
@@ -72,6 +73,7 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
       data: {
         asariId: uniqueAsariId2,
         asariStatus: AsariStatus.Active, // <-- KLUCZOWA POPRAWKA
+        slug: `test-listing-2-${uniqueAsariId2}`,
         title: 'Minimalna Oferta Testowa 2 (bez zdjęć)',
         price: 150000,
         area: 30.0,
@@ -85,6 +87,7 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
       data: {
         asariId: Math.floor(Math.random() * -100000) - 200001,
         asariStatus: AsariStatus.Draft,
+        slug: `test-listing-inactive-${Date.now()}`,
         title: 'Nieaktywna oferta (DRAFT)',
       },
     });
@@ -115,7 +118,7 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
 
   it('SINGLE-001: powinien zwrócić dane oferty dla poprawnego ID, w tym wszystkie zdjęcia', async () => {
     const response = await request(API_BASE_URL).get(
-      `/listing/${testListing1.id}`
+      `/listing/${testListing1.slug}`
     );
 
     expect(response.status).toBe(200);
@@ -137,7 +140,7 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
 
   it('SINGLE-002: powinien zwrócić ofertę bez zdjęć, jeśli oferta ich nie posiada', async () => {
     const response = await request(API_BASE_URL).get(
-      `/listing/${testListing2_noImages.id}`
+      `/listing/${testListing2_noImages.slug}`
     );
 
     expect(response.status).toBe(200);
@@ -168,7 +171,7 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
 
   it('SINGLE-005: powinien zwrócić wszystkie zdefiniowane pola w modelu, nawet jeśli są null', async () => {
     const response = await request(API_BASE_URL).get(
-      `/listing/${testListing2_noImages.id}`
+      `/listing/${testListing2_noImages.slug}`
     );
     expect(response.status).toBe(200);
     const data = response.body;
@@ -180,7 +183,7 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
 
   it('SINGLE-006: powinien zawsze zwracać kluczowe, nie-nullujące się pola (na podstawie modelu)', async () => {
     const response = await request(API_BASE_URL).get(
-      `/listing/${testListing1.id}`
+      `/listing/${testListing1.slug}`
     );
     expect(response.status).toBe(200);
     const data = response.body;
@@ -194,7 +197,7 @@ describe('GET /api/listing/:id (rozbudowane testy pojedynczej oferty)', () => {
 
   it('SINGLE-007: powinien zwrócić 404 dla oferty nieaktywnej (status != Active)', async () => {
     const response = await request(API_BASE_URL).get(
-      `/listing/${testListingInactive.id}`
+      `/listing/${testListingInactive.slug}`
     );
     expect(response.status).toBe(404);
   });

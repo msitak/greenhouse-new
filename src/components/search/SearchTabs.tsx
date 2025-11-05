@@ -21,7 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Helper: pull a specific address component text (long or short)
-function getAddressComponentText(
+export function getAddressComponentText(
   comps:
     | Array<{ longText?: string; shortText?: string; types?: string[] }>
     | undefined,
@@ -54,7 +54,7 @@ function normalizeKind(value: string | null): 'sale' | 'rent' | null {
 }
 
 // Helper: build query params from staged filters (KISS – one place to change)
-function buildQueryParams(args: {
+export function buildQueryParams(args: {
   kind: 'sale' | 'rent';
   propertyType: string;
   location?: {
@@ -74,7 +74,16 @@ function buildQueryParams(args: {
   if (propertyType && propertyType !== 'any')
     params.set('propertyType', propertyType);
 
-  if (location?.label) params.set('city', location.label);
+  const cityName = getAddressComponentText(
+    location?.addressComponents,
+    'locality'
+  );
+  if (cityName) {
+    params.set('city', cityName);
+  } else if (location?.label && !location.label.includes(',')) {
+    // Fallback: if user typed a plain city name (no district/street), keep it
+    params.set('city', location.label.trim());
+  }
   const district =
     getAddressComponentText(location?.addressComponents, 'sublocality') ||
     getAddressComponentText(
@@ -143,11 +152,20 @@ export default function SearchTabs({
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Location state synced with URL param (`city` or legacy `miasto`)
+  // Location state synced with URL params (city + optional district)
   const initialCity = getParam(searchParams, ['city', 'miasto']) || '';
+  const initialDistrict = searchParams?.get('district') || '';
+  const initialStreet = searchParams?.get('street') || '';
+  const initialLocationLabel = initialCity
+    ? initialStreet
+      ? `${initialStreet}, ${initialDistrict || initialCity}`
+      : initialDistrict
+        ? `${initialDistrict}, ${initialCity}`
+        : initialCity
+    : '';
   const [location, setLocation] = React.useState<LocationValue | undefined>(
-    initialCity
-      ? { label: initialCity, placeId: '', lat: 0, lng: 0 }
+    initialLocationLabel
+      ? { label: initialLocationLabel, placeId: '', lat: 0, lng: 0 }
       : undefined
   );
 
@@ -255,10 +273,19 @@ export default function SearchTabs({
       setFilters({ propertyType: nextPropertyType });
     }
 
-    // Location (city label only; district/street are applied on search)
+    // Location label from URL: prefer "district, city" when available
     const city = getParam(searchParams, ['city', 'miasto']) || '';
-    const nextLocation = city
-      ? { label: city, placeId: '', lat: 0, lng: 0 }
+    const district = searchParams?.get('district') || '';
+    const street = searchParams?.get('street') || '';
+    const urlLabel = city
+      ? street
+        ? `${street}, ${district || city}`
+        : district
+          ? `${district}, ${city}`
+          : city
+      : '';
+    const nextLocation = urlLabel
+      ? { label: urlLabel, placeId: '', lat: 0, lng: 0 }
       : undefined;
     const currentLabel = location?.label || '';
     if ((nextLocation?.label || '') !== currentLabel) {

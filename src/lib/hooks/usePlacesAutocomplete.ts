@@ -206,7 +206,15 @@ export function usePlacesAutocomplete(initial?: LocationValue) {
     const res = await fetch(`/api/places/details?${params.toString()}`);
     if (!res.ok) return;
     const d = await res.json();
-    const { id: pid, label, lat, lng, viewport } = d || {};
+    const {
+      id: pid,
+      label,
+      lat,
+      lng,
+      viewport,
+      types,
+      addressComponents,
+    } = d || {};
     if (typeof lat === 'number' && typeof lng === 'number') {
       const next: LocationValue = {
         label: label || fallbackLabel,
@@ -214,6 +222,9 @@ export function usePlacesAutocomplete(initial?: LocationValue) {
         lat,
         lng,
         viewport,
+        // pass through semantic data so callers can build precise filters
+        types,
+        addressComponents,
       };
       onPick(next);
       if (crypto?.randomUUID) sessionTokenRef.current = crypto.randomUUID();

@@ -17,6 +17,25 @@ export async function GET(
   }
 
   try {
+    // Early check: if listing exists but is not visible/active, return 404 without further processing
+    const exists = await prisma.listing.findFirst({
+      where: { slug },
+      select: { id: true, isVisible: true, asariStatus: true },
+    });
+    const allowedStatuses = new Set<AsariStatus>([
+      AsariStatus.Active,
+      AsariStatus.Closed,
+    ]);
+    if (
+      exists &&
+      (!exists.isVisible || !allowedStatuses.has(exists.asariStatus))
+    ) {
+      return NextResponse.json(
+        { message: 'Nie znaleziono oferty' },
+        { status: 404 }
+      );
+    }
+
     // Krok 1: Pobierz surowe dane z bazy danych używając slug
     let listingFromDb = await prisma.listing.findFirst({
       where: {
