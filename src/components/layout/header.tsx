@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
@@ -83,6 +84,14 @@ const Header = () => {
                   {link.label}
                 </Link>
               ))}
+              <Link href='/wycena' onClick={() => setMobileOpen(false)}>
+                <Button
+                  variant='outline'
+                  className='rounded-xl px-5 py-3 text-base'
+                >
+                  Wyceń nieruchomość
+                </Button>
+              </Link>
             </nav>
           </div>
         )}
@@ -118,6 +127,11 @@ const Header = () => {
                 </Link>
               );
             })}
+            <Link href='/wycena'>
+              <Button variant='outline' className='rounded-xl h-10 px-5'>
+                Wyceń nieruchomość
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
