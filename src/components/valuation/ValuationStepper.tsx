@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import type { LocationValue } from '@/lib/location/types';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -172,8 +171,6 @@ export function ValuationStepper({
       setSubmitting(false);
     }
   };
-
-  const progressPct = step === 1 ? 33 : step === 2 ? 66 : 100; // simple visual indicator
 
   return (
     <div className={className}>

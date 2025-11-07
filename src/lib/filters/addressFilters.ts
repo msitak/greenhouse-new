@@ -57,8 +57,7 @@ export function addressKeyForDedup(mainText: string): string {
     .trim();
   const m = n.match(/(\d+[a-z]?)(?:\b|$)/i);
   const number = m ? m[1] : '';
-  const before =
-    m && (m as any).index != null ? n.slice(0, (m as any).index).trim() : n;
+  const before = m && m.index != null ? n.slice(0, m.index).trim() : n;
   const parts = before.split(' ').filter(Boolean);
   const core = parts.length ? parts[parts.length - 1] : before;
   return `${core}|${number}`;

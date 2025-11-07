@@ -20,7 +20,6 @@ export default function Page() {
   const handleValuationSubmit = async (values: ValuationFormData) => {
     const payload = values;
     // Log all values in JSON format
-    // eslint-disable-next-line no-console
     console.log('Valuation form submit:', JSON.stringify(payload, null, 2));
     // Keep API echo for now
     await fetch('/api/valuation', {

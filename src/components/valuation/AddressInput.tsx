@@ -14,16 +14,18 @@ type AddressValue = {
 };
 
 type AddressInputProps = {
-  value?: AddressValue;
   onChange: (value: AddressValue | undefined) => void;
 };
 
-export function AddressInput({ value, onChange }: AddressInputProps) {
+export function AddressInput({ onChange }: AddressInputProps) {
   const [inputValue, setInputValue] = React.useState('');
-  const [predictions, setPredictions] = React.useState<any[]>([]);
+  const [predictions, setPredictions] = React.useState<
+    google.maps.places.AutocompleteSuggestion[]
+  >([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [selectedAddress, setSelectedAddress] = React.useState(false);
-  const sessionTokenRef = React.useRef<any>(null);
+  const sessionTokenRef =
+    React.useRef<google.maps.places.AutocompleteSessionToken | null>(null);
 
   // Initialize session token
   React.useEffect(() => {
@@ -79,7 +81,7 @@ export function AddressInput({ value, onChange }: AddressInputProps) {
           'kościół',
           'park',
         ];
-        const filtered = (suggestions || []).filter((s: any) => {
+        const filtered = (suggestions || []).filter(s => {
           const text = s.placePrediction?.text?.text || '';
           const lower = text.toLowerCase();
           const hasCzestochowa = lower.includes('częstochowa');
@@ -98,9 +100,12 @@ export function AddressInput({ value, onChange }: AddressInputProps) {
     }, 300);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue]);
 
-  const handleSelect = async (suggestion: any) => {
+  const handleSelect = async (
+    suggestion: google.maps.places.AutocompleteSuggestion
+  ) => {
     try {
       setIsLoading(true);
 
@@ -111,7 +116,7 @@ export function AddressInput({ value, onChange }: AddressInputProps) {
 
       // Extract address components
       const components = place.addressComponents || [];
-      const city = components.find((c: any) =>
+      const city = components.find(c =>
         c.types?.includes('locality')
       )?.longText;
 
@@ -127,13 +132,11 @@ export function AddressInput({ value, onChange }: AddressInputProps) {
 
       const addressData: AddressValue = {
         formattedAddress: place.formattedAddress || '',
-        street: components.find((c: any) => c.types?.includes('route'))
+        street: components.find(c => c.types?.includes('route'))?.longText,
+        number: components.find(c => c.types?.includes('street_number'))
           ?.longText,
-        number: components.find((c: any) => c.types?.includes('street_number'))
+        postalCode: components.find(c => c.types?.includes('postal_code'))
           ?.longText,
-        postalCode: components.find((c: any) =>
-          c.types?.includes('postal_code')
-        )?.longText,
         city,
       };
 
@@ -164,7 +167,7 @@ export function AddressInput({ value, onChange }: AddressInputProps) {
         />
         {predictions.length > 0 && (
           <ul className='absolute top-full left-0 right-0 mt-1 bg-white border border-[#CCCCCC] rounded-lg shadow-lg max-h-[300px] overflow-y-auto z-50'>
-            {predictions.map((s: any, idx: number) => (
+            {predictions.map((s, idx: number) => (
               <li
                 key={idx}
                 onClick={() => handleSelect(s)}

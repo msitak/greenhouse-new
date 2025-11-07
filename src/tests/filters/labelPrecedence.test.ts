@@ -1,4 +1,7 @@
-import { buildLabelFromComponents } from '@/lib/filters/addressFilters';
+import {
+  buildLabelFromComponents,
+  AddressComponent,
+} from '@/lib/filters/addressFilters';
 
 const comps = (
   route: string | undefined,
@@ -9,7 +12,7 @@ const comps = (
     route ? { longText: route, types: ['route'] } : {},
     number ? { longText: number, types: ['street_number'] } : {},
     city ? { longText: city, types: ['locality'] } : {},
-  ] as any;
+  ] as AddressComponent[];
 
 describe('buildLabelFromComponents precedence', () => {
   it('uses route + street_number + city when available', () => {

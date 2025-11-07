@@ -3,9 +3,6 @@ import {
   hasHouseNumber,
   containsPoiKeyword,
 } from '@/lib/filters/addressFilters';
-// Add extension for ESLint resolver
-// eslint-disable-next-line import/extensions
-export {};
 
 describe('filters: city/number/POI', () => {
   it('detects Częstochowa regardless of diacritics', () => {
