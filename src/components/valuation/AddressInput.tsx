@@ -109,6 +109,8 @@ export function AddressInput({ onChange }: AddressInputProps) {
     try {
       setIsLoading(true);
 
+      if (!suggestion.placePrediction) return;
+
       const place = suggestion.placePrediction.toPlace();
       await place.fetchFields({
         fields: ['formattedAddress', 'addressComponents'],
@@ -132,12 +134,16 @@ export function AddressInput({ onChange }: AddressInputProps) {
 
       const addressData: AddressValue = {
         formattedAddress: place.formattedAddress || '',
-        street: components.find(c => c.types?.includes('route'))?.longText,
-        number: components.find(c => c.types?.includes('street_number'))
-          ?.longText,
-        postalCode: components.find(c => c.types?.includes('postal_code'))
-          ?.longText,
-        city,
+        street:
+          components.find(c => c.types?.includes('route'))?.longText ||
+          undefined,
+        number:
+          components.find(c => c.types?.includes('street_number'))?.longText ||
+          undefined,
+        postalCode:
+          components.find(c => c.types?.includes('postal_code'))?.longText ||
+          undefined,
+        city: city || undefined,
       };
 
       onChange(addressData);

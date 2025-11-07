@@ -178,9 +178,6 @@ export function ValuationStepper({
       {step === 1 ? (
         <div className='space-y-6'>
           <AddressInput
-            value={
-              form.address ? { formattedAddress: form.address } : undefined
-            }
             onChange={v =>
               setForm(prev => ({ ...prev, address: v?.formattedAddress }))
             }
