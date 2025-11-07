@@ -58,7 +58,7 @@ export function AddressInput({ onChange }: AddressInputProps) {
           await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions(
             {
               input: inputValue,
-              sessionToken: sessionTokenRef.current,
+              sessionToken: sessionTokenRef.current!,
               includedRegionCodes: ['PL'],
               // NO type filter - Google returns different types for same addresses
               locationRestriction: {
