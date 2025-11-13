@@ -50,7 +50,7 @@ export default function Page() {
   ];
   return (
     <div className='mt-22 mb-14'>
-      <Breadcrumbs className='pt-4' />
+      <Breadcrumbs className='pt-4 full-bleed max-w-[1320px] mx-auto' />
       <Section className='px-4 md:px-8 max-w-[1200px] mx-auto py-8 md:py-10'>
         <h1 className='text-[#161616] text-[36px]/[40px] md:text-[48px]/[56px] font-bold text-center md:text-left'>
           Kontakt

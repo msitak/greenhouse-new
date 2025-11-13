@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
         hostname: 'img.asariweb.pl',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.sanity.io',
+        pathname: '/**',
+      },
     ],
   },
 };
