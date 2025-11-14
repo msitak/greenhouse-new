@@ -1,5 +1,6 @@
 import Breadcrumbs from '@/components/ui/breadcrumbs';
 import Image from 'next/image';
+import Link from 'next/link';
 import AgentCard from '@/components/AgentCard';
 import {
   Accordion,
@@ -7,22 +8,36 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import type { AgentInfo } from '@/types/api.types';
 
-type Agent = {
-  id?: string | number;
-  name: string;
-  title?: string;
-  imageSrc: string;
-  imageAlt?: string;
+type AgentsListResponse = {
+  success: boolean;
+  count: number;
+  data: AgentInfo[];
 };
 
-export default function Page() {
-  const agents: Agent[] = Array.from({ length: 9 }).map((_, i) => ({
-    id: i + 1,
-    name: 'Jakub Pruszyński',
-    title: 'Specjalista ds. nieruchomości',
-    imageSrc: '/agents/full/jakub.jpg',
-  }));
+async function getAgents(): Promise<AgentInfo[]> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  try {
+    const response = await fetch(`${baseUrl}/api/agents`, {
+      next: { revalidate: 300 }, // cache na 5 minut
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch agents');
+      return [];
+    }
+
+    const data: AgentsListResponse = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error('Error fetching agents:', error);
+    return [];
+  }
+}
+
+export default async function Page() {
+  const agents = await getAgents();
   return (
     <div className='mt-22 mb-14'>
       <Breadcrumbs className='pt-5 pb-5' />
@@ -52,21 +67,28 @@ export default function Page() {
       </p>
 
       <div className='mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-[984px] mx-auto'>
-        {agents.map(a => (
-          <div
-            key={a.id ?? a.name}
-            className='rounded-2xl w-[312px] h-[388px] flex justify-center items-center bg-white shadow-[0px_2px_18.3px_0px_#0000000D]'
-          >
-            <AgentCard
-              key={a.id ?? a.name}
-              name={a.name}
-              title={a.title}
-              imageSrc={a.imageSrc}
-              imageAlt={a.imageAlt}
-              className='w-[288px]'
-            />
-          </div>
-        ))}
+        {agents.length > 0 ? (
+          agents.map(agent => (
+            <div
+              key={agent.asariId}
+              className='rounded-2xl w-[312px] h-[388px] flex justify-center items-center bg-white shadow-[0px_2px_18.3px_0px_#0000000D]'
+            >
+              <Link href={`/agenci/${agent.slug}`}>
+                <AgentCard
+                  name={agent.fullName}
+                  title='Specjalista ds. nieruchomości'
+                  imageSrc={agent.imagePath}
+                  imageAlt={agent.fullName}
+                  className='w-[288px]'
+                />
+              </Link>
+            </div>
+          ))
+        ) : (
+          <p className='col-span-3 text-center text-gray-500 py-10'>
+            Brak aktywnych agentów
+          </p>
+        )}
       </div>
       <h2 className='font-bold text-4xl/10 text-center mt-24'>Oferty pracy</h2>
       <p className='max-w-[750px] mx-auto mt-6 mb-11 text-[#818181] text-md '>

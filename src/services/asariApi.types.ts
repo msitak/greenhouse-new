@@ -53,6 +53,72 @@ export interface AsariOffice {
   customInvoiceData: boolean;
 }
 
+/**
+ * Pełny obiekt użytkownika/agenta z /site/user/list
+ */
+export interface AsariUser {
+  id: number;
+  name: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  initials: string | null;
+  isMlsUser: boolean | null;
+  office: {
+    id: number;
+    name: string;
+  } | null;
+  userRole: string;
+  email: string;
+  phoneNumber: string;
+  secondPhoneNumber: string | null;
+  ggNumber: string | null;
+  skypeUser: string | null;
+  licenceNumber: string | null;
+  licensedSupervisor: string | null;
+  manager: string[];
+  managers: Array<{
+    id: number;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+  }>;
+  subordinates: Array<{
+    id: number;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+  }>;
+  dateCreated: string;
+  lastActivity: string | null;
+  unlocked: boolean;
+  locked: boolean;
+  noEdit: boolean;
+  noBlock: boolean;
+  cannotBeDeleted: boolean;
+  position1: string | null;
+  position2: string | null;
+  removed: boolean;
+  status: 'Active' | 'Removed' | string;
+  image: {
+    id: number;
+  } | null;
+  description: string | null;
+  dailyLimit: number | null;
+  exportContacts: unknown[];
+  googleCredentials: boolean;
+  privileges: string[];
+}
+
+/**
+ * Odpowiedź z endpointu /site/user/list
+ */
+export interface AsariUserListResponse {
+  success: boolean;
+  totalCount: number;
+  data: AsariUser[];
+}
+
 export interface AsariUserOrAgentInfo {
   id: number;
   firstName: string;

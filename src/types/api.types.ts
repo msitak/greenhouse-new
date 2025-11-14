@@ -38,3 +38,41 @@ export type ListingImageApiResponse = WithStringDates<
 export type ListingApiResponse = Omit<WithStringDates<Listing>, 'images'> & {
   images: ListingImageApiResponse[];
 };
+
+/**
+ * Typ dla informacji o agencie z odpowiedzi API
+ */
+export type AgentInfo = {
+  asariId: number;
+  name: string;
+  surname: string;
+  fullName: string;
+  slug: string;
+  phone: string | null;
+  email: string | null;
+  imagePath: string | null;
+};
+
+/**
+ * Typ dla artykułu z Sanity (uproszczony)
+ */
+export type AgentArticle = {
+  _id: string;
+  title: string;
+  slug: string;
+  date: string;
+  excerpt: string | null;
+  coverImage?: {
+    url: string;
+    alt: string;
+  };
+};
+
+/**
+ * Główny typ dla odpowiedzi API dotyczącej strony agenta
+ */
+export type AgentPageApiResponse = {
+  agent: AgentInfo;
+  listings: ListingApiResponse[];
+  articles: AgentArticle[];
+};

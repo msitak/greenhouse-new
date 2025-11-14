@@ -46,6 +46,7 @@ export const mockedOffer: ListingApiResponse = {
   virtualTourUrl: null,
   isVisible: true,
   soldAt: null,
+  agentId: null,
   agentAsariId: 58356,
   agentName: 'Anna Kuc',
   agentSurname: null,

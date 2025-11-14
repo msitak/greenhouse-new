@@ -46,10 +46,10 @@ function deriveVisibility(
 
 // Transaction kind derivation removed as unused
 
-function mapAsariDetailToPrismaListing(
+async function mapAsariDetailToPrismaListing(
   asariDetail: AsariListingDetail,
   effectiveLastUpdated: Date
-): Prisma.ListingUpdateInput {
+): Promise<Prisma.ListingUpdateInput> {
   // Best-effort derivation of offer type when ASARI doesn't provide it directly
   const deriveOfferType = (detail: AsariListingDetail): string | null => {
     // ASARI docs: `section` contains canonical values like ApartmentSale, HouseRental, ...
@@ -192,6 +192,31 @@ function mapAsariDetailToPrismaListing(
     },
   };
 
+  // NOWA RELACJA: Znajdź agenta w tabeli Agent i połącz
+  if (asariDetail.agent?.id) {
+    try {
+      const agent = await prisma.agent.findUnique({
+        where: { asariId: asariDetail.agent.id },
+        select: { id: true },
+      });
+
+      if (agent) {
+        prismaListingData.agent = {
+          connect: { id: agent.id },
+        };
+      } else {
+        console.warn(
+          `[sync-asari] Agent with asariId ${asariDetail.agent.id} not found for listing ${asariDetail.id}`
+        );
+      }
+    } catch (error) {
+      console.error(
+        `[sync-asari] Error connecting agent to listing ${asariDetail.id}:`,
+        error
+      );
+    }
+  }
+
   return prismaListingData;
 }
 
@@ -294,7 +319,7 @@ export async function POST() {
         const persistedLastUpdated =
           effectiveLastUpdated || asariLastUpdatedDate;
 
-        const prismaReadyData = mapAsariDetailToPrismaListing(
+        const prismaReadyData = await mapAsariDetailToPrismaListing(
           listingDataFromAsari,
           persistedLastUpdated || new Date()
         );

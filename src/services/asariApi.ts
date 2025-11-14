@@ -1,6 +1,7 @@
 import {
   ExportedListingIdListApiResponse,
   ListingDetailsApiResponse,
+  AsariUserListResponse,
 } from './asariApi.types';
 
 function getAsariEnv(): {
@@ -107,6 +108,42 @@ export async function fetchListingDetails(
   const endpointWithQueryParam = `/listing?id=${listingId}`;
 
   return postToAsari<ListingDetailsApiResponse>(endpointWithQueryParam, {});
+}
+
+/**
+ * Pobiera listę wszystkich użytkowników/agentów z Asari
+ * Ten endpoint nie wymaga body, tylko header SiteAuth
+ */
+export async function fetchUserList(): Promise<AsariUserListResponse> {
+  const { baseUrl, userId, token } = getAsariEnv();
+  if (!baseUrl || !userId || !token) {
+    throw new Error('ASARI API environment variables are not set!');
+  }
+
+  const url = `${baseUrl}/user/list`;
+  console.log(`Fetching user list from ASARI: ${url}`);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      SiteAuth: `${userId}:${token}`,
+      'Content-Type': 'application/json',
+    },
+    // Puste body - endpoint nie wymaga parametrów
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(
+      `ASARI API Error (${response.status}) for /site/user/list: ${errorText}`
+    );
+    throw new Error(
+      `ASARI API request failed for /site/user/list: ${response.status}`
+    );
+  }
+
+  const data = await response.json();
+  return data as AsariUserListResponse;
 }
 
 // TODO: Zaimplementuj fetchI18nMessages(locale: string)

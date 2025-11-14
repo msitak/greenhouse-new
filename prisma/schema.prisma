@@ -7,6 +7,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Agent {
+  id                String    @id @default(cuid())
+  asariId           Int       @unique
+  firstName         String
+  lastName          String
+  fullName          String
+  slug              String    @unique
+  email             String?
+  phone             String?
+  position          String?   // position1 z Asari
+  bio               String?   // description z Asari (na razie null)
+  imageAsariId      Int?
+  imageRound        String?   // ścieżka do /agents/Name_Surname.png
+  imageFull         String?   // ścieżka do /agents/full/Name_Surname.jpg
+  isActive          Boolean   @default(true)
+  
+  // Relacja do listingów
+  listings          Listing[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastActivityAsari DateTime?
+  
+  @@index([slug])
+  @@index([asariId])
+  @@index([isActive])
+}
+
 model Listing {
   id                    String         @id @default(cuid())
   asariId               Int            @unique
@@ -45,6 +73,12 @@ model Listing {
   heatingTypeId         Int?
   marketTypeId          Int?
   propertyDetailsJson   Json?
+  
+  // NOWA RELACJA do Agent
+  agentId               String?
+  agent                 Agent?         @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  
+  // STARE POLA - zachowane dla backward compatibility i synchronizacji z Asari
   agentAsariId          Int?
   agentName             String?
   agentSurname          String?
@@ -52,6 +86,7 @@ model Listing {
   agentEmail            String?
   agentSkypeUser        String?
   agentImageAsariId     Int?
+  
   parentListingAsariId  String?
   createdAtSystem       DateTime?
   updatedAtSystem       DateTime?
@@ -67,6 +102,8 @@ model Listing {
   images                ListingImage[]
 
   @@index([asariId])
+  @@index([agentId])
+  @@index([agentAsariId])
   @@index([locationCity])
   @@index([propertyTypeId])
   @@index([price])

@@ -1,6 +1,10 @@
 import { AtSign, Facebook, Phone } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import OfferTile from '@/components/layout/offerTile';
+import type { OfferTileListing } from '@/components/layout/offerTile';
+import AgentImage from '@/components/AgentImage';
 import {
   Carousel,
   CarouselContent,
@@ -8,55 +12,59 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import {
-  ArticleCard,
-  type Article,
-} from '@/components/sections/articlesSection';
+import type { AgentPageApiResponse } from '@/types/api.types';
 
-const articles: Article[] = [
-  {
-    id: 'a1',
-    title: 'Bloki z wielkiej płyty – Czy warto inwestować w mieszkania?',
-    excerpt:
-      'Bloki z wielkiej płyty to niezwykle ciekawe nieruchomości wielorodzinne. Choćby zbudowane były one z myślą o szybkim udostępnieniu lokali mieszkaniowych dla większości…',
-    imageSrc: '/test-image.jpg',
-    imageAlt: 'City skyline',
-    author: 'Anna',
-    date: '17 lipca 2025',
-  },
-  {
-    id: 'a2',
-    title: 'Zarządzanie najmem – idealne narzędzie dla inwestorów',
-    excerpt:
-      'Jak skutecznie zarządzać najmem, aby minimalizować ryzyko i zwiększać przychody? Praktyczne wskazówki i narzędzia…',
-    imageSrc: '/test-image.jpg',
-    imageAlt: 'Katowice Spodek',
-    author: 'Anna',
-    date: '17 lipca 2025',
-  },
-  {
-    id: 'a3',
-    title: 'Jak urządzić mieszkanie pod wynajem? Poradnik krok po kroku',
-    excerpt:
-      'Od doboru mebli, przez dodatki, aż po zdjęcia oferty. Sprawdź, jak przygotować mieszkanie, które przyciągnie najemców…',
-    imageSrc: '/test-image.jpg',
-    imageAlt: 'Warsaw old photo',
-    author: 'Anna',
-    date: '17 lipca 2025',
-  },
-  {
-    id: 'a4',
-    title: 'Dom modułowy całoroczny – koszty, możliwości, ceny',
-    excerpt:
-      'Dom modułowy to szybka ścieżka do własnych czterech kątów. Porównujemy rozwiązania i budżety…',
-    imageSrc: '/test-image.jpg',
-    imageAlt: 'Colorful houses',
-    author: 'Anna',
-    date: '17 lipca 2025',
-  },
-];
+type PageProps = {
+  params: Promise<{ slug: string }>;
+};
 
-export default function AgentPage() {
+async function getAgentData(slug: string): Promise<AgentPageApiResponse> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const response = await fetch(`${baseUrl}/api/agents/${slug}`, {
+    next: { revalidate: 60 },
+  });
+
+  if (!response.ok) {
+    throw new Error('Agent not found');
+  }
+
+  return response.json();
+}
+
+export default async function AgentPage({ params }: PageProps) {
+  const { slug } = await params;
+
+  let data: AgentPageApiResponse;
+  try {
+    data = await getAgentData(slug);
+  } catch {
+    notFound();
+  }
+
+  const { agent, listings, articles } = data;
+
+  // Konwertuj listings do formatu OfferTileListing
+  const offerTileListings: OfferTileListing[] = listings.map(listing => ({
+    id: listing.id,
+    slug: listing.slug,
+    title: listing.title,
+    price: listing.price,
+    pricePerM2: listing.pricePerM2,
+    area: listing.area,
+    roomsCount: listing.roomsCount,
+    floor: listing.floor,
+    offerType: listing.offerType,
+    agentName: `${agent.name} ${agent.surname}`,
+    agentSurname: null,
+    locationCity: listing.locationCity,
+    locationStreet: listing.locationStreet,
+    images: listing.images.map(img => ({
+      urlNormal: img.urlNormal,
+      urlThumbnail: img.urlThumbnail,
+      description: img.description,
+    })),
+  }));
+
   return (
     <div>
       <div className='full-bleed relative h-[312px] w-full mb-[300px]'>
@@ -71,27 +79,31 @@ export default function AgentPage() {
         <div className='absolute inset-0 top-[168px] w-[1138px] mx-auto'>
           <div className='flex gap-10 w-full'>
             <div className='flex justify-center items-center p-3 bg-white shadow-[0_8px_40px_0_rgba(164,167,174,0.12)] rounded-2xl'>
-              <Image
-                src='/agents/full/jakub.jpg'
-                alt='Jakub Pruszyński'
-                width={288}
-                height={364}
-                className='w-[288px] rounded-2xl object-cover'
-              />
+              <div className='relative w-[288px] h-[364px] rounded-2xl overflow-hidden'>
+                <AgentImage
+                  imagePath={agent.imagePath || ''}
+                  fullName={agent.fullName}
+                  className='rounded-2xl object-cover'
+                />
+              </div>
             </div>
             <div className='flex flex-col gap-2 w-full mt-6'>
               <h1 className='text-white font-bold text-5xl/11'>
-                Jakub Pruszyński
+                {agent.fullName}
               </h1>
               <div className='flex gap-8 text-white'>
-                <div className='flex items-center gap-2'>
-                  <Phone className='size-4' />
-                  <span>514 620 940</span>
-                </div>
-                <div className='flex items-center gap-2'>
-                  <AtSign className='size-4' />
-                  <span>jakub.pruszynski@bngh.pl</span>
-                </div>
+                {agent.phone && (
+                  <div className='flex items-center gap-2'>
+                    <Phone className='size-4' />
+                    <span>{agent.phone}</span>
+                  </div>
+                )}
+                {agent.email && (
+                  <div className='flex items-center gap-2'>
+                    <AtSign className='size-4' />
+                    <span>{agent.email}</span>
+                  </div>
+                )}
               </div>
               <div className='mt-14'>
                 <div className='flex justify-between items-center'>
@@ -117,29 +129,76 @@ export default function AgentPage() {
         <h2 className='text-black font-bold mb-10 text-3xl'>
           Moje nieruchomości
         </h2>
-        <div className='grid grid-cols-3 gap-x-4 gap-y-8'>
-          {Array.from({ length: 6 }).map((_, idx) => (
-            <div key={idx} className='w-[358px]'>
-              <OfferTile key={idx} listing={null} />
+        {offerTileListings.length > 0 ? (
+          <div className='grid grid-cols-3 gap-x-4 gap-y-8'>
+            {offerTileListings.map(listing => (
+              <div key={listing.id} className='w-[358px]'>
+                <OfferTile listing={listing} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className='text-gray-500 text-center py-10'>
+            Brak aktywnych ofert
+          </p>
+        )}
+
+        {articles.length > 0 && (
+          <>
+            <h2 className='text-black font-bold mt-14 mb-10 text-3xl'>
+              Moje artykuły
+            </h2>
+            <div className='mr-[-151px]'>
+              <Carousel opts={{ align: 'start' }}>
+                <CarouselContent>
+                  {articles.map(article => (
+                    <CarouselItem
+                      key={article._id}
+                      className='basis-[370px] mb-20'
+                    >
+                      <Link href={`/blog/${article.slug}`}>
+                        <div className='rounded-2xl bg-white shadow-[0_8px_40px_rgba(164,167,174,0.12)] overflow-hidden hover:shadow-[0_12px_48px_rgba(164,167,174,0.18)] transition-shadow'>
+                          <div className='relative h-[240px]'>
+                            <Image
+                              src={article.coverImage?.url || '/test-image.jpg'}
+                              alt={article.coverImage?.alt || article.title}
+                              fill
+                              className='object-cover'
+                            />
+                          </div>
+                          <div className='p-4'>
+                            <h3 className='font-bold text-lg leading-tight mb-1 line-clamp-2 min-h-[2.8rem]'>
+                              {article.title}
+                            </h3>
+                            {article.excerpt && (
+                              <p className='text-sm text-gray-600 leading-6 line-clamp-3 min-h-[4.5rem] mb-3'>
+                                {article.excerpt}
+                              </p>
+                            )}
+                            {article.date && (
+                              <span className='text-xs text-gray-400'>
+                                {new Date(article.date).toLocaleDateString(
+                                  'pl-PL',
+                                  {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                  }
+                                )}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className='hidden' />
+                <CarouselNext className='hidden' />
+              </Carousel>
             </div>
-          ))}
-        </div>
-        <h2 className='text-black font-bold mt-14 mb-10 text-3xl'>
-          Moje artykuły
-        </h2>
-        <div className='mr-[-151px]'>
-          <Carousel opts={{ align: 'start' }}>
-            <CarouselContent>
-              {articles.map(a => (
-                <CarouselItem key={a.id} className='basis-[370px] mb-20'>
-                  <ArticleCard article={a} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className='hidden' />
-            <CarouselNext className='hidden' />
-          </Carousel>
-        </div>
+          </>
+        )}
       </main>
     </div>
   );

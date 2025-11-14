@@ -19,31 +19,45 @@ export async function POST(request: Request) {
   }
 
   try {
+    const reqUrl = new URL(request.url);
+    const base = `${reqUrl.protocol}//${reqUrl.host}`;
+    const authHeader = request.headers.get('x-admin-token') || '';
+
     // 1) Purge listings (images are ON DELETE CASCADE)
     const deleted = await prisma.listing.deleteMany({});
 
-    // 2) Trigger a full sync using the existing endpoint
-    const reqUrl = new URL(request.url);
-    const base = `${reqUrl.protocol}//${reqUrl.host}`;
-    const syncRes = await fetch(`${base}/api/admin/sync-asari`, {
+    // 2) Sync agents first (listings need agents to exist)
+    console.log('[reset-and-sync] Syncing agents...');
+    const agentSyncRes = await fetch(`${base}/api/admin/sync-agents`, {
       method: 'POST',
-      // Forward the token if present
-      headers: {
-        'x-admin-token': request.headers.get('x-admin-token') || '',
-      },
-      // Ensure we always get fresh data
+      headers: { 'x-admin-token': authHeader },
       cache: 'no-store',
     });
+    const agentSyncJson = await agentSyncRes.json().catch(() => ({}));
 
+    if (!agentSyncRes.ok) {
+      console.error('[reset-and-sync] Agent sync failed:', agentSyncJson);
+    }
+
+    // 3) Sync listings
+    console.log('[reset-and-sync] Syncing listings...');
+    const syncRes = await fetch(`${base}/api/admin/sync-asari`, {
+      method: 'POST',
+      headers: { 'x-admin-token': authHeader },
+      cache: 'no-store',
+    });
     const syncJson = await syncRes.json().catch(() => ({}));
 
     const body = {
       message: 'Reset and sync completed',
       deletedListings: deleted.count,
-      sync: syncJson,
+      agentSync: agentSyncJson,
+      listingSync: syncJson,
     };
 
-    return NextResponse.json(body, { status: syncRes.ok ? 200 : 500 });
+    return NextResponse.json(body, {
+      status: agentSyncRes.ok && syncRes.ok ? 200 : 500,
+    });
   } catch (e) {
     console.error('reset-and-sync failed', e);
     return NextResponse.json(
