@@ -8,28 +8,28 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { prisma } from '@/services/prisma';
 import type { AgentInfo } from '@/types/api.types';
 
-type AgentsListResponse = {
-  success: boolean;
-  count: number;
-  data: AgentInfo[];
-};
-
 async function getAgents(): Promise<AgentInfo[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   try {
-    const response = await fetch(`${baseUrl}/api/agents`, {
-      next: { revalidate: 300 }, // cache na 5 minut
+    const agents = await prisma.agent.findMany({
+      where: {
+        isActive: true,
+      },
+      orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
     });
 
-    if (!response.ok) {
-      console.error('Failed to fetch agents');
-      return [];
-    }
-
-    const data: AgentsListResponse = await response.json();
-    return data.data || [];
+    return agents.map(agent => ({
+      asariId: agent.asariId,
+      name: agent.firstName,
+      surname: agent.lastName,
+      fullName: agent.fullName,
+      slug: agent.slug,
+      phone: agent.phone,
+      email: agent.email,
+      imagePath: agent.imageFull,
+    }));
   } catch (error) {
     console.error('Error fetching agents:', error);
     return [];
