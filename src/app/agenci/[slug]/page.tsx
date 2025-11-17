@@ -13,18 +13,31 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import type { AgentPageApiResponse } from '@/types/api.types';
+import { prisma } from '@/services/prisma';
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export async function generateStaticParams() {
+  try {
+    const agents = await prisma.agent.findMany({
+      where: { isActive: true },
+      select: { slug: true },
+    });
+    return agents.map(agent => ({ slug: agent.slug }));
+  } catch {
+    return [];
+  }
+}
+
 async function getAgentData(slug: string): Promise<AgentPageApiResponse> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   const response = await fetch(`${baseUrl}/api/agents/${slug}`, {
     next: { revalidate: 60 },
-  });
+  }).catch(() => null);
 
-  if (!response.ok) {
+  if (!response?.ok) {
     throw new Error('Agent not found');
   }
 
