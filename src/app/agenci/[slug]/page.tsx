@@ -18,8 +18,20 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+function resolveBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return 'http://localhost:3000';
+}
+
 async function getAgentData(slug: string): Promise<AgentPageApiResponse> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = resolveBaseUrl();
   const response = await fetch(`${baseUrl}/api/agents/${slug}`, {
     next: { revalidate: 60 },
   });
