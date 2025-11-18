@@ -13,6 +13,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import type { AgentPageApiResponse } from '@/types/api.types';
+import { prisma } from '@/services/prisma';
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -32,11 +33,12 @@ function resolveBaseUrl(): string {
 
 async function getAgentData(slug: string): Promise<AgentPageApiResponse> {
   const baseUrl = resolveBaseUrl();
+
   const response = await fetch(`${baseUrl}/api/agents/${slug}`, {
     next: { revalidate: 60 },
-  });
+  }).catch(() => null);
 
-  if (!response.ok) {
+  if (!response?.ok) {
     throw new Error('Agent not found');
   }
 
