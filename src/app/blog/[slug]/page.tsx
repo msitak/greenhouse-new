@@ -9,6 +9,7 @@ import { PortableText } from '@portabletext/react';
 import { Mail, Phone } from 'lucide-react';
 import TableOfContents from '@/components/blog/TableOfContents';
 import AuthorAvatar from '@/components/blog/AuthorAvatar';
+import slugify from 'slugify';
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -71,6 +72,18 @@ export default async function Page({ params }: PageProps) {
   if (!post) {
     notFound();
   }
+
+  const authorSlug =
+    post.author?.slug?.current?.replace(/^\/+/, '') ||
+    (() => {
+      const fallbackName = [post.author?.firstName, post.author?.lastName]
+        .filter(Boolean)
+        .join(' ')
+        .trim();
+      if (!fallbackName) return null;
+      return slugify(fallbackName, { lower: true, strict: true, locale: 'pl' });
+    })();
+  const authorProfileHref = authorSlug ? `/agenci/${authorSlug}` : null;
 
   return (
     <div className='mt-22'>
@@ -306,13 +319,11 @@ export default async function Page({ params }: PageProps) {
                   </div>
 
                   {/* CTA Button */}
-                  {post.author.slug?.current ? (
-                    <Link href={`/agenci/${post.author.slug.current}`}>
+                  {authorProfileHref ? (
+                    <Link href={authorProfileHref}>
                       <Button className='w-full'>Odwiedź profil</Button>
                     </Link>
-                  ) : (
-                    <Button className='w-full'>Odwiedź profil</Button>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </aside>

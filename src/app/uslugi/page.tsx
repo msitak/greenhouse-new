@@ -1,6 +1,7 @@
 import Section from '@/components/layout/section';
 import Hero from '@/components/layout/hero';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import {
@@ -220,10 +221,12 @@ function DarkCta({
   id,
   primary,
   secondary,
+  href,
 }: {
   id: string;
   primary: string;
   secondary: string;
+  href?: string;
 }) {
   return (
     <Section id={id} className='mt-12'>
@@ -237,7 +240,13 @@ function DarkCta({
             bezpiecznej transakcji
           </p>
           <div className='mt-10 flex flex-col items-center gap-3'>
-            <Button className='mb-4'>{primary}</Button>
+            {href ? (
+              <Button asChild className='mb-4'>
+                <Link href={href}>{primary}</Link>
+              </Button>
+            ) : (
+              <Button className='mb-4'>{primary}</Button>
+            )}
             <Button
               variant='link'
               className='text-white font-medium text-[14px]/[20px]'
@@ -509,6 +518,7 @@ export default function Page() {
             {/* CTA section */}
             <DarkCta
               id='cta'
+              href='/kontakt'
               primary='Skontaktuj się z nami'
               secondary='Wycena AI'
             />
