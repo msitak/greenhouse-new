@@ -362,7 +362,7 @@ export default function SearchTabs({
                 <LocationCombobox
                   value={location}
                   onChange={onLocationChange}
-                  placeholder='np. miasto, dzielnica, ulica…'
+                  placeholder='miasto, dzielnica'
                 />
               </div>
             </div>
@@ -493,7 +493,7 @@ export default function SearchTabs({
                 <LocationCombobox
                   value={location}
                   onChange={onLocationChange}
-                  placeholder='np. Katowice, Gliwice, ulica…'
+                  placeholder='np. Katowice, Raków'
                 />
               </div>
             </div>

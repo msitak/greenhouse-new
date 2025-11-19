@@ -24,6 +24,7 @@ type Props<T extends AutocompleteItem> = {
   inputClassName?: string;
   menuWidth?: number | string; // default 520
   renderItem?: (item: T, active: boolean) => React.ReactNode;
+  contentClassName?: string;
 
   /** Jeśli true: gdy zamykasz dropdown / tracisz focus bez wyboru – czyścimy input. */
   clearOnCloseIfNoSelection?: boolean;
@@ -39,6 +40,7 @@ export function Autocomplete<T extends AutocompleteItem>({
   inputClassName,
   menuWidth,
   renderItem,
+  contentClassName,
   clearOnCloseIfNoSelection = true,
 }: Props<T>) {
   const [open, setOpen] = useState(false);
@@ -182,7 +184,8 @@ export function Autocomplete<T extends AutocompleteItem>({
             // Mobile: squared top (no radius), rounded bottom, no border
             'rounded-none rounded-b-2xl border-0',
             // Desktop: standard rounded border
-            'md:rounded-2xl md:border md:border-[#F0F0F0]'
+            'md:rounded-2xl md:border md:border-[#F0F0F0]',
+            contentClassName
           )}
           style={{
             width:
@@ -208,8 +211,7 @@ export function Autocomplete<T extends AutocompleteItem>({
                   value={it.label}
                   onSelect={() => handleSelect(it)}
                   className={cn(
-                    'relative flex w-full cursor-default items-center gap-2 py-3 pr-8 pl-4 text-sm/[20px] leading-[28px] outline-hidden select-none text-[#111] data-[selected]:bg-[#F4F4F4] data-[selected]:text-[#111]',
-                    idx === activeIndex ? 'bg-[#F4F4F4]' : undefined
+                    'relative flex w-full cursor-default items-center gap-2 py-3 pr-8 pl-4 text-sm/[20px] leading-[28px] outline-hidden select-none text-[#111] data-[selected]:text-[#111] bg-white!'
                   )}
                 >
                   {renderItem ? renderItem(it, idx === activeIndex) : it.label}

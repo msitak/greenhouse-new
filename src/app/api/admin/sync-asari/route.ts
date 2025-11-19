@@ -10,6 +10,10 @@ import {
 import { prisma } from '@/services/prisma';
 import { AsariStatus, Prisma } from '@prisma/client';
 import { generateListingSlug } from '@/lib/utils';
+import {
+  formatDistrictName,
+  normalizeLocation,
+} from '@/lib/utils/district-normalization';
 
 const ASARI_IMAGE_BASE_URL_THUMBNAIL = 'https://img.asariweb.pl/thumbnail/';
 const ASARI_IMAGE_BASE_URL_NORMAL = 'https://img.asariweb.pl/normal/';
@@ -28,6 +32,54 @@ function safeParseDate(dateInput?: string | Date | null): Date | null {
 
   const parsed = new Date(dateInput);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function trimOrNull(value?: string | null): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  return trimmed || null;
+}
+
+function toOptionalString(value?: string | number | null): string | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  }
+  return String(value);
+}
+
+function stripTrailingHouseNumber(address?: string | null): string | null {
+  if (!address) return null;
+  const trimmed = address.trim();
+  if (!trimmed) return null;
+  const withoutHouseNumber = trimmed.replace(/\s+\d[\d/\\-]*.*$/, '').trim();
+  return withoutHouseNumber || trimmed || null;
+}
+
+function extractFirstNumber(value?: string | null): string | null {
+  if (!value) return null;
+  const match = value.match(/\d+/);
+  return match ? match[0] : null;
+}
+
+function deriveStreetName(detail: AsariListingDetail): string | null {
+  return (
+    trimOrNull(detail.street?.name) ??
+    trimOrNull(detail.street?.fullName) ??
+    stripTrailingHouseNumber(detail.location?.address) ??
+    null
+  );
+}
+
+function deriveStreetNumberFallback(detail: AsariListingDetail): string | null {
+  return (
+    extractFirstNumber(detail.location?.address) ??
+    extractFirstNumber(detail.street?.fullName) ??
+    null
+  );
 }
 
 function deriveVisibility(
@@ -94,13 +146,33 @@ async function mapAsariDetailToPrismaListing(
     safeParseDate(asariDetail.lastUpdated) ?? effectiveLastUpdated;
   const { isVisible, soldAt } = deriveVisibility(asariStatus, lastUpdatedAsari);
 
+  const streetNameForLocation = deriveStreetName(asariDetail);
+  const streetNumberRaw = toOptionalString(asariDetail.location?.street_no);
+  const streetNumberFallback = deriveStreetNumberFallback(asariDetail);
+  const streetNumberForNormalization = streetNumberRaw ?? streetNumberFallback;
+  const flatNumber = toOptionalString(asariDetail.location?.flat_no);
+  const normalizedCity = trimOrNull(asariDetail.location?.locality);
+  const normalizedDistrict = normalizeLocation(
+    normalizedCity,
+    trimOrNull(asariDetail.location?.quarter),
+    streetNameForLocation,
+    streetNumberForNormalization
+  );
+  const fallbackDistrict = trimOrNull(asariDetail.location?.quarter);
+  const effectiveDistrict =
+    normalizedDistrict ??
+    (fallbackDistrict ? formatDistrictName(fallbackDistrict) : null);
+  const streetNumberForStorage = streetNumberRaw ?? streetNumberFallback;
+  const normalizedAddress = trimOrNull(asariDetail.location?.address);
+  const normalizedVoivodeship = trimOrNull(asariDetail.location?.province);
+
   // Generate slug from the listing data
   const slug = generateListingSlug({
     propertyTypeId: null, // PropertyType not available in AsariListingDetail
     offerType: asariDetail.offerType,
     roomsCount: asariDetail.noOfRooms,
-    locationCity: asariDetail.location?.locality,
-    locationDistrict: asariDetail.location?.quarter,
+    locationCity: normalizedCity,
+    locationDistrict: effectiveDistrict,
     asariId: asariDetail.id,
     listingIdString: asariDetail.listingId, // Use listingId to determine property type
   });
@@ -122,12 +194,16 @@ async function mapAsariDetailToPrismaListing(
     exportId: asariDetail.export_id,
     price: asariDetail.price?.amount,
     pricePerM2: asariDetail.priceM2?.amount,
-    locationCity: asariDetail.location?.locality,
-    locationDistrict: asariDetail.location?.quarter,
-    locationStreet: asariDetail.street?.name,
+    locationAddress: normalizedAddress,
+    locationCity: normalizedCity,
+    locationDistrict: effectiveDistrict,
+    locationStreet:
+      streetNameForLocation ?? trimOrNull(asariDetail.street?.name),
+    locationStreetNumber: streetNumberForStorage,
+    locationFlatNumber: flatNumber,
     latitude: asariDetail.geoLat,
     longitude: asariDetail.geoLng,
-    locationVoivodeship: asariDetail.location?.province,
+    locationVoivodeship: normalizedVoivodeship,
     area: asariDetail.totalArea || asariDetail.lotArea,
     roomsCount: asariDetail.noOfRooms,
     floor: asariDetail.floorNo,
@@ -189,6 +265,8 @@ async function mapAsariDetailToPrismaListing(
       contractType: asariDetail.contractType,
       listingIdString: asariDetail.listingId,
       mortgageMarket: asariDetail.mortgageMarket,
+      rawLocationDistrict: trimOrNull(asariDetail.location?.quarter),
+      normalizedLocationDistrict: effectiveDistrict,
     },
   };
 
