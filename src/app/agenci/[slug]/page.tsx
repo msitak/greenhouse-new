@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import OfferTile from '@/components/layout/offerTile';
 import type { OfferTileListing } from '@/components/layout/offerTile';
 import AgentImage from '@/components/AgentImage';
+import AgentListingsKindSwitch from '@/components/AgentListingsKindSwitch';
 import {
   Carousel,
   CarouselContent,
@@ -12,12 +13,45 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import Pagination from '@/components/ui/pagination';
 import type { AgentPageApiResponse } from '@/types/api.types';
-import { prisma } from '@/services/prisma';
+import { parseKind } from '@/lib/utils';
+
+const LISTINGS_PER_PAGE = 6;
+type TransactionKind = 'sale' | 'rent';
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+function getFirst(
+  sp: Record<string, string | string[] | undefined>,
+  key: string
+): string | undefined {
+  const value = sp?.[key];
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return value[0];
+  return undefined;
+}
+
+function detectTransactionKind(
+  offerType: string | null | undefined
+): TransactionKind | null {
+  if (!offerType) return null;
+  const lower = offerType.toLowerCase();
+  if (lower.includes('rent') || lower.includes('wynajem')) {
+    return 'rent';
+  }
+  if (
+    lower.includes('sale') ||
+    lower.includes('sprzedaz') ||
+    lower.includes('sprzedaż')
+  ) {
+    return 'sale';
+  }
+  return null;
+}
 
 function resolveBaseUrl(): string {
   if (process.env.NEXT_PUBLIC_BASE_URL) {
@@ -45,8 +79,13 @@ async function getAgentData(slug: string): Promise<AgentPageApiResponse> {
   return response.json();
 }
 
-export default async function AgentPage({ params }: PageProps) {
+export default async function AgentPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const sp = (await searchParams) ?? {};
+  const pageParam = getFirst(sp, 'page');
+  const requestedPage = Math.max(1, Number(pageParam) || 1);
+  const kindParam = getFirst(sp, 'kind');
+  const selectedKind: TransactionKind = parseKind(kindParam ?? null) ?? 'sale';
 
   let data: AgentPageApiResponse;
   try {
@@ -79,6 +118,36 @@ export default async function AgentPage({ params }: PageProps) {
     })),
   }));
 
+  const filteredListings = offerTileListings.filter(listing => {
+    const listingKind = detectTransactionKind(listing.offerType);
+    if (!listingKind) {
+      return selectedKind === 'sale';
+    }
+    return listingKind === selectedKind;
+  });
+
+  const totalListings = filteredListings.length;
+  const totalPages = Math.max(1, Math.ceil(totalListings / LISTINGS_PER_PAGE));
+  const currentPage = Math.min(requestedPage, totalPages);
+  const paginatedListings = filteredListings.slice(
+    (currentPage - 1) * LISTINGS_PER_PAGE,
+    currentPage * LISTINGS_PER_PAGE
+  );
+
+  const paginationHrefPrefix = (() => {
+    const params = new URLSearchParams();
+    Object.entries(sp).forEach(([key, value]) => {
+      if (key === 'page' || value == null) return;
+      if (Array.isArray(value)) {
+        value.forEach(v => params.append(key, v));
+      } else {
+        params.set(key, value);
+      }
+    });
+    const query = params.toString();
+    return `/agenci/${slug}?${query ? `${query}&` : ''}page=`;
+  })();
+
   return (
     <div>
       <div className='full-bleed relative h-[312px] w-full mb-[300px]'>
@@ -90,7 +159,7 @@ export default async function AgentPage({ params }: PageProps) {
         />
 
         <div className='absolute inset-0 bg-[#000000A6]' />
-        <div className='absolute inset-0 top-[168px] w-[1138px] mx-auto'>
+        <div className='absolute inset-0 top-[168px] w-[1200px] mx-auto'>
           <div className='flex gap-10 w-full'>
             <div className='flex justify-center items-center p-3 bg-white shadow-[0_8px_40px_0_rgba(164,167,174,0.12)] rounded-2xl'>
               <div className='relative w-[288px] h-[364px] rounded-2xl overflow-hidden'>
@@ -139,24 +208,39 @@ export default async function AgentPage({ params }: PageProps) {
           </div>
         </div>
       </div>
-      <main className='w-[1138px] mx-auto'>
-        <h2 className='text-black font-bold mb-10 text-3xl'>
-          Moje nieruchomości
-        </h2>
-        {offerTileListings.length > 0 ? (
-          <div className='grid grid-cols-3 gap-x-4 gap-y-8'>
-            {offerTileListings.map(listing => (
-              <div key={listing.id} className='w-[358px]'>
-                <OfferTile listing={listing} />
-              </div>
-            ))}
+      <main className='w-[1200px] mx-auto pb-16'>
+        <section id='agent-listings'>
+          <div className='mb-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+            <h2 className='text-black font-bold text-3xl'>
+              Moje nieruchomości
+            </h2>
+            <AgentListingsKindSwitch value={selectedKind} />
           </div>
-        ) : (
-          <p className='text-gray-500 text-center py-10'>
-            Brak aktywnych ofert
-          </p>
-        )}
-
+          {filteredListings.length > 0 ? (
+            <div className='grid grid-cols-3 gap-x-6 gap-y-8'>
+              {paginatedListings.map(listing => (
+                <div key={listing.id}>
+                  <OfferTile listing={listing} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className='text-gray-500 text-center py-10'>
+              Brak aktywnych ofert
+            </p>
+          )}
+          {totalListings > LISTINGS_PER_PAGE && (
+            <div className='mt-10 flex justify-center'>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                hrefPrefix={paginationHrefPrefix}
+                hrefHash='agent-listings'
+                smoothScrollTargetId='agent-listings'
+              />
+            </div>
+          )}
+        </section>
         {articles.length > 0 && (
           <>
             <h2 className='text-black font-bold mt-14 mb-10 text-3xl'>

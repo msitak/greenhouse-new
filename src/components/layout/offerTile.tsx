@@ -216,21 +216,21 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
           {locationLabel || 'Lokalizacja niedostępna'}
         </p>
 
-        <div className='flex gap-2 md:gap-6 mb-3 text-gray-700 min-h-[24px] items-center'>
+        <div className='flex gap-2 md:gap-4 mb-3 text-gray-700 min-h-[24px] items-center'>
           {listing.area != null && (
-            <div className='flex items-center gap-1 md:gap-2'>
+            <div className='flex items-center gap-1 md:gap-1.5'>
               <RulerDimensionLine className='size-4 text-gray-600' />
               <span className='text-sm'>{Math.round(listing.area)} m²</span>
             </div>
           )}
           {listing.roomsCount != null && (
-            <div className='flex items-center gap-1 md:gap-2'>
+            <div className='flex items-center gap-1 md:gap-1.5'>
               <Home className='size-4 text-gray-600' />
               <span className='text-sm'>{listing.roomsCount} pokoje</span>
             </div>
           )}
           {listing.floor != null && (
-            <div className='flex items-center gap-1 md:gap-2'>
+            <div className='flex items-center gap-1 md:gap-1.5'>
               <Layers className='size-4 text-gray-600' />
               <span className='text-sm'>
                 {formatFloor(listing.floor, true)}
@@ -238,7 +238,7 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
             </div>
           )}
           {listing.price != null && listing.area != null && (
-            <div className='flex items-center gap-1 md:gap-2'>
+            <div className='flex items-center gap-1 md:gap-1.5'>
               <CircleDollarSign className='size-4 text-gray-600' />
               <span className='text-sm'>
                 {formatPrice(Math.round(listing.price / listing.area))}/m²

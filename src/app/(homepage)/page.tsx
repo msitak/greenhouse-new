@@ -168,11 +168,11 @@ export default function Home() {
           marginTop: searchTabsHeight > 0 ? `${searchTabsHeight}px` : '3rem',
         }}
       >
-        <div className='flex justify-between md:flex-row flex-col items-center mb-6 md:mb-4'>
+        <div className='flex justify-between md:flex-row flex-col items-center gap-4 mb-6 md:mb-4'>
           <h2 className='text-[32px]/[40px] md:text-4xl font-bold mb-4'>
             Najnowsze oferty nieruchomości
           </h2>
-          <div className='inline-flex gap-0 items-center rounded-xl justify-center bg-gray-100 p-0'>
+          <div className='inline-flex gap-0 items-center rounded-xl justify-center bg-gray-100 p-0 w-full md:w-auto'>
             <ToggleGroup
               type='single'
               value={transactionType}
@@ -181,19 +181,19 @@ export default function Home() {
                   setTransactionType(value as typeof transactionType);
                 }
               }}
-              className='flex items-center'
+              className='flex items-center w-full md:w-auto'
             >
               <ToggleGroupItem
                 value='sale'
                 variant='pill'
-                className='px-8 py-2'
+                className='px-6 py-2 flex-1 md:flex-none'
               >
                 Sprzedaż
               </ToggleGroupItem>
               <ToggleGroupItem
                 value='rent'
                 variant='pill'
-                className='px-8 py-2'
+                className='px-6 py-2 flex-1 md:flex-none'
               >
                 Wynajem
               </ToggleGroupItem>

@@ -108,12 +108,12 @@ export default function TrustSection() {
                       sizes='(min-width: 1024px) 50vw, 100vw'
                     />
                   </div>
-                  <div className='p-8 md:p-10 lg:p-12 flex flex-col justify-center'>
+                  <div className='p-4 md:p-8 md:p-10 lg:p-12 flex flex-col justify-center'>
                     {slide.icon}
                     <span className='text-xs text-gray-500 mt-5 mb-1'>
                       {slide.subtitle}
                     </span>
-                    <h3 className='text-[28px]/[32px] font-bold mb-6 tracking-tighter'>
+                    <h3 className='text-[24px]/[32px] md:text-[28px]/[32px] font-bold mb-4 md:mb-6 tracking-tighter'>
                       {slide.title}
                     </h3>
                     <p className='text-gray-600 leading-relaxed text-sm'>

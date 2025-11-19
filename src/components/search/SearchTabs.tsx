@@ -310,6 +310,7 @@ export default function SearchTabs({
       setArea([aMin, aMax]);
     }
     // We intentionally do not modify bounds here; they are fetched separately
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   // const clearLocation = () => {
@@ -329,7 +330,7 @@ export default function SearchTabs({
     >
       {/** spacer for potential notices; remove no-op node causing linter error */}
       <Tabs value={currentKind} onValueChange={onTabChange}>
-        <TabsList className='grid grid-cols-2 w-full'>
+        <TabsList className='grid grid-cols-2 w-full px-0 gap-0'>
           <TabsTrigger value='sale'>Sprzedaż</TabsTrigger>
           <TabsTrigger value='rent'>Wynajem</TabsTrigger>
         </TabsList>
@@ -343,7 +344,7 @@ export default function SearchTabs({
                 }
                 onValueChange={handlePropertyTypeChange}
               >
-                <SelectTrigger className='rounded-xl bg-white border-1 border-[#CCCCCC] text-[#6E6E6E] font-medium w-full px-4 py-3 text-sm cursor-pointer'>
+                <SelectTrigger className='rounded-xl bg-[#F7F7F7] md:bg-white border-0 md:border md:border-[#CCCCCC] text-[#6E6E6E] font-normal md:font-medium w-full px-3 h-11 md:h-auto md:px-4 md:py-3 text-sm cursor-pointer'>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -361,7 +362,7 @@ export default function SearchTabs({
                 <LocationCombobox
                   value={location}
                   onChange={onLocationChange}
-                  placeholder='np. Katowice, Gliwice, ulica…'
+                  placeholder='np. miasto, dzielnica, ulica…'
                 />
               </div>
             </div>
@@ -474,7 +475,7 @@ export default function SearchTabs({
                 }
                 onValueChange={handlePropertyTypeChange}
               >
-                <SelectTrigger className='rounded-xl bg-white border-1 border-[#CCCCCC] text-[#6E6E6E] font-medium w-full px-4 py-3 text-sm cursor-pointer'>
+                <SelectTrigger className='rounded-xl bg-[#F7F7F7] md:bg-white border-0 md:border md:border-[#CCCCCC] text-[#6E6E6E] font-normal md:font-medium w-full px-3 h-11 md:h-auto md:px-4 md:py-3 text-sm cursor-pointer'>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

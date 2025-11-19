@@ -26,7 +26,7 @@ export default function AboutUsSection() {
             className='w-full h-auto object-cover mb-4 md:hidden'
           />
           <p className='text-gray-700 mb-4'>
-            W GreenHouse Nieruchomości wierzymy, że prawdziwą siłą naszej firmy
+            W Green House Nieruchomości wierzymy, że prawdziwą siłą naszej firmy
             są ludzie. To właśnie oni tworzą atmosferę, która wyróżnia nas na
             rynku. Dobre relacje – zarówno wewnątrz zespołu, jak i z klientami –
             są dla nas najwyższym priorytetem.

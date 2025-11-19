@@ -134,7 +134,7 @@ export function DualRange({
 
       {/* Mobile/Tablet label */}
       <div className='flex items-center justify-between lg:hidden'>
-        <Label htmlFor={id} className='block'>
+        <Label htmlFor={id} className='block mb-2'>
           {label}
         </Label>
       </div>
@@ -155,7 +155,7 @@ export function DualRange({
 
       {/* INPUTS — mobile/tablet-only, below slider */}
       <div className='mt-3 flex items-center justify-between gap-6 lg:hidden'>
-        <div className='flex items-center rounded-xl bg-[#F7F7F7] md:bg-white px-3 py-2 w-[140px]'>
+        <div className='flex items-center rounded-xl bg-[#F7F7F7] md:bg-white px-3 h-11 w-[140px]'>
           <input
             inputMode='numeric'
             aria-label={`${label} od`}
@@ -169,7 +169,7 @@ export function DualRange({
           {unit && <span className='ml-2 text-sm text-[#212121]'>{unit}</span>}
         </div>
 
-        <div className='flex items-center rounded-xl bg-[#F7F7F7] md:bg-white px-3 py-2 w-[140px]'>
+        <div className='flex items-center rounded-xl bg-[#F7F7F7] md:bg-white px-3 h-11 w-[140px]'>
           <input
             inputMode='numeric'
             aria-label={`${label} do`}

@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { MapPin } from 'lucide-react';
 import type { LocationValue } from '@/lib/location/types';
 import { Autocomplete } from '@/components/ui/autocomplete';
 import { usePlacesAutocomplete } from '@/lib/hooks/usePlacesAutocomplete';
@@ -30,9 +29,9 @@ export function LocationCombobox({
       value={text}
       onValueChange={v => setText(v)}
       items={items}
-      inputClassName='rounded-xl bg-white border border-[#CCCCCC] text-[#6E6E6E] font-medium w-full px-4 py-3 text-sm'
+      inputClassName='rounded-xl bg-[#F7F7F7] md:bg-white border-0 md:border md:border-[#CCCCCC] text-[#6E6E6E] font-normal md:font-medium w-full px-3 h-11 md:h-auto md:px-4 md:py-3 text-sm'
       clearOnCloseIfNoSelection
-      menuWidth='400px'
+      menuWidth={undefined}
       onSelect={async item => {
         // Fetch details to get precise lat/lng and components
         await pickById(item.id, item.label, next => {
@@ -41,12 +40,7 @@ export function LocationCombobox({
         });
       }}
       placeholder={placeholder}
-      renderItem={it => (
-        <div className='flex items-center gap-2 w-full'>
-          <MapPin className='h-4 w-4' />
-          <span>{it.label}</span>
-        </div>
-      )}
+      renderItem={it => <span className='truncate'>{it.label}</span>}
     />
   );
 }

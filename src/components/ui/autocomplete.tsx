@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
-import { X } from 'lucide-react';
+import { ChevronDownIcon, X } from 'lucide-react';
 
 export type AutocompleteItem = { id: string; label: string };
 
@@ -53,6 +53,14 @@ export function Autocomplete<T extends AutocompleteItem>({
     setActiveIndex(items.length ? 0 : -1);
     setOpen(items.length > 0 && !manualClose);
   }, [items, manualClose]);
+
+  const [triggerWidth, setTriggerWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      setTriggerWidth(inputRef.current.offsetWidth);
+    }
+  }, [open]); // Re-measure on open
 
   // Do NOT auto-open on programmatic value changes (e.g., after selecting an item).
   // We will only clear manualClose when the user types.
@@ -126,8 +134,9 @@ export function Autocomplete<T extends AutocompleteItem>({
             <Input
               ref={inputRef}
               className={cn(
-                'h-12 text-base w-full pr-10 bg-[#F7F7F7] text-[#6E6E6E] lg:bg-white lg:text-inherit',
-                inputClassName
+                'h-12 text-base w-full pr-10 bg-[#F7F7F7] text-[#6E6E6E] lg:bg-white lg:text-inherit transition-all',
+                inputClassName,
+                open && 'rounded-b-none border-b-0'
               )}
               placeholder={placeholder}
               value={value}
@@ -143,48 +152,65 @@ export function Autocomplete<T extends AutocompleteItem>({
               aria-expanded={open}
               aria-controls='ac-items'
             />
-            {value ? (
-              <button
-                type='button'
-                aria-label='Wyczyść'
-                className='absolute inset-y-0 right-2 my-auto h-7 w-7 grid place-items-center rounded hover:bg-muted'
-                onMouseDown={e => e.preventDefault()} // nie bluruj inputu
-                onClick={() => {
-                  onValueChange('');
-                  setOpen(false);
-                  setManualClose(false);
-                  selectionMadeRef.current = false;
-                  inputRef.current?.focus({ preventScroll: true });
-                }}
-              >
-                <X className='h-4 w-4' />
-              </button>
-            ) : null}
+            <div className='absolute inset-y-0 right-2 my-auto flex items-center'>
+              {value ? (
+                <button
+                  type='button'
+                  aria-label='Wyczyść'
+                  className='h-7 w-7 grid place-items-center rounded hover:bg-muted mr-1'
+                  onMouseDown={e => e.preventDefault()} // nie bluruj inputu
+                  onClick={() => {
+                    onValueChange('');
+                    setOpen(false);
+                    setManualClose(false);
+                    selectionMadeRef.current = false;
+                    inputRef.current?.focus({ preventScroll: true });
+                  }}
+                >
+                  <X className='h-4 w-4' />
+                </button>
+              ) : null}
+              <ChevronDownIcon className='size-4 text-black lg:hidden' />
+            </div>
           </div>
         </PopoverTrigger>
 
         {/* Pokazujemy menu tylko, gdy są wyniki */}
         <PopoverContent
-          className='p-0'
+          className={cn(
+            'p-0 max-h-[var(--radix-select-content-available-height)] min-w-[8rem] overflow-x-hidden overflow-y-auto bg-white text-black shadow-xs',
+            // Mobile: squared top (no radius), rounded bottom, no border
+            'rounded-none rounded-b-2xl border-0',
+            // Desktop: standard rounded border
+            'md:rounded-2xl md:border md:border-[#F0F0F0]'
+          )}
           style={{
-            width: typeof menuWidth === 'number' ? `${menuWidth}px` : menuWidth,
+            width:
+              typeof menuWidth === 'number' || typeof menuWidth === 'string'
+                ? `${menuWidth}px`
+                : triggerWidth
+                  ? `${triggerWidth}px`
+                  : undefined,
           }}
           align='start'
-          collisionPadding={8}
-          avoidCollisions
+          sideOffset={0}
+          avoidCollisions={false}
           onOpenAutoFocus={e => {
             e.preventDefault();
             inputRef.current?.focus({ preventScroll: true });
           }}
         >
-          <Command shouldFilter={false}>
-            <CommandGroup id='ac-items'>
+          <Command shouldFilter={false} className='bg-white text-[#111]'>
+            <CommandGroup id='ac-items' className='p-0'>
               {items.map((it, idx) => (
                 <CommandItem
                   key={it.id}
                   value={it.label}
                   onSelect={() => handleSelect(it)}
-                  className={idx === activeIndex ? 'bg-muted' : undefined}
+                  className={cn(
+                    'relative flex w-full cursor-default items-center gap-2 py-3 pr-8 pl-4 text-sm/[20px] leading-[28px] outline-hidden select-none text-[#111] data-[selected]:bg-[#F4F4F4] data-[selected]:text-[#111]',
+                    idx === activeIndex ? 'bg-[#F4F4F4]' : undefined
+                  )}
                 >
                   {renderItem ? renderItem(it, idx === activeIndex) : it.label}
                 </CommandItem>

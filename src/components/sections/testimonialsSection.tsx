@@ -98,21 +98,21 @@ function Card({ item }: { item: Testimonial }) {
 export default function TestimonialsSection() {
   return (
     <section aria-labelledby='testimonials-heading' className='md:full-bleed'>
-      <div className='text-center mb-8'>
+      <div className='text-left md:text-center mb-8'>
         <h2
           id='testimonials-heading'
-          className='text-[40px]/[48px] md:text-[48px] font-bold'
+          className='text-[40px]/[48px] md:text-[48px] font-bold mb-4 md:mb-0'
         >
           Oni nam zaufali, bądź następny.
         </h2>
-        <p className='mt-3 text-gray-500 max-w-[760px] mx-auto'>
+        <p className='text-gray-500 max-w-[760px] mx-auto'>
           Każda opinia ma dla nas znaczenie. To dzięki naszym klientom wiemy, że
           robimy dobrą robotę. Zobacz, co mówią osoby, które skorzystały z
           naszej platformy i przekonaj się, dlaczego warto nam zaufać.
         </p>
       </div>
 
-      <div className='marquee-viewport [--row-gap:24px] space-y-6 pb-12 full-bleed'>
+      <div className='marquee-viewport pt-4 [--row-gap:24px] space-y-6 pb-6 full-bleed'>
         <div
           className='group relative'
           onMouseEnter={e =>

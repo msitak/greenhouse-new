@@ -277,6 +277,13 @@ a {
 
 .marquee-viewport {
   overflow: hidden;
+  --marquee-duration: 45s;
+}
+
+@media (min-width: 768px) {
+  .marquee-viewport {
+    --marquee-duration: 90s;
+  }
 }
 
 .marquee-track {
@@ -287,11 +294,11 @@ a {
 }
 
 .animate-marquee-left {
-  animation: marquee-left 45s linear infinite;
+  animation: marquee-left var(--marquee-duration) linear infinite;
 }
 
 .animate-marquee-right {
-  animation: marquee-right 45s linear infinite;
+  animation: marquee-right var(--marquee-duration) linear infinite;
 }
 
 .is-paused {
