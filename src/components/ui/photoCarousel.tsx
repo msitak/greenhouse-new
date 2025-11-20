@@ -12,6 +12,7 @@ import {
 import { ListingImageApiResponse } from '@/types/api.types';
 import { cn } from '@/lib/utils';
 import { Star } from 'lucide-react';
+import { Lightbox } from './lightbox';
 
 type PhotoCarouselProps = {
   images: ListingImageApiResponse[];
@@ -20,6 +21,8 @@ type PhotoCarouselProps = {
   isReservation?: boolean;
   isSpecial?: boolean;
   overlayRoundedBottom?: boolean;
+  withLightbox?: boolean;
+  onImageClick?: (index: number) => void;
   children?: React.ReactNode; // custom overlays (e.g., AgentBadge, Favorite)
 };
 
@@ -30,6 +33,8 @@ export default function PhotoCarousel({
   isReservation = false,
   isSpecial = false,
   overlayRoundedBottom = true,
+  withLightbox = false,
+  onImageClick,
   children,
 }: PhotoCarouselProps) {
   const safeImages = images?.length
@@ -52,6 +57,8 @@ export default function PhotoCarousel({
 
   const [api, setApi] = React.useState<CarouselApi | null>(null);
   const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [lightboxOpen, setLightboxOpen] = React.useState(false);
+  const [lightboxIndex, setLightboxIndex] = React.useState(0);
 
   React.useEffect(() => {
     if (!api) return;
@@ -64,6 +71,15 @@ export default function PhotoCarousel({
   }, [api]);
 
   const totalSlides = safeImages.length;
+
+  const handleImageClick = (index: number) => {
+    if (onImageClick) {
+      onImageClick(index);
+    } else if (withLightbox) {
+      setLightboxIndex(index);
+      setLightboxOpen(true);
+    }
+  };
 
   return (
     <div
@@ -79,16 +95,24 @@ export default function PhotoCarousel({
         >
           {safeImages.map((image, index) => (
             <CarouselItem key={index}>
-              <Image
-                src={image.urlOriginal || image.urlNormal}
-                alt={image.description ?? `offer image ${index + 1}`}
-                width={1920}
-                height={1080}
-                quality={90}
-                priority={index === 0}
-                sizes='(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px'
-                className={cn('w-full object-cover', imageClassName)}
-              />
+              <div
+                className={cn(
+                  'relative w-full h-full',
+                  (withLightbox || onImageClick) && 'cursor-pointer'
+                )}
+                onClick={() => handleImageClick(index)}
+              >
+                <Image
+                  src={image.urlOriginal || image.urlNormal}
+                  alt={image.description ?? `offer image ${index + 1}`}
+                  width={1920}
+                  height={1080}
+                  quality={90}
+                  priority={index === 0}
+                  sizes='(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px'
+                  className={cn('w-full object-cover', imageClassName)}
+                />
+              </div>
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -157,6 +181,15 @@ export default function PhotoCarousel({
           </div>
         )}
       </Carousel>
+
+      {withLightbox && (
+        <Lightbox
+          images={safeImages}
+          initialIndex={lightboxIndex}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
     </div>
   );
 }
