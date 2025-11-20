@@ -16,30 +16,18 @@ type LocationSuggestion = AutocompleteItem & {
   primary: string;
   badge: string;
   city?: string;
+  count?: number;
 };
 
 const PRIMARY_CITY = 'Częstochowa';
-const SUGGESTION_LIMIT = 12;
+const DESKTOP_SUGGESTION_LIMIT = 7;
+const MOBILE_SUGGESTION_LIMIT = 5;
 
 const normalizeText = (value: string) =>
   value
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
-
-const DISTRICT_SUGGESTIONS: LocationSuggestion[] = OFFICIAL_DISTRICTS.map(
-  district => {
-    const primary = formatDistrictName(district);
-    return {
-      id: `district-${normalizeText(primary)}`,
-      label: `${primary}, ${PRIMARY_CITY}`,
-      kind: 'district',
-      primary,
-      badge: `Dzielnica • ${PRIMARY_CITY}`,
-      city: PRIMARY_CITY,
-    };
-  }
-);
 
 function buildLocationValue(option: LocationSuggestion): LocationValue {
   const addressComponents =
@@ -84,7 +72,65 @@ export function LocationCombobox({
   placeholder?: string;
 }) {
   const [cityNames, setCityNames] = React.useState<string[]>([PRIMARY_CITY]);
+  const [cityCounts, setCityCounts] = React.useState<Record<string, number>>(
+    () => ({ [normalizeText(PRIMARY_CITY)]: 0 })
+  );
+  const [districtCounts, setDistrictCounts] = React.useState<
+    Record<string, number>
+  >({});
   const [inputValue, setInputValue] = React.useState(value?.label ?? '');
+  const [isDesktop, setIsDesktop] = React.useState<boolean>(() => {
+    if (typeof window === 'undefined') {
+      return true;
+    }
+    return window.matchMedia('(min-width: 768px)').matches;
+  });
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
+    const handler = (event: MediaQueryListEvent) => setIsDesktop(event.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  React.useEffect(() => {
+    const controller = new AbortController();
+
+    async function fetchDistricts() {
+      try {
+        const response = await fetch('/api/listings/districts-count', {
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const payload = await response.json();
+        const rows: Array<{ district?: string | null; count?: number }> =
+          Array.isArray(payload?.data) ? payload.data : [];
+        const counts: Record<string, number> = {};
+        for (const row of rows) {
+          const pretty = row?.district ? formatDistrictName(row.district) : '';
+          if (!pretty) continue;
+          const key = normalizeText(pretty);
+          counts[key] = typeof row?.count === 'number' ? row.count : 0;
+        }
+        if (!controller.signal.aborted) {
+          setDistrictCounts(counts);
+        }
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return;
+        }
+        console.warn('Failed to fetch district suggestions', error);
+      }
+    }
+
+    fetchDistricts();
+    return () => controller.abort();
+  }, []);
 
   React.useEffect(() => {
     setInputValue(value?.label ?? '');
@@ -102,13 +148,11 @@ export function LocationCombobox({
           throw new Error(`HTTP ${response.status}`);
         }
         const payload = await response.json();
-        const rows: Array<{ city?: string | null }> = Array.isArray(
-          payload?.data
-        )
-          ? payload.data
-          : [];
+        const rows: Array<{ city?: string | null; count?: number }> =
+          Array.isArray(payload?.data) ? payload.data : [];
         const seen = new Set<string>();
         const formatted: string[] = [];
+        const counts: Record<string, number> = {};
         for (const row of rows) {
           const raw = row?.city?.trim();
           if (!raw) continue;
@@ -117,13 +161,18 @@ export function LocationCombobox({
           if (seen.has(key)) continue;
           seen.add(key);
           formatted.push(pretty);
+          counts[key] = typeof row?.count === 'number' ? row.count : 0;
         }
         const czestochowaKey = normalizeText(PRIMARY_CITY);
         if (!seen.has(czestochowaKey)) {
           formatted.unshift(PRIMARY_CITY);
+          if (!(czestochowaKey in counts)) {
+            counts[czestochowaKey] = 0;
+          }
         }
         if (!controller.signal.aborted && formatted.length) {
           setCityNames(formatted);
+          setCityCounts(counts);
         }
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') {
@@ -149,35 +198,96 @@ export function LocationCombobox({
         seen.add(key);
         return true;
       })
-      .map(name => ({
-        id: `city-${normalizeText(name)}`,
-        label: name,
-        kind: 'city' as const,
-        primary: name,
-        badge: 'Miasto',
-        city: name,
-      }));
-  }, [cityNames]);
+      .map(name => {
+        const key = normalizeText(name);
+        return {
+          id: `city-${key}`,
+          label: name,
+          kind: 'city' as const,
+          primary: name,
+          badge: 'Miasto',
+          city: name,
+          count: cityCounts[key] ?? 0,
+        };
+      });
+  }, [cityCounts, cityNames]);
+
+  const districtSuggestions = React.useMemo<LocationSuggestion[]>(
+    () =>
+      OFFICIAL_DISTRICTS.map(district => {
+        const primary = formatDistrictName(district);
+        const key = normalizeText(primary);
+        return {
+          id: `district-${key}`,
+          label: `${primary}, ${PRIMARY_CITY}`,
+          kind: 'district' as const,
+          primary,
+          badge: `Dzielnica • ${PRIMARY_CITY}`,
+          city: PRIMARY_CITY,
+          count: districtCounts[key] ?? 0,
+        };
+      }),
+    [districtCounts]
+  );
 
   const suggestions = React.useMemo(
-    () => [...citySuggestions, ...DISTRICT_SUGGESTIONS],
-    [citySuggestions]
+    () => [...citySuggestions, ...districtSuggestions],
+    [citySuggestions, districtSuggestions]
   );
+
+  const suggestionLimit = isDesktop
+    ? DESKTOP_SUGGESTION_LIMIT
+    : MOBILE_SUGGESTION_LIMIT;
 
   const filteredItems = React.useMemo(() => {
     const trimmed = inputValue.trim();
     if (!trimmed) {
       return [];
     }
-    const query = normalizeText(trimmed);
-    return suggestions
+    const normalizedQuery = normalizeText(trimmed);
+    const matches = suggestions
+      .map(option => {
+        const normalizedLabel = normalizeText(option.label);
+        const normalizedPrimary = normalizeText(option.primary);
+        const isMatch =
+          normalizedPrimary.includes(normalizedQuery) ||
+          normalizedLabel.includes(normalizedQuery);
+        if (!isMatch) {
+          return null;
+        }
+        const primaryStartsWith = normalizedPrimary.startsWith(normalizedQuery)
+          ? 1
+          : 0;
+        return {
+          option,
+          primaryStartsWith,
+          count: option.count ?? 0,
+          normalizedPrimary,
+        };
+      })
       .filter(
-        option =>
-          normalizeText(option.primary).includes(query) ||
-          normalizeText(option.label).includes(query)
+        (
+          value
+        ): value is {
+          option: LocationSuggestion;
+          primaryStartsWith: number;
+          count: number;
+          normalizedPrimary: string;
+        } => value !== null
       )
-      .slice(0, SUGGESTION_LIMIT);
-  }, [inputValue, suggestions]);
+      .sort((a, b) => {
+        if (b.primaryStartsWith !== a.primaryStartsWith) {
+          return b.primaryStartsWith - a.primaryStartsWith;
+        }
+        if (b.count !== a.count) {
+          return b.count - a.count;
+        }
+        return a.normalizedPrimary.localeCompare(b.normalizedPrimary);
+      })
+      .map(entry => entry.option);
+
+    return matches.slice(0, suggestionLimit);
+  }, [inputValue, suggestionLimit, suggestions]);
 
   return (
     <Autocomplete
@@ -202,7 +312,10 @@ export function LocationCombobox({
       renderItem={item => (
         <span className='flex flex-col text-left'>
           <span className='font-medium text-sm text-[#111]'>
-            {item.primary}
+            {item.primary}{' '}
+            <span className='text-xs text-muted-foreground'>
+              ({item.count ?? 0})
+            </span>
           </span>
           <span className='text-xs text-muted-foreground'>{item.badge}</span>
         </span>
