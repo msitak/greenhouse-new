@@ -1,6 +1,6 @@
 import ListingRow from '@/components/listings/ListingRow';
 import { prisma } from '@/services/prisma';
-import { AsariStatus, Prisma } from '@/generated/client';
+import { AsariStatus, Prisma } from '@/generated/client/client';
 import { ListingApiResponse } from '@/types/api.types';
 
 const PAGE_SIZE = 10;

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { AsariStatus } from '@/generated/client';
+import { AsariStatus } from '@/generated/client/client';
 import { prisma } from '@/services/prisma';
 
 export async function GET() {
