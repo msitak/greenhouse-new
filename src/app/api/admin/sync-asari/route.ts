@@ -8,7 +8,7 @@ import {
   AsariListingIdEntry,
 } from '@/services/asariApi.types';
 import { prisma } from '@/services/prisma';
-import { AsariStatus, Prisma } from '@prisma/client';
+import { AsariStatus, Prisma } from '@/generated/client';
 import { generateListingSlug } from '@/lib/utils';
 import {
   formatDistrictName,

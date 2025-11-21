@@ -6,7 +6,7 @@ import ListingsSection from './ListingsSection';
 import { Button } from '@/components/ui/button';
 import { Map } from 'lucide-react';
 import { prisma } from '@/services/prisma';
-import { AsariStatus, Prisma } from '@prisma/client';
+import { AsariStatus, Prisma } from '@/generated/client';
 // import { ListingApiResponse } from '@/types/api.types';
 import SortSelect from './SortSelect';
 import Pagination from '@/components/ui/pagination';

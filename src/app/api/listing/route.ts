@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/services/prisma';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@/generated/client';
 
 // Define a type for allowed sortable fields for better type safety
 type SortableListingFields =

@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { prisma } from '@/services/prisma';
-import { Listing, ListingImage, AsariStatus } from '@prisma/client'; // Upewnij się, że AsariStatus jest importowane
+import { Listing, ListingImage, AsariStatus } from '@/generated/client'; // Upewnij się, że AsariStatus jest importowane
 
 const API_BASE_URL = 'http://localhost:3000/api';
 

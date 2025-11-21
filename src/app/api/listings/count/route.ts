@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { AsariStatus, Prisma } from '@prisma/client';
+import { AsariStatus, Prisma } from '@/generated/client';
 import { prisma } from '@/services/prisma';
 import { parseKind } from '@/lib/utils';
 

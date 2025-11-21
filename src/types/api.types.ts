@@ -1,6 +1,6 @@
 // src/types/api.types.ts
 
-import { Listing, ListingImage } from '@prisma/client';
+import { Listing, ListingImage } from '@/generated/client';
 
 type WithStringDates<T> = {
   [K in keyof T]: T[K] extends Date | null ? string | null : T[K];

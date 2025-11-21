@@ -12,7 +12,7 @@ import { notFound } from 'next/navigation';
 import { formatPrice } from '@/lib/utils';
 import { ListingApiResponse } from '@/types/api.types';
 import { prisma } from '@/services/prisma';
-import { AsariStatus } from '@prisma/client';
+import { AsariStatus } from '@/generated/client';
 import ListingGallery from '@/components/listings/ListingGallery';
 
 type PageProps = {

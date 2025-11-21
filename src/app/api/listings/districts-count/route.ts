@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { AsariStatus } from '@prisma/client';
+import { AsariStatus } from '@/generated/client';
 import { prisma } from '@/services/prisma';
 import { formatDistrictName } from '@/lib/location/districts';
 

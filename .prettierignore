@@ -103,6 +103,7 @@ Thumbs.db
 
 # Prisma
 prisma/migrations/
+src/generated/
 
 # Package files
 package-lock.json

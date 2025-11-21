@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/services/prisma';
 import { fetchUserList } from '@/services/asariApi';
 import { generateAgentSlug, getAgentImagePath } from '@/lib/utils/agent';
-import type { Prisma } from '@prisma/client';
+import type { Prisma } from '@/generated/client';
 
 function isAuthorized(request: Request): boolean {
   const tokenFromHeader = request.headers.get('x-admin-token');
