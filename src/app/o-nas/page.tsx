@@ -11,6 +11,9 @@ import {
 import { prisma } from '@/services/prisma';
 import type { AgentInfo } from '@/types/api.types';
 
+// Force dynamic rendering to avoid database timeouts during build
+export const dynamic = 'force-dynamic';
+
 async function getAgents(): Promise<AgentInfo[]> {
   try {
     const agents = await prisma.agent.findMany({
