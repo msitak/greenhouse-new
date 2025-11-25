@@ -51,12 +51,20 @@ function toOptionalString(value?: string | number | null): string | null {
   return String(value);
 }
 
-function stripTrailingHouseNumber(address?: string | null): string | null {
-  if (!address) return null;
-  const trimmed = address.trim();
-  if (!trimmed) return null;
-  const withoutHouseNumber = trimmed.replace(/\s+\d[\d/\\-]*.*$/, '').trim();
-  return withoutHouseNumber || trimmed || null;
+function toOptionalNumber(value?: string | number | null): number | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value === 'number') {
+    return Number.isNaN(value) ? null : value;
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const parsed = parseInt(trimmed, 10);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+  return null;
 }
 
 function extractFirstNumber(value?: string | null): string | null {
@@ -66,12 +74,7 @@ function extractFirstNumber(value?: string | null): string | null {
 }
 
 function deriveStreetName(detail: AsariListingDetail): string | null {
-  return (
-    trimOrNull(detail.street?.name) ??
-    trimOrNull(detail.street?.fullName) ??
-    stripTrailingHouseNumber(detail.location?.address) ??
-    null
-  );
+  return trimOrNull(detail.street?.name);
 }
 
 function deriveStreetNumberFallback(detail: AsariListingDetail): string | null {
@@ -147,8 +150,11 @@ async function mapAsariDetailToPrismaListing(
   const { isVisible, soldAt } = deriveVisibility(asariStatus, lastUpdatedAsari);
 
   const streetNameForLocation = deriveStreetName(asariDetail);
-  const streetNumberRaw = toOptionalString(asariDetail.location?.street_no);
-  const streetNumberFallback = deriveStreetNumberFallback(asariDetail);
+  const streetNumberRaw = toOptionalNumber(asariDetail.houseNumber);
+  const streetNumberFallbackStr = deriveStreetNumberFallback(asariDetail);
+  const streetNumberFallback = streetNumberFallbackStr
+    ? toOptionalNumber(streetNumberFallbackStr)
+    : null;
   const streetNumberForNormalization = streetNumberRaw ?? streetNumberFallback;
   const flatNumber = toOptionalString(asariDetail.location?.flat_no);
   const normalizedCity = trimOrNull(asariDetail.location?.locality);
@@ -156,7 +162,7 @@ async function mapAsariDetailToPrismaListing(
     normalizedCity,
     trimOrNull(asariDetail.location?.quarter),
     streetNameForLocation,
-    streetNumberForNormalization
+    streetNumberForNormalization?.toString() ?? null
   );
   const fallbackDistrict = trimOrNull(asariDetail.location?.quarter);
   const effectiveDistrict =
@@ -186,6 +192,7 @@ async function mapAsariDetailToPrismaListing(
     virtualTourUrl: asariDetail.virtualTourUrl ?? null,
     isVisible,
     soldAt,
+    isReservation: asariDetail.customField_32413 ?? null,
     title: asariDetail.headerAdvertisement,
     description: asariDetail.description,
     privateDescription: asariDetail.privateDescription,

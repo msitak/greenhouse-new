@@ -306,6 +306,8 @@ export interface AsariListingDetail {
   price_currency_id?: number; // Jest w price.currency
   transaction_type_id?: number; // Nie ma w tym JSONie
   market_type_id?: number; // Jest mortgageMarket jako string
+  houseNumber?: string | null; // Numer domu bezpośrednio z danych
+  customField_32413?: boolean | null; // Czy jest rezerwacja
 }
 
 export interface ListingDetailsApiResponse {

@@ -53,7 +53,7 @@ model Listing {
   locationCity          String?
   locationDistrict      String?
   locationStreet        String?
-  locationStreetNumber  String?
+  locationStreetNumber  Int?
   locationFlatNumber    String?
   locationPostalCode    String?
   locationCountryId     Int?
@@ -99,6 +99,7 @@ model Listing {
   asariStatus           AsariStatus    @default(Draft)
   isVisible             Boolean        @default(true)
   soldAt                DateTime?
+  isReservation         Boolean?
   images                ListingImage[]
 
   @@index([asariId])

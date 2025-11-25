@@ -197,6 +197,7 @@ export default async function ListingsSection({
       floorCount: true,
       additionalDetailsJson: true,
       privateDescription: true,
+      isReservation: true,
       images: {
         select: {
           urlThumbnail: true,
@@ -216,7 +217,7 @@ export default async function ListingsSection({
         <ListingRow
           key={l.id}
           listing={l}
-          isReservation={false}
+          isReservation={l.isReservation === true}
           isSpecial={false}
         />
       ))}
