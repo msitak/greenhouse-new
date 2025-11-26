@@ -20,6 +20,7 @@ const ASARI_IMAGE_BASE_URL_THUMBNAIL = 'https://img.asariweb.pl/thumbnail/';
 const ASARI_IMAGE_BASE_URL_NORMAL = 'https://img.asariweb.pl/normal/';
 const ASARI_IMAGE_BASE_URL_ORIGINAL = 'https://img.asariweb.pl/original/';
 const CLOSED_LISTING_WINDOW_DAYS = 7;
+const MAX_EXECUTION_TIME_MS = 270 * 1000; // 4.5 minutes
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -307,6 +308,9 @@ async function mapAsariDetailToPrismaListing(
 }
 
 export async function POST(request: Request) {
+  const startTime = Date.now();
+  let timeLimitReached = false;
+
   if (!validateSyncToken(request)) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
@@ -367,6 +371,14 @@ export async function POST(request: Request) {
     }
 
     for (const asariListingInfo of allAsariListingsInfo) {
+      if (Date.now() - startTime > MAX_EXECUTION_TIME_MS) {
+        console.warn(
+          '[sync-asari] Time limit reached, stopping sync gracefully.'
+        );
+        timeLimitReached = true;
+        break;
+      }
+
       try {
         const existingListing = await prisma.listing.findUnique({
           where: { asariId: asariListingInfo.id },
@@ -392,7 +404,7 @@ export async function POST(request: Request) {
         console.log(
           `Pobieranie szczegółów dla oferty Asari ID: ${asariListingInfo.id}...`
         );
-        await delay(3000);
+        await delay(2500);
 
         const detailsResponse = await fetchListingDetails(asariListingInfo.id);
         if (!detailsResponse.success || !detailsResponse.data) {
@@ -465,7 +477,10 @@ export async function POST(request: Request) {
     );
 
     return NextResponse.json({
-      message: 'Synchronizacja zakończona.',
+      message: timeLimitReached
+        ? 'Synchronizacja przerwana (limit czasu)'
+        : 'Synchronizacja zakończona.',
+      isPartial: timeLimitReached,
       totalAsariOffers: allAsariListingsInfo.length,
       created: createdCount,
       updated: updatedCount,
