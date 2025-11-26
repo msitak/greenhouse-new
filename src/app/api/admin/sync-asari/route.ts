@@ -110,16 +110,24 @@ async function mapAsariDetailToPrismaListing(
   // Best-effort derivation of offer type when ASARI doesn't provide it directly
   const deriveOfferType = (detail: AsariListingDetail): string | null => {
     // ASARI docs: `section` contains canonical values like ApartmentSale, HouseRental, ...
+    // Fallback to sectionName if section is empty
     const section =
-      typeof detail.section === 'string' ? detail.section.trim() : '';
-    if (!section) return null;
+      (typeof detail.section === 'string' && detail.section.trim()) ||
+      (typeof detail.sectionName === 'string' && detail.sectionName.trim()) ||
+      '';
+
+    if (!section) return 'Unknown';
+
     // If it ends with Sale/Rental keep it verbatim, our filters use endsWith('Sale'|'Rental')
     if (/([A-Za-z]+)?(Sale|Rental)$/i.test(section)) return section;
+
     const lc = section.toLowerCase();
     if (lc.includes('rent')) return 'Rental';
     if (lc.includes('sale')) return 'Sale';
-    return null;
+
+    return 'Unknown';
   };
+
   const mapStatus = (status?: string | null): AsariStatus => {
     if (!status) {
       return AsariStatus.Unknown;
@@ -391,6 +399,7 @@ export async function POST(request: Request) {
 
         const needsOfferTypeBackfill =
           existingListing && !existingListing.offerType;
+
         if (
           asariLastUpdatedDate &&
           existingListing?.lastUpdatedAsari &&
