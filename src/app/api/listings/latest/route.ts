@@ -68,6 +68,7 @@ export async function GET(request: Request) {
         agentSurname: true,
         locationCity: true,
         locationStreet: true,
+        isReservation: true,
         images: {
           select: {
             urlThumbnail: true,

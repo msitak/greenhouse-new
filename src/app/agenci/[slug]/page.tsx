@@ -107,6 +107,7 @@ export default async function AgentPage({ params, searchParams }: PageProps) {
     roomsCount: listing.roomsCount,
     floor: listing.floor,
     offerType: listing.offerType,
+    isReservation: listing.isReservation,
     agentName: `${agent.name} ${agent.surname}`,
     agentSurname: null,
     locationCity: listing.locationCity,

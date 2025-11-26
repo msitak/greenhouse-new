@@ -13,7 +13,7 @@ import {
   CarouselNext,
   type CarouselApi,
 } from '../ui/carousel';
-import { formatPrice, formatFloor } from '@/lib/utils';
+import { formatPrice, formatFloor, cn } from '@/lib/utils';
 import {
   ChevronRight,
   Layers,
@@ -38,6 +38,7 @@ export type OfferTileListing = {
   agentSurname: string | null;
   locationCity: string | null;
   locationStreet: string | null;
+  isReservation?: boolean | null;
   images: {
     urlNormal: string | null;
     urlThumbnail: string | null;
@@ -136,8 +137,16 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
 
   return (
     <div className='relative rounded-2xl w-full overflow-hidden bg-white shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]'>
-      <Carousel className='w-full' setApi={setApi}>
-        <CarouselContent>
+      <Carousel
+        className='w-full'
+        setApi={setApi}
+        disableKeyboard={listing.isReservation === true}
+      >
+        <CarouselContent
+          viewportClassName={
+            listing.isReservation ? 'pointer-events-none' : undefined
+          }
+        >
           {images.map((image, index) => (
             <CarouselItem key={index}>
               <div
@@ -172,42 +181,51 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
 
         <div className='pointer-events-none absolute inset-x-0 bottom-0 h-[36px] bg-[#00000026] backdrop-blur-sm bg-gradient-to-t from-black/55 to-black/0' />
 
-        <div className='absolute inset-x-0 bottom-0 flex items-center justify-between px-4 py-2 text-white'>
-          <span className='flex items-baseline gap-0.5'>
-            <span className='text-sm font-medium'>{currentIndex + 1}</span>
-            <span className='text-xs font-normal'>/{totalSlides}</span>
-          </span>
-          <div className='flex items-center gap-1.5 mx-auto'>
-            {limitedIndicators.map((_, index) => {
-              const isActive =
-                totalSlides <= MAX_INDICATORS
-                  ? index === currentIndex
-                  : index < MAX_INDICATORS - 1
-                    ? index === currentIndex
-                    : currentIndex >= MAX_INDICATORS - 1;
-
-              return (
-                <button
-                  type='button'
-                  key={index}
-                  aria-label={`Przejdź do slajdu ${
-                    totalSlides <= MAX_INDICATORS || index < MAX_INDICATORS - 1
-                      ? index + 1
-                      : totalSlides
-                  }`}
-                  aria-current={isActive}
-                  onClick={() => handleIndicatorClick(index)}
-                  className={`rounded-full cursor-pointer outline-none focus-visible:ring-[2px] focus-visible:ring-white/60 ${
-                    isActive
-                      ? 'h-1.5 w-1.5 bg-green-primary'
-                      : 'h-1 w-1 bg-white/70'
-                  }`}
-                />
-              );
-            })}
+        {listing.isReservation ? (
+          <div className='absolute inset-x-0 bottom-0'>
+            <div className='w-full h-[36px] flex items-center justify-center bg-yellow-400 text-black font-bold uppercase tracking-wide text-xs'>
+              REZERWACJA
+            </div>
           </div>
-          <CarouselNext className='pointer-events-auto right-1.5 bottom-1.5 top-auto -translate-y-0 hover:bg-white hover:text-[#1E1E1E]' />
-        </div>
+        ) : (
+          <div className='absolute inset-x-0 bottom-0 flex items-center justify-between px-4 py-2 text-white'>
+            <span className='flex items-baseline gap-0.5'>
+              <span className='text-sm font-medium'>{currentIndex + 1}</span>
+              <span className='text-xs font-normal'>/{totalSlides}</span>
+            </span>
+            <div className='flex items-center gap-1.5 mx-auto'>
+              {limitedIndicators.map((_, index) => {
+                const isActive =
+                  totalSlides <= MAX_INDICATORS
+                    ? index === currentIndex
+                    : index < MAX_INDICATORS - 1
+                      ? index === currentIndex
+                      : currentIndex >= MAX_INDICATORS - 1;
+
+                return (
+                  <button
+                    type='button'
+                    key={index}
+                    aria-label={`Przejdź do slajdu ${
+                      totalSlides <= MAX_INDICATORS ||
+                      index < MAX_INDICATORS - 1
+                        ? index + 1
+                        : totalSlides
+                    }`}
+                    aria-current={isActive}
+                    onClick={() => handleIndicatorClick(index)}
+                    className={`rounded-full cursor-pointer outline-none focus-visible:ring-[2px] focus-visible:ring-white/60 ${
+                      isActive
+                        ? 'h-1.5 w-1.5 bg-green-primary'
+                        : 'h-1 w-1 bg-white/70'
+                    }`}
+                  />
+                );
+              })}
+            </div>
+            <CarouselNext className='pointer-events-auto right-1.5 bottom-1.5 top-auto -translate-y-0 hover:bg-white hover:text-[#1E1E1E]' />
+          </div>
+        )}
       </Carousel>
 
       <div className='p-4 relative'>
