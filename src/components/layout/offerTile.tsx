@@ -13,7 +13,7 @@ import {
   CarouselNext,
   type CarouselApi,
 } from '../ui/carousel';
-import { formatPrice, formatFloor, cn } from '@/lib/utils';
+import { formatPrice, formatFloor } from '@/lib/utils';
 import {
   ChevronRight,
   Layers,

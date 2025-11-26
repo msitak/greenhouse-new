@@ -43,6 +43,7 @@ model Listing {
   statusId              Int?
   title                 String?
   description           String?
+  aiSummary             String?
   privateDescription    String?
   englishDescription    String?
   internalComment       String?
