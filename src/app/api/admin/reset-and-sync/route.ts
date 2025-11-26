@@ -1,27 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/services/prisma';
-
-function isAuthorized(request: Request): boolean {
-  const tokenFromHeader = request.headers.get('x-admin-token');
-  const tokenFromEnv = process.env.ADMIN_RESET_TOKEN;
-
-  if (process.env.NODE_ENV !== 'production') {
-    // In dev, allow without token for convenience
-    return true;
-  }
-
-  return !!tokenFromEnv && tokenFromHeader === tokenFromEnv;
-}
+import { validateSyncToken } from '@/lib/api-auth';
 
 export async function POST(request: Request) {
-  if (!isAuthorized(request)) {
+  if (!validateSyncToken(request)) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const reqUrl = new URL(request.url);
     const base = `${reqUrl.protocol}//${reqUrl.host}`;
-    const authHeader = request.headers.get('x-admin-token') || '';
+    const authHeader = request.headers.get('Authorization') || '';
 
     // 1) Purge listings (images are ON DELETE CASCADE)
     const deleted = await prisma.listing.deleteMany({});
@@ -30,7 +19,7 @@ export async function POST(request: Request) {
     console.log('[reset-and-sync] Syncing agents...');
     const agentSyncRes = await fetch(`${base}/api/admin/sync-agents`, {
       method: 'POST',
-      headers: { 'x-admin-token': authHeader },
+      headers: { Authorization: authHeader },
       cache: 'no-store',
     });
     const agentSyncJson = await agentSyncRes.json().catch(() => ({}));
@@ -43,7 +32,7 @@ export async function POST(request: Request) {
     console.log('[reset-and-sync] Syncing listings...');
     const syncRes = await fetch(`${base}/api/admin/sync-asari`, {
       method: 'POST',
-      headers: { 'x-admin-token': authHeader },
+      headers: { Authorization: authHeader },
       cache: 'no-store',
     });
     const syncJson = await syncRes.json().catch(() => ({}));

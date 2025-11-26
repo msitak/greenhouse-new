@@ -3,20 +3,10 @@ import { prisma } from '@/services/prisma';
 import { fetchUserList } from '@/services/asariApi';
 import { generateAgentSlug, getAgentImagePath } from '@/lib/utils/agent';
 import type { Prisma } from '@/generated/client/client';
-
-function isAuthorized(request: Request): boolean {
-  const tokenFromHeader = request.headers.get('x-admin-token');
-  const tokenFromEnv = process.env.ADMIN_RESET_TOKEN;
-
-  if (process.env.NODE_ENV !== 'production') {
-    return true;
-  }
-
-  return !!tokenFromEnv && tokenFromHeader === tokenFromEnv;
-}
+import { validateSyncToken } from '@/lib/api-auth';
 
 export async function POST(request: Request) {
-  if (!isAuthorized(request)) {
+  if (!validateSyncToken(request)) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 

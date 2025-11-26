@@ -14,6 +14,7 @@ import {
   formatDistrictName,
   normalizeLocation,
 } from '@/lib/utils/district-normalization';
+import { validateSyncToken } from '@/lib/api-auth';
 
 const ASARI_IMAGE_BASE_URL_THUMBNAIL = 'https://img.asariweb.pl/thumbnail/';
 const ASARI_IMAGE_BASE_URL_NORMAL = 'https://img.asariweb.pl/normal/';
@@ -305,7 +306,11 @@ async function mapAsariDetailToPrismaListing(
   return prismaListingData;
 }
 
-export async function POST() {
+export async function POST(request: Request) {
+  if (!validateSyncToken(request)) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
   console.log('Rozpoczynanie synchronizacji ofert z Asari...');
   let createdCount = 0;
   let updatedCount = 0;
