@@ -10,24 +10,31 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { id, aiSummary } = body;
+    const { asariId, aiSummary } = body;
 
     // Validation
-    if (!id || typeof aiSummary !== 'string') {
+    if (
+      !asariId ||
+      typeof asariId !== 'number' ||
+      typeof aiSummary !== 'string'
+    ) {
       return NextResponse.json(
-        { error: 'Missing required fields: id and aiSummary (string)' },
+        {
+          error:
+            'Missing required fields: asariId (number) and aiSummary (string)',
+        },
         { status: 400 }
       );
     }
 
     // Database update
     await prisma.listing.update({
-      where: { id },
+      where: { asariId },
       data: {
         aiSummary: aiSummary.trim(),
       },
       select: {
-        id: true,
+        asariId: true,
       },
     });
 

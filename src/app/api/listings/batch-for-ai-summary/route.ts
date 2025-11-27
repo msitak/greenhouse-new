@@ -28,7 +28,7 @@ export async function GET(request: Request) {
         },
       },
       select: {
-        id: true,
+        asariId: true,
         title: true,
         description: true,
         roomsCount: true,
