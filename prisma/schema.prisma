@@ -40,39 +40,27 @@ model Listing {
   asariId               Int            @unique
   slug                  String         @unique
   exportId              String?
-  statusId              Int?
   title                 String?
   description           String?
   aiSummary             String?
-  privateDescription    String?
   englishDescription    String?
-  internalComment       String?
   price                 Float?
-  priceCurrencyId       Int?
   pricePerM2            Float?
   locationAddress       String?
   locationCity          String?
   locationDistrict      String?
   locationStreet        String?
+  locationFullStreet    String?
   locationStreetNumber  Int?
   locationFlatNumber    String?
-  locationPostalCode    String?
-  locationCountryId     Int?
   latitude              Float?
   longitude             Float?
   locationVoivodeship   String?
-  locationCounty        String?
-  locationCommunity     String?
   propertyTypeId        Int?
   area                  Float?
   roomsCount            Int?
   floor                 Int?
   floorCount            Int?
-  buildYear             Int?
-  buildingMaterialId    Int?
-  windowTypeId          Int?
-  heatingTypeId         Int?
-  marketTypeId          Int?
   propertyDetailsJson   Json?
   
   // NOWA RELACJA do Agent
@@ -82,10 +70,8 @@ model Listing {
   // STARE POLA - zachowane dla backward compatibility i synchronizacji z Asari
   agentAsariId          Int?
   agentName             String?
-  agentSurname          String?
   agentPhone            String?
   agentEmail            String?
-  agentSkypeUser        String?
   agentImageAsariId     Int?
   
   parentListingAsariId  String?

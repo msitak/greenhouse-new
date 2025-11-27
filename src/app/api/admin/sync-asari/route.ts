@@ -205,9 +205,7 @@ async function mapAsariDetailToPrismaListing(
     isReservation: asariDetail.customField_32413 ?? null,
     title: asariDetail.headerAdvertisement,
     description: asariDetail.description,
-    privateDescription: asariDetail.privateDescription,
     englishDescription: asariDetail.englishDescription,
-    internalComment: asariDetail.internal_comment,
     exportId: asariDetail.export_id,
     price: asariDetail.price?.amount,
     pricePerM2: asariDetail.priceM2?.amount,
@@ -216,6 +214,7 @@ async function mapAsariDetailToPrismaListing(
     locationDistrict: effectiveDistrict,
     locationStreet:
       streetNameForLocation ?? trimOrNull(asariDetail.street?.name),
+    locationFullStreet: trimOrNull(asariDetail.street?.fullName),
     locationStreetNumber: streetNumberForStorage,
     locationFlatNumber: flatNumber,
     latitude: asariDetail.geoLat,
@@ -262,13 +261,13 @@ async function mapAsariDetailToPrismaListing(
       sharedOwnership: asariDetail.sharedOwnership,
       groundSharedOwnership: asariDetail.groundSharedOwnership,
       ownListing: asariDetail.ownListing,
+      buildYear: null, // Not provided by Asari in current mapping, but kept for schema compat
     },
     agentAsariId: asariDetail.agent?.id,
     agentName:
       `${asariDetail.agent?.firstName || ''} ${asariDetail.agent?.lastName || ''}`.trim(),
     agentPhone: asariDetail.agent?.phoneNumber,
     agentEmail: asariDetail.agent?.email,
-    agentSkypeUser: asariDetail.agent?.skypeUser,
     agentImageAsariId: asariDetail.agent?.imageId,
     parentListingAsariId:
       typeof asariDetail.parentListing?.listingId === 'string'

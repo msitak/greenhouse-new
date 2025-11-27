@@ -16,6 +16,47 @@ type Props = {
   isSpecial?: boolean;
 };
 
+// Helper function to determine property type
+// Priority: 1) offerType (most reliable), 2) listingIdString parsing (fallback)
+function getPropertyTypeFromListing(
+  listing: ListingApiResponse
+): string | null {
+  // 1. Try mapping from offerType (most reliable source)
+  if (listing.offerType) {
+    const type = listing.offerType.toLowerCase();
+    if (type.includes('apartment')) return 'Mieszkanie';
+    if (type.includes('house')) return 'Dom';
+    if (type.includes('lot')) return 'Działka';
+    if (type.includes('commercial')) return 'Lokal';
+    if (type.includes('garage')) return 'Garaż';
+    if (type.includes('warehouse')) return 'Hala';
+    if (type.includes('office')) return 'Biuro';
+    if (type.includes('room')) return 'Pokój';
+  }
+
+  // 2. Fallback: Try parsing listingIdString
+  if (
+    listing.additionalDetailsJson &&
+    typeof listing.additionalDetailsJson === 'object'
+  ) {
+    const listingIdString = (
+      listing.additionalDetailsJson as { listingIdString?: string }
+    ).listingIdString;
+
+    if (listingIdString && typeof listingIdString === 'string') {
+      const parts = listingIdString.split('/');
+      const code = parts[parts.length - 1];
+
+      if (code.includes('OM')) return 'Mieszkanie';
+      if (code.includes('OD')) return 'Dom';
+      if (code.includes('OG')) return 'Działka';
+      if (code.includes('OL') || code.includes('BL')) return 'Lokal';
+    }
+  }
+
+  return null;
+}
+
 export default function ListingRow({
   listing,
   agentBadgeClassName,
@@ -48,6 +89,21 @@ export default function ListingRow({
           .locationDistrict ?? undefined,
     })
   }`;
+
+  // Construct formatted title: "PropertyType, Street, City"
+  const propertyType =
+    getPropertyTypeFromListing(listing) ||
+    (listing.propertyTypeId === 1
+      ? 'Mieszkanie' // Fallback basic mapping if propertyTypeId is available and consistent
+      : 'Nieruchomość');
+
+  const street = listing.locationStreet ? `ul. ${listing.locationStreet}` : '';
+  const city = listing.locationCity ?? '';
+
+  const formattedTitle = [propertyType, street, city]
+    .filter(Boolean)
+    .join(', ');
+
   return (
     <article className='w-full max-w-full overflow-hidden rounded-2xl border border-black/5 bg-white shadow-[0_8px_40px_0_rgba(164,167,174,0.12)] p-4 md:p-6'>
       <div className='grid grid-cols-1 md:gap-10 lg:grid-cols-[460px_minmax(0,1fr)]'>
@@ -84,13 +140,11 @@ export default function ListingRow({
               )}
             </div>
 
-            <h3 className='text-2xl font-extrabold leading-tight mb-2'>
-              {listing.title}
+            <h3 className='text-2xl font-semibold leading-tight mb-2'>
+              {formattedTitle}
             </h3>
 
-            <p className='text-gray-600 text-sm'>
-              {listing.privateDescription}
-            </p>
+            <p className='text-gray-600 text-sm'>{listing.aiSummary}</p>
 
             <div className='mt-auto pt-3 flex flex-wrap items-center gap-6 text-gray-700'>
               {listing.roomsCount ? (

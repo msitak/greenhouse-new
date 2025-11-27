@@ -185,6 +185,11 @@ export default async function ListingsSection({
       id: true,
       slug: true,
       title: true,
+      locationStreet: true,
+      locationCity: true,
+      locationDistrict: true,
+      asariId: true,
+      propertyTypeId: true,
       price: true,
       pricePerM2: true,
       offerType: true,
@@ -193,10 +198,9 @@ export default async function ListingsSection({
       floor: true,
       createdAtSystem: true,
       agentName: true,
-      agentSurname: true,
       floorCount: true,
       additionalDetailsJson: true,
-      privateDescription: true,
+      aiSummary: true,
       isReservation: true,
       images: {
         select: {

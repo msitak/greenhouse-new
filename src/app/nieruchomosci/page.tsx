@@ -226,7 +226,7 @@ export default async function Page({ searchParams }: PageProps) {
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
-    <div>
+    <div className='max-w-[1320px] mx-auto'>
       <div className='full-bleed relative h-[360px] md:h-[525px] overflow-hidden'>
         {/* Mobile: default object position */}
         <Image
