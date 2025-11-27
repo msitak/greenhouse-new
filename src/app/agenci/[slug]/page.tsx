@@ -109,7 +109,6 @@ export default async function AgentPage({ params, searchParams }: PageProps) {
     offerType: listing.offerType,
     isReservation: listing.isReservation,
     agentName: `${agent.name} ${agent.surname}`,
-    agentSurname: null,
     locationCity: listing.locationCity,
     locationStreet: listing.locationStreet,
     images: listing.images.map(img => ({

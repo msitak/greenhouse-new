@@ -65,7 +65,6 @@ export async function GET(request: Request) {
         floor: true,
         offerType: true,
         agentName: true,
-        agentSurname: true,
         locationCity: true,
         locationStreet: true,
         isReservation: true,

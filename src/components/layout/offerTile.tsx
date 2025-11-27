@@ -35,7 +35,6 @@ export type OfferTileListing = {
   floor: number | null;
   offerType: string | null;
   agentName: string | null;
-  agentSurname: string | null;
   locationCity: string | null;
   locationStreet: string | null;
   isReservation?: boolean | null;
