@@ -14,6 +14,7 @@ type Props = {
   agentBadgeClassName?: string;
   isReservation?: boolean;
   isSpecial?: boolean;
+  priority?: boolean;
 };
 
 // Helper function to determine property type
@@ -62,6 +63,7 @@ export default function ListingRow({
   agentBadgeClassName,
   isReservation = false,
   isSpecial = false,
+  priority = false,
 }: Props) {
   const formatAddedAgo = (
     dateStr?: string | null,
@@ -115,6 +117,8 @@ export default function ListingRow({
             isSpecial={isSpecial}
             imageClassName='h-[260px]'
             overlayRoundedBottom
+            priority={priority}
+            sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 460px'
           />
         </div>
 

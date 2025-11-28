@@ -24,6 +24,8 @@ type PhotoCarouselProps = {
   withLightbox?: boolean;
   onImageClick?: (index: number) => void;
   children?: React.ReactNode; // custom overlays (e.g., AgentBadge, Favorite)
+  priority?: boolean;
+  sizes?: string;
 };
 
 export default function PhotoCarousel({
@@ -36,6 +38,8 @@ export default function PhotoCarousel({
   withLightbox = false,
   onImageClick,
   children,
+  priority = false,
+  sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px',
 }: PhotoCarouselProps) {
   const safeImages = images?.length
     ? images.slice(0, 20)
@@ -108,8 +112,8 @@ export default function PhotoCarousel({
                   width={1920}
                   height={1080}
                   quality={90}
-                  priority={index === 0}
-                  sizes='(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px'
+                  priority={priority && index === 0}
+                  sizes={sizes}
                   className={cn('w-full object-cover', imageClassName)}
                 />
               </div>
