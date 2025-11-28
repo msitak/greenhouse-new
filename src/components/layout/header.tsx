@@ -101,11 +101,12 @@ const Header = () => {
       <header className='hidden lg:flex absolute mx-auto inset-x-0 top-6 rounded-2xl items-center shadow-[0_8px_40px_rgba(164,167,174,0.12)] h-16 z-50 w-[calc(100%-48px)] bg-white'>
         <div className='w-full flex justify-between pl-6'>
           <Image
-            className=''
+            className='h-8 w-auto mt-1'
             src='/logo.svg'
             alt='Green House logo'
-            width={80}
-            height={80}
+            width={0}
+            height={0}
+            sizes='100vw'
           />
           <div className='items-center flex gap-2 pr-6'>
             {navLinks.map(link => {

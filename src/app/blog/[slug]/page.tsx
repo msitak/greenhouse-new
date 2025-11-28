@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -90,7 +91,9 @@ export default async function Page({ params }: PageProps) {
       {/* Hero Image */}
 
       <div className='max-w-[1320px] mx-auto'>
-        <Breadcrumbs className='py-5' />
+        <Suspense fallback={null}>
+          <Breadcrumbs className='py-5' />
+        </Suspense>
 
         <div className='mt-10 relative h-[300px] md:h-[440px] overflow-hidden rounded-[20px]'>
           <Image

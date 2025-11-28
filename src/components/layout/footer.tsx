@@ -63,8 +63,10 @@ export default function Footer() {
             <Image
               src='/logo_white.svg'
               alt='Green House'
-              width={160}
-              height={80}
+              className='h-20 w-auto'
+              width={0}
+              height={0}
+              sizes='100vw'
             />
             <Button
               variant='outlineContrast'

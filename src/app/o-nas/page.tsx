@@ -1,3 +1,4 @@
+import { connection } from 'next/server';
 import Breadcrumbs from '@/components/ui/breadcrumbs';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,9 +11,6 @@ import {
 } from '@/components/ui/accordion';
 import { prisma } from '@/services/prisma';
 import type { AgentInfo } from '@/types/api.types';
-
-// Force dynamic rendering to avoid database timeouts during build
-export const dynamic = 'force-dynamic';
 
 async function getAgents(): Promise<AgentInfo[]> {
   try {
@@ -40,6 +38,7 @@ async function getAgents(): Promise<AgentInfo[]> {
 }
 
 export default async function Page() {
+  await connection();
   const agents = await getAgents();
   return (
     <div className='mt-22 mb-14'>
