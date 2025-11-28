@@ -20,6 +20,7 @@ type ListingGalleryProps = {
   calculatedPricePerM2: number | null;
   isLoading?: boolean;
   isReservation?: boolean;
+  isSold?: boolean;
 };
 
 export default function ListingGallery({
@@ -33,6 +34,7 @@ export default function ListingGallery({
   calculatedPricePerM2,
   isLoading = false,
   isReservation = false,
+  isSold = false,
 }: ListingGalleryProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -66,6 +68,7 @@ export default function ListingGallery({
                 onImageClick={openLightbox}
                 withLightbox={false} // Controlled externally via onImageClick
                 isReservation={isReservation}
+                isSold={isSold}
               />
             ) : (
               <div className='h-[462px] w-full bg-gray-200 flex items-center justify-center'>
@@ -167,6 +170,7 @@ export default function ListingGallery({
                 onImageClick={openLightbox}
                 withLightbox={false} // Controlled externally
                 isReservation={isReservation}
+                isSold={isSold}
               />
             ) : (
               <div className='h-[239px] w-full bg-gray-200 flex items-center justify-center'>

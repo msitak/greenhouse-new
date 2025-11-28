@@ -257,6 +257,7 @@ export default async function OfferPage({ params }: PageProps) {
         calculatedPricePerM2={calculatedPricePerM2}
         isLoading={isLoading}
         isReservation={listing.isReservation === true}
+        isSold={!!listing.soldAt}
       />
 
       {/* Mobile: Tabs section */}

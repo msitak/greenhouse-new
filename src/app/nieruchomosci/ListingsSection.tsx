@@ -202,6 +202,7 @@ export default async function ListingsSection({
       additionalDetailsJson: true,
       aiSummary: true,
       isReservation: true,
+      soldAt: true,
       images: {
         select: {
           urlThumbnail: true,

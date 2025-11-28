@@ -109,6 +109,7 @@ export default async function AgentPage(props: PageProps) {
     floor: listing.floor,
     offerType: listing.offerType,
     isReservation: listing.isReservation,
+    soldAt: listing.soldAt,
     agentName: `${agent.name} ${agent.surname}`,
     locationCity: listing.locationCity,
     locationStreet: listing.locationStreet,

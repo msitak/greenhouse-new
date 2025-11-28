@@ -114,6 +114,7 @@ export default function ListingRow({
           <PhotoCarousel
             images={listing.images}
             isReservation={isReservation}
+            isSold={!!listing.soldAt}
             isSpecial={isSpecial}
             imageClassName='h-[260px]'
             overlayRoundedBottom

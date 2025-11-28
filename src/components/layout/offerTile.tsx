@@ -38,6 +38,7 @@ export type OfferTileListing = {
   locationCity: string | null;
   locationStreet: string | null;
   isReservation?: boolean | null;
+  soldAt?: string | Date | null;
   images: {
     urlNormal: string | null;
     urlThumbnail: string | null;
@@ -134,16 +135,19 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
     api.scrollTo(totalSlides - 1);
   };
 
+  const isSold = !!listing.soldAt;
+  const isReservation = !isSold && listing.isReservation === true;
+
   return (
     <div className='relative rounded-2xl w-full overflow-hidden bg-white shadow-[0_8px_40px_0_rgba(164,167,174,0.12)]'>
       <Carousel
         className='w-full'
         setApi={setApi}
-        disableKeyboard={listing.isReservation === true}
+        disableKeyboard={isReservation || isSold}
       >
         <CarouselContent
           viewportClassName={
-            listing.isReservation ? 'pointer-events-none' : undefined
+            isReservation || isSold ? 'pointer-events-none' : undefined
           }
         >
           {images.map((image, index) => (
@@ -180,9 +184,15 @@ const OfferTile: React.FC<OfferTileProps> = ({ listing, isLoading }) => {
 
         <div className='pointer-events-none absolute inset-x-0 bottom-0 h-[36px] bg-[#00000026] backdrop-blur-sm bg-gradient-to-t from-black/55 to-black/0' />
 
-        {listing.isReservation ? (
+        {isSold ? (
           <div className='absolute inset-x-0 bottom-0'>
-            <div className='w-full h-[36px] flex items-center justify-center bg-yellow-400 text-black font-bold uppercase tracking-wide text-xs'>
+            <div className='w-full h-[36px] flex items-center justify-center bg-red-600 text-white font-bold uppercase tracking-wide text-base'>
+              SPRZEDANE
+            </div>
+          </div>
+        ) : isReservation ? (
+          <div className='absolute inset-x-0 bottom-0'>
+            <div className='w-full h-[36px] flex items-center justify-center bg-yellow-400 text-black font-bold uppercase tracking-wide text-base'>
               REZERWACJA
             </div>
           </div>

@@ -19,6 +19,7 @@ type PhotoCarouselProps = {
   className?: string;
   imageClassName?: string;
   isReservation?: boolean;
+  isSold?: boolean;
   isSpecial?: boolean;
   overlayRoundedBottom?: boolean;
   withLightbox?: boolean;
@@ -33,6 +34,7 @@ export default function PhotoCarousel({
   className,
   imageClassName,
   isReservation = false,
+  isSold = false,
   isSpecial = false,
   overlayRoundedBottom = true,
   withLightbox = false,
@@ -92,10 +94,12 @@ export default function PhotoCarousel({
       <Carousel
         className='w-full'
         setApi={setApi}
-        disableKeyboard={isReservation}
+        disableKeyboard={isReservation || isSold}
       >
         <CarouselContent
-          viewportClassName={isReservation ? 'pointer-events-none' : undefined}
+          viewportClassName={
+            isReservation || isSold ? 'pointer-events-none' : undefined
+          }
         >
           {safeImages.map((image, index) => (
             <CarouselItem key={index}>
@@ -139,15 +143,26 @@ export default function PhotoCarousel({
           )}
         />
 
-        {/* Bottom controls or reservation banner */}
-        {isReservation ? (
+        {/* Bottom controls or reservation/sold banner */}
+        {isSold ? (
           <div
             className={cn(
               'absolute inset-x-0 bottom-0',
               overlayRoundedBottom && 'rounded-b-xl'
             )}
           >
-            <div className='w-full bg-yellow-400 text-black text-center font-bold uppercase tracking-wide text-xs py-2'>
+            <div className='w-full h-[36px] flex items-center justify-center bg-red-600 text-white font-bold uppercase tracking-wide text-base'>
+              SPRZEDANE
+            </div>
+          </div>
+        ) : isReservation ? (
+          <div
+            className={cn(
+              'absolute inset-x-0 bottom-0',
+              overlayRoundedBottom && 'rounded-b-xl'
+            )}
+          >
+            <div className='w-full h-[36px] flex items-center justify-center bg-yellow-400 text-black font-bold uppercase tracking-wide text-base'>
               REZERWACJA
             </div>
           </div>

@@ -369,7 +369,6 @@ export async function POST(request: Request) {
         data: {
           asariStatus: AsariStatus.Archived,
           isVisible: false,
-          soldAt: null,
         },
       });
 
