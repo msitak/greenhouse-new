@@ -3,11 +3,16 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Play } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import PhotoCarousel from '@/components/ui/photoCarousel';
 import Loadable from '@/components/ui/loadable';
-import { Lightbox } from '@/components/ui/lightbox';
 import { ListingApiResponse, ListingImageApiResponse } from '@/types/api.types';
 import { formatPrice } from '@/lib/utils';
+
+const Lightbox = dynamic(
+  () => import('@/components/ui/lightbox').then(mod => mod.Lightbox),
+  { ssr: false }
+);
 
 type ListingGalleryProps = {
   listing: ListingApiResponse;
@@ -69,6 +74,7 @@ export default function ListingGallery({
                 withLightbox={false} // Controlled externally via onImageClick
                 isReservation={isReservation}
                 isSold={isSold}
+                priority={true}
               />
             ) : (
               <div className='h-[462px] w-full bg-gray-200 flex items-center justify-center'>
@@ -171,6 +177,7 @@ export default function ListingGallery({
                 withLightbox={false} // Controlled externally
                 isReservation={isReservation}
                 isSold={isSold}
+                priority={true}
               />
             ) : (
               <div className='h-[239px] w-full bg-gray-200 flex items-center justify-center'>

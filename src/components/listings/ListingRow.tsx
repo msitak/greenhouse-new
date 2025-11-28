@@ -119,7 +119,7 @@ export default function ListingRow({
             imageClassName='h-[260px]'
             overlayRoundedBottom
             priority={priority}
-            sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 460px'
+            sizes='(max-width: 1024px) 100vw, 460px'
           />
         </div>
 

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import {
   Carousel,
   CarouselContent,
@@ -12,7 +13,10 @@ import {
 import { ListingImageApiResponse } from '@/types/api.types';
 import { cn } from '@/lib/utils';
 import { Star } from 'lucide-react';
-import { Lightbox } from './lightbox';
+
+const Lightbox = dynamic(() => import('./lightbox').then(mod => mod.Lightbox), {
+  ssr: false,
+});
 
 type PhotoCarouselProps = {
   images: ListingImageApiResponse[];
