@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import './globals.css';
 import localFont from 'next/font/local';
@@ -46,7 +47,6 @@ const montserrat = Montserrat({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-montserrat',
-  weight: ['400', '500', '600', '700', '800'],
 });
 
 export default function RootLayout({
@@ -57,7 +57,9 @@ export default function RootLayout({
   return (
     <html lang='pl' className={`${satoshi.variable}`}>
       <body className={`${satoshi.className} ${montserrat.variable}`}>
-        <Header />
+        <Suspense fallback={null}>
+          <Header />
+        </Suspense>
         <main>
           {children}
           <SpeedInsights />

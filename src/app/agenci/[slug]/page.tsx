@@ -79,9 +79,10 @@ async function getAgentData(slug: string): Promise<AgentPageApiResponse> {
   return response.json();
 }
 
-export default async function AgentPage({ params, searchParams }: PageProps) {
+export default async function AgentPage(props: PageProps) {
+  const params = await props.params;
   const { slug } = await params;
-  const sp = (await searchParams) ?? {};
+  const sp = (await props.searchParams) ?? {};
   const pageParam = getFirst(sp, 'page');
   const requestedPage = Math.max(1, Number(pageParam) || 1);
   const kindParam = getFirst(sp, 'kind');

@@ -3,8 +3,6 @@ import { prisma } from '@/services/prisma';
 import { validateSyncToken } from '@/lib/api-auth';
 import { AsariStatus } from '@/generated/client/client';
 
-export const dynamic = 'force-dynamic';
-
 /**
  * Prepares data specifically for the n8n AI Summary Worker.
  * Fetches a batch of listings that need an AI-generated summary.

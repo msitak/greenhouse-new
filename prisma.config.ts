@@ -1,5 +1,5 @@
-// Load dotenv only in non-production environments (Vercel injects env vars directly)
-if (process.env.NODE_ENV !== 'production') {
+// Load dotenv if DATABASE_URL is missing
+if (!process.env.DATABASE_URL) {
   await import('dotenv/config');
 }
 

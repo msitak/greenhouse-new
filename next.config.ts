@@ -1,13 +1,13 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
+  cacheComponents: true,
   typescript: {
     ignoreBuildErrors: false,
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
+    qualities: [75, 90, 95, 100],
     remotePatterns: [
       {
         protocol: 'https',
